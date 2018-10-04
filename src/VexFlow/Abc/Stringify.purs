@@ -1,15 +1,16 @@
-module VexFlow.Abc.Stringify (keySignature, note, notes) where
+module VexFlow.Abc.Stringify (keySignature, musics) where
 
 -- | Convert between Abc types and VexFlow which are Strings
-import Prelude ((<>), ($), map, show)
+import Data.Abc
+
+import Data.Abc.Canonical (keySignatureAccidental)
+import Data.Abc.KeySignature (normaliseModalKey)
 import Data.Either (Either(..))
 import Data.String.Common (toLower)
 import Data.Traversable (sequence)
-import Data.Abc
-import Data.Abc.Canonical (keySignatureAccidental)
-import Data.Abc.KeySignature (normaliseModalKey)
-import VexFlow.Types (AbcContext, NoteSpec)
+import Prelude ((<>), ($), join, map, show)
 import VexFlow.Abc.Utils (dotCount, noteTicks)
+import VexFlow.Types (AbcContext, NoteSpec)
 
 
 pitch :: PitchClass -> Accidental -> Int -> String
@@ -39,6 +40,30 @@ keySignature ks =
   in
     show newks.pitchClass <> (keySignatureAccidental newks.accidental) <> modeStr
 
+
+-- | translate an array of ABC music (from a bar) to VexFlow notespecs
+musics :: AbcContext -> Array Music -> Either String (Array NoteSpec)
+musics context abcMusics =
+  map join $ sequence $ map (music context) abcMusics
+
+-- | translate any ABC music item that produces score to a VexFlow note
+-- | producing an empty array if it doesn't do so
+music :: AbcContext -> Music -> Either String (Array NoteSpec)
+music context m =
+  case m of
+    Note abcNote ->
+      let
+        eRes = note context abcNote
+      in
+        map (\n -> [n]) eRes
+    Rest dur ->
+      let
+        eRes = rest context dur
+      in
+        map (\n -> [n]) eRes
+    _ ->
+       Right []
+
 -- | translate an array of ABC notes to VexFlow notes
 notes :: AbcContext -> Array AbcNote -> Either String (Array NoteSpec)
 notes context abcNotes =
@@ -67,16 +92,35 @@ note context abcNote =
           }
       Left x -> Left x
 
-noteDur :: AbcContext -> NoteDuration -> Either String String
-noteDur ctx d =
-  duration ctx d
-
+-- | translate an ABC rest to a VexFlow note
+-- | which we'll position on the B stave line
+-- | failing if the duration cannot be translated
+rest :: AbcContext -> AbcRest -> Either String NoteSpec
+rest context abcRest =
+  let
+    edur = noteDur context abcRest.duration
+    key = pitch B Implicit 4
+  in
+    case edur of
+      Right dur ->
+        let
+          vexNote =
+            { clef : "treble"
+            , keys : [key]
+            , duration : (dur <> "r")
+            }
+        in Right
+          { vexNote : vexNote
+          , accidentals : []
+          , dots : [dotCount context abcRest.duration]
+          }
+      Left x -> Left x
 
 -- | translate a note or rest duration, wrapping in a Result which indicates an
 -- | unsupported duration.  This rounds values of 'short enough' note durations
 -- | to the nearest supported value
-duration :: AbcContext -> NoteDuration -> Either String String
-duration ctx d =
+noteDur :: AbcContext -> NoteDuration -> Either String String
+noteDur ctx d =
   case noteTicks ctx d of
     128 ->
       Right "w"
