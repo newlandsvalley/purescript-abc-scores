@@ -102,7 +102,7 @@ var wrapper = function() {
       beams.forEach(function(b) {b.setContext(context).draw()})
     },
 
-
+    // not complete and maybe not useful
     drawNotes: function (stave, notesSpec) {
       console.log(notesSpec);
       // var notes = notesSpec.map(new VF.StaveNote);
@@ -119,14 +119,28 @@ var wrapper = function() {
       voice.draw(context, stave);
     },
 
+    // make a stave note (n.b. this can represent a single note or a chord)
     makeStaveNote: function (noteSpec) {
-      return new VF.StaveNote(noteSpec);
+      var sn = new VF.StaveNote(noteSpec);
+      wrapper.addAccidentals (sn, noteSpec.accidentals);
+      return sn;
     },
 
     // auto-beaming based on the time signature
     beamGroup: function (abcContext) {
       return {groups: [new Vex.Flow.Fraction(abcContext.beatsPerBeam, abcContext.timeSignature.denominator)] };
+    },
+
+    // add the accidental(s) to the staveNote(s)
+    addAccidentals: function (staveNote, accidentals) {
+      accidentals.forEach (function (accidentalString, index) {
+        if (accidentalString) {
+          staveNote.addAccidental(index, new VF.Accidental(accidentalString));
+        }
+      });
     }
+
+
 
   }
 

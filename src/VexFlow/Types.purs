@@ -36,4 +36,5 @@ type VexNote =
   { clef :: String
   , keys :: Array String
   , duration :: String
+  , accidentals :: Array String
   }

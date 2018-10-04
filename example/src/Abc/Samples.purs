@@ -50,9 +50,9 @@ c d =
 
 
 
-bnat :: AbcNote
-bnat =
-  { pitchClass: B, accidental: Natural, octave: 4, duration: fromInt 1, tied: false }
+bf :: Int -> AbcNote
+bf d =
+  { pitchClass: B, accidental: Flat, octave: 4, duration: fromInt d, tied: false }
 
 
 f :: Int -> AbcNote
@@ -68,3 +68,7 @@ fnat =
 g :: Int ->  AbcNote
 g d =
   { pitchClass: G, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
+
+gs :: Int ->  AbcNote
+gs d =
+  { pitchClass: G, accidental: Sharp, octave: 4, duration: fromInt d, tied: false }

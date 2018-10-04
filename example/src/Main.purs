@@ -66,7 +66,7 @@ example2 = void $ do
   _ <- displayNotes context true stave [c 2, f 2, g 2, g 2, f 2, enat 1, b 1, f 2, g 2]
   _ <- displayStave stave
   stave1 <- newStave (staveConfig staveNo 1) eMinor
-  _ <- displayNotes context true stave1 [c 2, f 2, g 2, g 2, f 2, c 2, g 2, g 2]
+  _ <- displayNotes context true stave1 [c 2, f 2, bf 2, g 2, f 2, c 2, g 2, g 2]
   displayStave stave1
 
 -- | simple 2/4
@@ -94,7 +94,7 @@ example4 = void $ do
   _ <- displayNotes context true stave [c 4, f 1, f 1, g 1, g 1, f 2, g 2]
   _ <- displayStave stave
   stave1 <- newStave (staveConfig staveNo 1) eMinor
-  _ <- displayNotes context true stave1 [f 1, c 1, g 1, g 1, c 8]
+  _ <- displayNotes context true stave1 [f 1, c 1, g 1, g 1, gs 8]
   displayStave stave1
 
 

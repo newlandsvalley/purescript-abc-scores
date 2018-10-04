@@ -58,6 +58,7 @@ note context abcNote =
         { clef : "treble"
         , keys : [key]
         , duration : dur
+        , accidentals : [accidental abcNote.accidental]
         }
       Left x -> Left x
 
