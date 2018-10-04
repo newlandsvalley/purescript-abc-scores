@@ -6,6 +6,7 @@ import Data.Tuple (Tuple(..))
 import Data.Rational ((%))
 
 import VexFlow.Score (addTimeSignature, displayNotes, displayStave, initialise, newStave)
+import VexFlow.Abc.Utils (beatsPerBeam)
 import VexFlow.Types (Config, StaveConfig, AbcContext)
 import Data.Abc
 import Abc.Samples
@@ -32,30 +33,26 @@ staveConfig staveNo barNo =
   , barNo : barNo
   }
 
-sixEightContext :: AbcContext
-sixEightContext =
-  { timeSignature : { numerator: 6, denominator: 8 }
+abcContext :: MeterSignature -> AbcContext
+abcContext (Tuple x y) =
+  { timeSignature : { numerator: x, denominator: y }
   , unitNoteLength : ( 1 % 16)
+  , beatsPerBeam : beatsPerBeam (Tuple x y)
   }
 
-fourFourContext :: AbcContext
-fourFourContext =
-  { timeSignature : { numerator: 4, denominator: 4 }
-  , unitNoteLength : ( 1 % 16)
-  }
 
 -- | simple 6/8
 example1 :: Effect Unit
 example1 = void $ do
   let
     staveNo = 0
-    context = sixEightContext
+    context = abcContext (Tuple 6 8)
   stave <- newStave (staveConfig staveNo 0) dMajor
   _ <- addTimeSignature stave context.timeSignature
-  _ <- displayNotes context true stave [c, f, g, g, f, enat, b]
+  _ <- displayNotes context true stave [c 2, f 2, g 2, g 2, f 2, enat 1, b 1]
   _ <- displayStave stave
   stave1 <- newStave (staveConfig staveNo 1) eMinor
-  _ <- displayNotes context true stave1 [c, f, g, g, f, c]
+  _ <- displayNotes context true stave1 [c 2, f 2, g 2, g 2, f 2, c 2]
   displayStave stave1
 
 -- | simple 4/4
@@ -63,18 +60,49 @@ example2 :: Effect Unit
 example2 = void $ do
   let
     staveNo = 1
-    context = fourFourContext
+    context = abcContext (Tuple 4 4)
   stave <- newStave (staveConfig staveNo 0) dMajor
   _ <- addTimeSignature stave context.timeSignature
-  _ <- displayNotes context true stave [c, f, g, g, f, enat, b, b]
+  _ <- displayNotes context true stave [c 2, f 2, g 2, g 2, f 2, enat 1, b 1, f 2, g 2]
   _ <- displayStave stave
   stave1 <- newStave (staveConfig staveNo 1) eMinor
-  _ <- displayNotes context true stave1 [c, f, g, g, f, c, g, g]
+  _ <- displayNotes context true stave1 [c 2, f 2, g 2, g 2, f 2, c 2, g 2, g 2]
   displayStave stave1
+
+-- | simple 2/4
+example3 :: Effect Unit
+example3 = void $ do
+  let
+    staveNo = 2
+    context = abcContext (Tuple 2 4)
+  stave <- newStave (staveConfig staveNo 0) dMajor
+  _ <- addTimeSignature stave context.timeSignature
+  _ <- displayNotes context true stave [c 4, f 2, g 2]
+  _ <- displayStave stave
+  stave1 <- newStave (staveConfig staveNo 1) eMinor
+  _ <- displayNotes context true stave1 [c 2, f 2, f 1, c 1, g 1, g 1]
+  displayStave stave1
+
+-- | simple 3/4
+example4 :: Effect Unit
+example4 = void $ do
+  let
+    staveNo = 3
+    context = abcContext (Tuple 3 4)
+  stave <- newStave (staveConfig staveNo 0) dMajor
+  _ <- addTimeSignature stave context.timeSignature
+  _ <- displayNotes context true stave [c 4, f 1, f 1, g 1, g 1, f 2, g 2]
+  _ <- displayStave stave
+  stave1 <- newStave (staveConfig staveNo 1) eMinor
+  _ <- displayNotes context true stave1 [f 1, c 1, g 1, g 1, c 8]
+  displayStave stave1
+
 
 
 main :: Effect Unit
 main = do
   _ <- initialise config
   _ <- example1
-  example2
+  _ <- example2
+  _ <- example3
+  example4

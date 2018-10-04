@@ -35,18 +35,18 @@ eb =
   { pitchClass: E, accidental: Flat, octave: 4, duration: fromInt 1, tied: false }
 
 
-enat :: AbcNote
-enat =
-  { pitchClass: E, accidental: Natural, octave: 4, duration: fromInt 1, tied: false }
+enat :: Int -> AbcNote
+enat d =
+  { pitchClass: E, accidental: Natural, octave: 4, duration: fromInt d, tied: false }
 
 
-b :: AbcNote
-b =
-  { pitchClass: B, accidental: Implicit, octave: 4, duration: fromInt 1, tied: false }
+b :: Int -> AbcNote
+b d =
+  { pitchClass: B, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
 
-c :: AbcNote
-c =
-  { pitchClass: C, accidental: Implicit, octave: 4, duration: fromInt 2, tied: false }
+c :: Int -> AbcNote
+c d =
+  { pitchClass: C, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
 
 
 
@@ -55,9 +55,9 @@ bnat =
   { pitchClass: B, accidental: Natural, octave: 4, duration: fromInt 1, tied: false }
 
 
-f :: AbcNote
-f =
-  { pitchClass: F, accidental: Implicit, octave: 4, duration: fromInt 2, tied: false }
+f :: Int -> AbcNote
+f d =
+  { pitchClass: F, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
 
 
 fnat :: AbcNote
@@ -65,6 +65,6 @@ fnat =
   { pitchClass: F, accidental: Natural, octave: 4, duration: fromInt 1, tied: false }
 
 
-g :: AbcNote
-g =
-  { pitchClass: G, accidental: Implicit, octave: 4, duration: fromInt 2, tied: false }
+g :: Int ->  AbcNote
+g d =
+  { pitchClass: G, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }

@@ -1,7 +1,7 @@
 module VexFlow.Score (Stave, addTimeSignature, displayNotes, displayStave, initialise, newStave) where
 
 import Data.Either (Either(..))
-import Data.Abc (KeySignature, MeterSignature, AbcNote)
+import Data.Abc (KeySignature, AbcNote)
 import Effect (Effect)
 import Prelude (Unit, pure, unit)
 import VexFlow.Abc.Stringify (keySignature, notes) as Stringify
@@ -27,7 +27,7 @@ displayNotes abcContext isAutoBeam stave abcNotes =
     case eNotes of
       Right notes ->
         if (isAutoBeam) then
-          displayAutoBeamedNotesImpl abcContext.timeSignature stave  notes
+          displayAutoBeamedNotesImpl abcContext stave  notes
         else
           displayNotesImpl stave notes
       _ ->
@@ -37,6 +37,6 @@ displayNotes abcContext isAutoBeam stave abcNotes =
 foreign import initialise :: Config -> Effect Unit
 foreign import newStaveImpl :: StaveConfig -> String -> Effect Stave
 foreign import displayNotesImpl :: Stave -> Array VexNote -> Effect Unit
-foreign import displayAutoBeamedNotesImpl :: TimeSignature -> Stave -> Array VexNote -> Effect Unit
+foreign import displayAutoBeamedNotesImpl :: AbcContext -> Stave -> Array VexNote -> Effect Unit
 foreign import displayStave :: Stave -> Effect Unit
 foreign import timeSignatureImpl :: Stave -> TimeSignature -> Effect Unit

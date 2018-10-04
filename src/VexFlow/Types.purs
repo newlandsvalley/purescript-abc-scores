@@ -18,6 +18,7 @@ type StaveConfig =
     , barNo :: Int
     }
 
+-- | the time signature
 type TimeSignature =
   { numerator :: Int
   , denominator :: Int
@@ -27,6 +28,7 @@ type TimeSignature =
 type AbcContext =
   { timeSignature :: TimeSignature
   , unitNoteLength :: NoteDuration
+  , beatsPerBeam :: Int
   }
 
 -- | A note

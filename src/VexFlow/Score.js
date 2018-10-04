@@ -44,11 +44,11 @@ var wrapper = function() {
       }
     },
 
-    displayAutoBeamedNotesImpl : function (timeSignature) {
+    displayAutoBeamedNotesImpl : function (abcContext) {
       return function (stave) {
         return function (notes) {
           return function () {
-            return wrapper.drawAutoBeamedNotes(timeSignature, stave, notes);
+            return wrapper.drawAutoBeamedNotes(abcContext, stave, notes);
           }
         }
       }
@@ -91,13 +91,13 @@ var wrapper = function() {
       //  stave.addTimeSignature(meter);
     },
 
-    drawAutoBeamedNotes: function (timeSignature, stave, notesSpec) {
+    drawAutoBeamedNotes: function (abcContext, stave, notesSpec) {
       console.log(notesSpec);
       var notes = notesSpec.map(wrapper.makeStaveNote);
       // notes.push (new VF.BarNote({ type: 'single' }));
       console.log(notes);
 
-      var beams = VF.Beam.generateBeams(notes, wrapper.beamGroup(timeSignature) );
+      var beams = VF.Beam.generateBeams(notes, wrapper.beamGroup(abcContext) );
       Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
       beams.forEach(function(b) {b.setContext(context).draw()})
     },
@@ -124,21 +124,10 @@ var wrapper = function() {
     },
 
     // auto-beaming based on the time signature
-    // not complete
-    beamGroup: function (timeSignature) {
-      var groups = null;
-      switch (timeSignature.numerator) {
-        case 3:
-        case 6:
-        case 9:
-        case 12:
-          groups = {groups: [new Vex.Flow.Fraction(3, timeSignature.denominator)] };
-          break;
-        default:
-          groups = {groups: [new Vex.Flow.Fraction(1, timeSignature.denominator)] };
-        }
-      return groups;
+    beamGroup: function (abcContext) {
+      return {groups: [new Vex.Flow.Fraction(abcContext.beatsPerBeam, abcContext.timeSignature.denominator)] };
     }
+
   }
 
 }();
