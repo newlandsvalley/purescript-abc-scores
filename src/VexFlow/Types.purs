@@ -1,5 +1,6 @@
 module VexFlow.Types where
 
+import Control.Comonad.Store (StoreT(..))
 import Data.Abc (NoteDuration)
 
 -- | the configuration of the VexFlow Canvas
@@ -31,10 +32,16 @@ type AbcContext =
   , beatsPerBeam :: Int
   }
 
--- | A note
+-- | a complete specification of Note(s) for VexFlow
+type NoteSpec =
+  { vexNote :: VexNote
+  , accidentals :: Array String
+  , dots :: Array Int
+  }
+
+-- | A raw note that VexFlow understands
 type VexNote =
   { clef :: String
   , keys :: Array String
   , duration :: String
-  , accidentals :: Array String
   }

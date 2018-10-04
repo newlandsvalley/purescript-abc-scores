@@ -5,7 +5,7 @@ import Data.Abc (KeySignature, AbcNote)
 import Effect (Effect)
 import Prelude (Unit, pure, unit)
 import VexFlow.Abc.Stringify (keySignature, notes) as Stringify
-import VexFlow.Types (AbcContext, Config, StaveConfig, TimeSignature, VexNote)
+import VexFlow.Types (AbcContext, Config, NoteSpec, StaveConfig, TimeSignature, VexNote)
 
 
 -- | a stave
@@ -36,7 +36,7 @@ displayNotes abcContext isAutoBeam stave abcNotes =
 
 foreign import initialise :: Config -> Effect Unit
 foreign import newStaveImpl :: StaveConfig -> String -> Effect Stave
-foreign import displayNotesImpl :: Stave -> Array VexNote -> Effect Unit
-foreign import displayAutoBeamedNotesImpl :: AbcContext -> Stave -> Array VexNote -> Effect Unit
+foreign import displayNotesImpl :: Stave -> Array NoteSpec -> Effect Unit
+foreign import displayAutoBeamedNotesImpl :: AbcContext -> Stave -> Array NoteSpec -> Effect Unit
 foreign import displayStave :: Stave -> Effect Unit
 foreign import timeSignatureImpl :: Stave -> TimeSignature -> Effect Unit

@@ -91,9 +91,9 @@ var wrapper = function() {
       //  stave.addTimeSignature(meter);
     },
 
-    drawAutoBeamedNotes: function (abcContext, stave, notesSpec) {
-      console.log(notesSpec);
-      var notes = notesSpec.map(wrapper.makeStaveNote);
+    drawAutoBeamedNotes: function (abcContext, stave, noteSpec) {
+      console.log(noteSpec);
+      var notes = noteSpec.map(wrapper.makeStaveNote);
       // notes.push (new VF.BarNote({ type: 'single' }));
       console.log(notes);
 
@@ -103,10 +103,10 @@ var wrapper = function() {
     },
 
     // not complete and maybe not useful
-    drawNotes: function (stave, notesSpec) {
-      console.log(notesSpec);
+    drawNotes: function (stave, noteSpec) {
+      console.log(noteSpec);
       // var notes = notesSpec.map(new VF.StaveNote);
-      var notes = notesSpec.map(wrapper.makeStaveNote);
+      var notes = noteSpec.map(wrapper.makeStaveNote);
       console.log(notes);
       // Create a voice in 6/8 and add above notes
       var voice = new VF.Voice({num_beats: 6,  beat_value: 8});
@@ -121,8 +121,9 @@ var wrapper = function() {
 
     // make a stave note (n.b. this can represent a single note or a chord)
     makeStaveNote: function (noteSpec) {
-      var sn = new VF.StaveNote(noteSpec);
+      var sn = new VF.StaveNote(noteSpec.vexNote);
       wrapper.addAccidentals (sn, noteSpec.accidentals);
+      wrapper.addDots (sn, noteSpec.dots);
       return sn;
     },
 
@@ -138,7 +139,18 @@ var wrapper = function() {
           staveNote.addAccidental(index, new VF.Accidental(accidentalString));
         }
       });
+    },
+
+    // add the accidental(s) to the staveNote(s)
+    // no account yet taken of double-dots
+    addDots: function (staveNote, dots) {
+      dots.forEach (function (dotCount, index) {
+        if (dotCount > 0) {
+          staveNote.addDot(index);
+        }
+      });
     }
+
 
 
 
