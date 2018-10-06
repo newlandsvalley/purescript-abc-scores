@@ -1,5 +1,8 @@
 module Abc.Samples where
 
+import Data.NonEmpty ((:|))
+import Data.List.Types ((:), NonEmptyList(..))
+import Data.List (List(..))
 import Data.Rational (fromInt)
 import Data.Abc
 
@@ -45,29 +48,40 @@ b d =
   Note { pitchClass: B, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
 
 c :: Int -> Music
-c d =
-  Note { pitchClass: C, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
+c d = Note (cn d)
 
+cn :: Int -> AbcNote
+cn d =
+  { pitchClass: C, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
 
+e :: Int -> Music
+e d = Note (en d)
+
+en :: Int -> AbcNote
+en d =
+  { pitchClass: E, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
 
 bf :: Int -> Music
 bf d =
   Note { pitchClass: B, accidental: Flat, octave: 4, duration: fromInt d, tied: false }
 
-
 f :: Int -> Music
 f d =
   Note { pitchClass: F, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
 
+fnatn :: Int -> AbcNote
+fnatn d =
+  { pitchClass: F, accidental: Natural, octave: 4, duration: fromInt d, tied: false }
 
-fnat :: AbcNote
-fnat =
-  { pitchClass: F, accidental: Natural, octave: 4, duration: fromInt 1, tied: false }
-
+fnat :: Int ->  Music
+fnat d = Note (fnatn d)
 
 g :: Int ->  Music
-g d =
-  Note { pitchClass: G, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
+g d = Note (gn d)
+
+gn :: Int -> AbcNote
+gn d =
+  { pitchClass: G, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
 
 gs :: Int ->  Music
 gs d =
@@ -75,4 +89,12 @@ gs d =
 
 r :: Int ->  Music
 r d =
-  Rest { duration: fromInt d }  
+  Rest { duration: fromInt d }
+
+-- sample chord
+chord :: Int -> Music
+chord d =
+  Chord
+   { notes : NonEmptyList (gn 2 :| ( cn 2 : fnatn 2 : Nil))
+   , duration : (fromInt d)
+   }

@@ -1,9 +1,9 @@
-module VexFlow.Abc.Utils (beatsPerBeam, dotCount, noteTicks) where
+module VexFlow.Abc.Utils (beatsPerBeam, dotCount, noteDotCount, noteTicks) where
 
 import Prelude (($), (*))
 import Data.Int (round)
 import Data.Rational (fromInt, toNumber)
-import Data.Abc (MeterSignature, NoteDuration)
+import Data.Abc (AbcNote, MeterSignature, NoteDuration)
 import Data.Tuple (Tuple(..))
 import VexFlow.Types (AbcContext)
 
@@ -38,6 +38,10 @@ dotCount ctx d =
       1
     _ ->
       0
+
+noteDotCount :: AbcContext -> AbcNote -> Int
+noteDotCount ctx abcNote =
+  dotCount ctx abcNote.duration
 
 -- | note duration in ticks - 1 beat split into 128 possible unit ticks
 noteTicks :: AbcContext -> NoteDuration -> Int

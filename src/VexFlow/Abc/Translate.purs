@@ -1,6 +1,7 @@
-module VexFlow.Abc.Stringify (keySignature, musics) where
+module VexFlow.Abc.Translate (keySignature, musics) where
 
--- | Convert between Abc types and VexFlow which are Strings
+-- | Translate between Abc types and VexFlow types which are
+-- | (at base) Strings
 import Data.Abc
 
 import Data.Abc.Canonical (keySignatureAccidental)
@@ -8,14 +9,20 @@ import Data.Abc.KeySignature (normaliseModalKey)
 import Data.Either (Either(..))
 import Data.String.Common (toLower)
 import Data.Traversable (sequence)
-import Prelude ((<>), ($), join, map, show)
-import VexFlow.Abc.Utils (dotCount, noteTicks)
+import Data.List.NonEmpty (head, toUnfoldable) as Nel
+import Prelude ((<>), ($), (*), join, map, show)
+import VexFlow.Abc.Utils (dotCount, noteDotCount, noteTicks)
 import VexFlow.Types (AbcContext, NoteSpec)
 
-
+-- | generate a VexFlow indication of pitch
 pitch :: PitchClass -> Accidental -> Int -> String
 pitch pc acc oct =
   toLower (show  pc) <> accidental acc <> "/" <> show oct
+
+-- | return the VexFlow pitch of a note
+notePitch :: AbcNote -> String
+notePitch abcNote =
+  pitch abcNote.pitchClass abcNote.accidental abcNote.octave
 
 accidental :: Accidental -> String
 accidental Sharp = "#"
@@ -24,6 +31,10 @@ accidental DoubleSharp = "##"
 accidental DoubleFlat = "bb"
 accidental Natural = "n"
 accidental Implicit = ""
+
+-- | return the VexFlow string representation of a note's accidental
+noteAccidental :: AbcNote -> String
+noteAccidental abcNote = accidental abcNote.accidental
 
 -- | a key signature as a VexFlow String
 -- | with 'strange' modes normalised to Major
@@ -61,6 +72,11 @@ music context m =
         eRes = rest context dur
       in
         map (\n -> [n]) eRes
+    Chord abcChord ->
+      let
+        eChord = chord context abcChord
+      in
+        map (\n -> [n]) eChord
     _ ->
        Right []
 
@@ -74,8 +90,8 @@ notes context abcNotes =
 note :: AbcContext -> AbcNote -> Either String NoteSpec
 note context abcNote =
   let
-    edur = noteDur context abcNote.duration
-    key = pitch abcNote.pitchClass abcNote.accidental abcNote.octave
+    edur = noteDur context abcNote
+    key = notePitch abcNote
   in
     case edur of
       Right dur ->
@@ -88,7 +104,7 @@ note context abcNote =
         in Right
           { vexNote : vexNote
           , accidentals : [accidental abcNote.accidental]
-          , dots : [dotCount context abcNote.duration]
+          , dots : [noteDotCount context abcNote]
           }
       Left x -> Left x
 
@@ -98,7 +114,7 @@ note context abcNote =
 rest :: AbcContext -> AbcRest -> Either String NoteSpec
 rest context abcRest =
   let
-    edur = noteDur context abcRest.duration
+    edur = duration context abcRest.duration
     key = pitch B Implicit 4
   in
     case edur of
@@ -116,11 +132,57 @@ rest context abcRest =
           }
       Left x -> Left x
 
--- | translate a note or rest duration, wrapping in a Result which indicates an
+
+-- | translate an ABC chord to a VexFlow note
+-- | failing if the durations cannot be translated
+-- | n.b. in VexFlow, all notes in a chord must have the same duration
+-- | this is a mismatch with ABC.  We just take the first note as representative
+chord :: AbcContext -> AbcChord -> Either String NoteSpec
+chord context abcChord =
+  let
+    edur :: Either String String
+    edur = chordalNoteDur context abcChord.duration (Nel.head abcChord.notes)
+    keys :: Array String
+    keys = map notePitch (Nel.toUnfoldable abcChord.notes)
+    dotCounts :: Array Int
+    dotCounts = map (noteDotCount context) (Nel.toUnfoldable abcChord.notes)
+    accidentals :: Array String
+    accidentals = map noteAccidental (Nel.toUnfoldable abcChord.notes)
+  in
+    case edur of
+      Right dur ->
+        let
+          vexNote =
+            { clef : "treble"
+            , keys : keys
+            , duration : dur
+            }
+        in Right
+          { vexNote : vexNote
+          , accidentals : accidentals
+          , dots : dotCounts
+          }
+      Left x -> Left x
+
+
+-- | translate a note duration within a chord
+-- | (in ABC, a chord has a duration over and above the individual
+-- | note durations and these are multiplicative)
+chordalNoteDur :: AbcContext -> NoteDuration -> AbcNote -> Either String String
+chordalNoteDur ctx chordDur abcNote  =
+  duration ctx (abcNote.duration * chordDur)
+
+-- | translate a note duration
+noteDur :: AbcContext -> AbcNote -> Either String String
+noteDur ctx abcNote =
+  duration ctx abcNote.duration
+
+
+-- | translate a duration (from a note or rest), wrapping in a Result which indicates an
 -- | unsupported duration.  This rounds values of 'short enough' note durations
 -- | to the nearest supported value
-noteDur :: AbcContext -> NoteDuration -> Either String String
-noteDur ctx d =
+duration :: AbcContext -> NoteDuration -> Either String String
+duration ctx d =
   case noteTicks ctx d of
     128 ->
       Right "w"

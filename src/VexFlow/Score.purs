@@ -4,7 +4,7 @@ import Data.Either (Either(..))
 import Data.Abc (KeySignature, Music)
 import Effect (Effect)
 import Prelude (Unit, pure, unit)
-import VexFlow.Abc.Stringify (keySignature, musics) as Stringify
+import VexFlow.Abc.Translate (keySignature, musics) as Translate
 import VexFlow.Types (AbcContext, Config, NoteSpec, StaveConfig, TimeSignature)
 
 
@@ -17,7 +17,7 @@ addTimeSignature stave timeSignature =
 
 newStave :: StaveConfig -> KeySignature -> Effect Stave
 newStave staveConfig ks =
-  newStaveImpl staveConfig (Stringify.keySignature ks)
+  newStaveImpl staveConfig (Translate.keySignature ks)
 
 {-}
 displayNotes :: AbcContext -> Boolean -> Stave -> Array AbcNote -> Effect Unit
@@ -38,7 +38,7 @@ displayNotes abcContext isAutoBeam stave abcNotes =
 displayMusics :: AbcContext -> Boolean -> Stave -> Array Music -> Effect Unit
 displayMusics abcContext isAutoBeam stave abcMusics =
   let
-    eNotes = Stringify.musics abcContext abcMusics
+    eNotes = Translate.musics abcContext abcMusics
   in
     case eNotes of
       Right notes ->
