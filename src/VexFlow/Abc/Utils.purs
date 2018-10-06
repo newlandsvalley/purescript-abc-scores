@@ -1,9 +1,11 @@
-module VexFlow.Abc.Utils (beatsPerBeam, dotCount, noteDotCount, noteTicks) where
+module VexFlow.Abc.Utils (beatsPerBeam, dotCount, normaliseBroken, noteDotCount, noteTicks) where
 
-import Prelude (($), (*))
+import Prelude (($), (*), (+), (-))
 import Data.Int (round)
 import Data.Rational (fromInt, toNumber)
-import Data.Abc (AbcNote, MeterSignature, NoteDuration)
+import Data.Tuple (Tuple(..))
+import Data.Abc (AbcNote, Broken(..), MeterSignature, NoteDuration)
+import Data.Abc.Metadata (dotFactor)
 import Data.Tuple (Tuple(..))
 import VexFlow.Types (AbcContext)
 
@@ -48,3 +50,35 @@ noteTicks :: AbcContext -> NoteDuration -> Int
 noteTicks ctx d =
   round $ toNumber $
      ctx.unitNoteLength * d * (fromInt 128)
+
+-- | apply the specified broken rhythm to each note in the note pair (presented individually)
+-- | and return the broken note pair presented conventionally
+normaliseBroken :: Broken -> AbcNote -> AbcNote -> (Tuple AbcNote AbcNote )
+normaliseBroken broken n1 n2 =
+  let
+    down i =
+      (fromInt 1) - (dotFactor i)
+
+    up i =
+      (fromInt 1) + (dotFactor i)
+  in
+    case broken of
+      LeftArrow i ->
+        let
+          left =
+            n1 { duration = n1.duration * (down i) }
+
+          right =
+            n2 { duration = n2.duration * (up i) }
+        in
+          (Tuple left right )
+
+      RightArrow i ->
+        let
+          left =
+            n1 { duration = n1.duration * (up i) }
+
+          right =
+            n2 { duration = n2.duration * (down i) }
+        in
+          (Tuple left right )

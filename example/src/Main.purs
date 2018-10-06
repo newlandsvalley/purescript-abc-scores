@@ -114,6 +114,17 @@ example4 = void $ do
   _ <- displayMusics context true stave1 [chord 2, chord 2, f 2, c 2, g 3, g 1]
   displayStave stave1
 
+-- | broken rhythm pair in 4/4
+example5 :: Effect Unit
+example5 = void $ do
+  let
+    staveNo = 5
+    context = abcContext (Tuple 4 4)
+  stave <- newStave (staveConfig staveNo 0) dMajor
+  _ <- addTimeSignature stave context.timeSignature
+  _ <- displayMusics context true stave [brokenRight 2 1, brokenRight 2 1, brokenLeft 2 1, brokenLeft 2 1]
+  displayStave stave
+
 
 main :: Effect Unit
 main = do
@@ -122,4 +133,5 @@ main = do
   _ <- example1
   _ <- example2
   _ <- example3
-  example4
+  _ <- example4
+  example5

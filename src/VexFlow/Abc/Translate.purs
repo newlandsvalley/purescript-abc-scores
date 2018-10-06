@@ -7,11 +7,13 @@ import Data.Abc
 import Data.Abc.Canonical (keySignatureAccidental)
 import Data.Abc.KeySignature (normaliseModalKey)
 import Data.Either (Either(..))
+import Data.Tuple (Tuple(..))
+import Data.Rational (numerator, denominator)
 import Data.String.Common (toLower)
 import Data.Traversable (sequence)
 import Data.List.NonEmpty (head, toUnfoldable) as Nel
 import Prelude ((<>), ($), (*), join, map, show)
-import VexFlow.Abc.Utils (dotCount, noteDotCount, noteTicks)
+import VexFlow.Abc.Utils (dotCount, normaliseBroken, noteDotCount, noteTicks)
 import VexFlow.Types (AbcContext, NoteSpec)
 
 -- | generate a VexFlow indication of pitch
@@ -77,8 +79,11 @@ music context m =
         eChord = chord context abcChord
       in
         map (\n -> [n]) eChord
+    BrokenRhythmPair abcNote1 broken abcNote2 ->
+      brokenRhythm context abcNote1 broken abcNote2
+
     _ ->
-       Right []
+      Right []
 
 -- | translate an array of ABC notes to VexFlow notes
 notes :: AbcContext -> Array AbcNote -> Either String (Array NoteSpec)
@@ -164,6 +169,23 @@ chord context abcChord =
           }
       Left x -> Left x
 
+-- | translate an ABC broken note pair to a VexFlow note pair
+-- | failing if either duration cannot be translated
+-- | not finished - n1 can alter the context for n2
+brokenRhythm :: AbcContext -> AbcNote -> Broken -> AbcNote -> Either String (Array NoteSpec)
+brokenRhythm context abcNote1 broken abcNote2 =
+  let
+    (Tuple n1 n2) = normaliseBroken broken abcNote1 abcNote2
+    enote1 = note context n1
+    enote2 = note context n2
+  in
+    case (Tuple enote1 enote2) of
+      (Tuple (Right note1) (Right note2)) ->
+        Right [note1, note2]
+      (Tuple (Left e1) _) ->
+        Left e1
+      (Tuple _ (Left e2) ) ->
+        Left e2
 
 -- | translate a note duration within a chord
 -- | (in ABC, a chord has a duration over and above the individual
@@ -211,4 +233,7 @@ duration ctx d =
     2 ->
       Right "64"
     _ ->
-      Left "too long or too dotted"
+      Left ("too long or too dotted duration: "
+          <> (show $ numerator d)
+          <> "/"
+          <> (show $ denominator d))

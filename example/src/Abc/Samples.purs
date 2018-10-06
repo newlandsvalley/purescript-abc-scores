@@ -98,3 +98,13 @@ chord d =
    { notes : NonEmptyList (gn 2 :| ( cn 2 : fnatn 2 : Nil))
    , duration : (fromInt d)
    }
+
+-- sample broken rhythm > pair
+brokenRight :: Int -> Int -> Music
+brokenRight d breakage =
+  BrokenRhythmPair (gn d) (RightArrow breakage) (cn d)
+
+-- sample broken rhythm > pair
+brokenLeft :: Int -> Int -> Music
+brokenLeft d breakage =
+  BrokenRhythmPair (gn d) (LeftArrow breakage) (cn d) 

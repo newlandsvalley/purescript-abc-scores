@@ -2,8 +2,9 @@ module VexFlow.Score (Stave, addTimeSignature, displayMusics, displayStave, init
 
 import Data.Either (Either(..))
 import Data.Abc (KeySignature, Music)
+import Effect.Console (log)
 import Effect (Effect)
-import Prelude (Unit, pure, unit)
+import Prelude ((<>), Unit, bind, pure, unit)
 import VexFlow.Abc.Translate (keySignature, musics) as Translate
 import VexFlow.Types (AbcContext, Config, NoteSpec, StaveConfig, TimeSignature)
 
@@ -46,8 +47,10 @@ displayMusics abcContext isAutoBeam stave abcMusics =
           displayAutoBeamedNotesImpl abcContext stave  notes
         else
           displayNotesImpl stave notes
-      _ ->
-        pure unit
+      Left err ->
+        do
+          _ <- log ("error in translating musics: " <> err)
+          pure unit
 
 
 foreign import initialise :: Config -> Effect Unit
