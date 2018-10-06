@@ -39,14 +39,14 @@ displayNotes abcContext isAutoBeam stave abcNotes =
 displayMusics :: AbcContext -> Boolean -> Stave -> Array Music -> Effect Unit
 displayMusics abcContext isAutoBeam stave abcMusics =
   let
-    eNotes = Translate.musics abcContext abcMusics
+    eMusicSpec = Translate.musics abcContext abcMusics
   in
-    case eNotes of
-      Right notes ->
+    case eMusicSpec of
+      Right musicSpec ->
         if (isAutoBeam) then
-          displayAutoBeamedNotesImpl abcContext stave  notes
+          displayAutoBeamedNotesImpl abcContext stave musicSpec.noteSpecs
         else
-          displayNotesImpl stave notes
+          displayNotesImpl stave musicSpec.noteSpecs
       Left err ->
         do
           _ <- log ("error in translating musics: " <> err)

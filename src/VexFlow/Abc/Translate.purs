@@ -15,7 +15,7 @@ import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import Prelude ((<>), ($), (*), (+), join, map, show)
 import VexFlow.Abc.Utils (dotCount, normaliseBroken, noteDotCount, noteTicks)
-import VexFlow.Types (AbcContext, NoteSpec, TupletSpec, MusicSpec)
+import VexFlow.Types (AbcContext, NoteSpec, TupletSpec, MusicSpec, VexTuplet)
 
 -- | generate a VexFlow indication of pitch
 pitch :: PitchClass -> Accidental -> Int -> String
@@ -55,36 +55,60 @@ keySignature ks =
     show newks.pitchClass <> (keySignatureAccidental newks.accidental) <> modeStr
 
 
--- | translate an array of ABC music (from a bar) to VexFlow notespecs
-musics :: AbcContext -> Array Music -> Either String (Array NoteSpec)
+-- | translate an array of ABC music (from a bar) to a VexFlow music spec
+musics :: AbcContext -> Array Music -> Either String MusicSpec
 musics context abcMusics =
-  map join $ sequence $ map (music context) abcMusics
+  let
+    -- mSpec = map join $ sequence $ map (music context) abcMusics
+    emSpecs :: Either String (Array MusicSpec)
+    emSpecs = sequence $ map (music context) abcMusics
+  in
+    case emSpecs of
+      Right mSpecs ->
+        let
+          -- join all the noteSpecs together
+          fullNoteSpecs :: Array NoteSpec
+          fullNoteSpecs = join $ map (\ms -> ms.noteSpecs) mSpecs
+            -- join all the tuolet Specs together
+          fullTuplets :: Array VexTuplet
+          fullTuplets = join $ map (\ms -> ms.tuplets) mSpecs
+        in
+          Right
+            { noteSpecs : fullNoteSpecs
+            , tuplets : fullTuplets }
+      Left err ->
+        Left err
 
--- | translate any ABC music item that produces score to a VexFlow note
+-- | translate any ABC music item that produces score to a VexFlow music spec
 -- | producing an empty array if it doesn't do so
-music :: AbcContext -> Music -> Either String (Array NoteSpec)
+-- | unfiniahed - need to provide a start offset for the Tuplet case
+music :: AbcContext -> Music -> Either String MusicSpec
 music context m =
   case m of
     Note abcNote ->
-      let
-        eRes = note context abcNote
-      in
-        map (\n -> [n]) eRes
+      buildMusicSpecFromN $ note context abcNote
+
     Rest dur ->
-      let
-        eRes = rest context dur
-      in
-        map (\n -> [n]) eRes
+      buildMusicSpecFromN $ rest context dur
+
     Chord abcChord ->
-      let
-        eChord = chord context abcChord
-      in
-        map (\n -> [n]) eChord
+      buildMusicSpecFromN $ chord context abcChord
+
     BrokenRhythmPair abcNote1 broken abcNote2 ->
-      brokenRhythm context abcNote1 broken abcNote2
+      buildMusicSpecFromNs $ brokenRhythm context abcNote1 broken abcNote2
+
+    Tuplet signature rOrNs ->
+      let
+        eRes = tuplet context 0 signature (Nel.toUnfoldable rOrNs)
+      in
+        map (\tupletSpec ->
+              { noteSpecs : tupletSpec.noteSpecs
+              , tuplets : [tupletSpec.vexTuplet]
+              }
+            ) eRes
 
     _ ->
-      Right []
+      buildMusicSpecFromNs (Right [])
 
 -- | translate an array of ABC notes to VexFlow notes
 notes :: AbcContext -> Array AbcNote -> Either String (Array NoteSpec)
