@@ -1,6 +1,5 @@
 module VexFlow.Types where
 
-import Control.Comonad.Store (StoreT(..))
 import Data.Abc (NoteDuration)
 
 -- | the configuration of the VexFlow Canvas
@@ -44,4 +43,27 @@ type VexNote =
   { clef :: String
   , keys :: Array String
   , duration :: String
+  }
+
+-- | the specification of the layout of an individual tuplet in the stave
+type VexTuplet =
+  { p :: Int           -- fit p notes
+  , q :: Int           -- into time allotted to q
+  , startPos :: Int    -- from the array of notes at this position..
+  , endPos :: Int      -- to this position
+  }
+
+-- | the specification of an individual tuplet
+type TupletSpec =
+  { vexTuplet :: VexTuplet
+  , noteSpecs :: Array NoteSpec
+  }
+
+-- | the specification of a music item or a bar of same
+-- | we may just have note specs in either or we may have
+-- | one tuple spec (in the case of a single tuple item)
+-- | or many (in the case of a full bar of music items)
+type MusicSpec =
+  { noteSpecs :: Array NoteSpec
+  , tuplets :: Array VexTuplet
   }

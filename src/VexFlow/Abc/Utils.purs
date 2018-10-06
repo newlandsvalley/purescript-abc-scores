@@ -6,7 +6,6 @@ import Data.Rational (fromInt, toNumber)
 import Data.Tuple (Tuple(..))
 import Data.Abc (AbcNote, Broken(..), MeterSignature, NoteDuration)
 import Data.Abc.Metadata (dotFactor)
-import Data.Tuple (Tuple(..))
 import VexFlow.Types (AbcContext)
 
 -- | set the defaullt grouping of notes that are beamed together

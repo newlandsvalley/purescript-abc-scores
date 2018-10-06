@@ -6,15 +6,16 @@ import Data.Abc
 
 import Data.Abc.Canonical (keySignatureAccidental)
 import Data.Abc.KeySignature (normaliseModalKey)
+import Data.Array (length)
 import Data.Either (Either(..))
-import Data.Tuple (Tuple(..))
+import Data.List.NonEmpty (head, toUnfoldable) as Nel
 import Data.Rational (numerator, denominator)
 import Data.String.Common (toLower)
 import Data.Traversable (sequence)
-import Data.List.NonEmpty (head, toUnfoldable) as Nel
-import Prelude ((<>), ($), (*), join, map, show)
+import Data.Tuple (Tuple(..))
+import Prelude ((<>), ($), (*), (+), join, map, show)
 import VexFlow.Abc.Utils (dotCount, normaliseBroken, noteDotCount, noteTicks)
-import VexFlow.Types (AbcContext, NoteSpec)
+import VexFlow.Types (AbcContext, NoteSpec, TupletSpec, MusicSpec)
 
 -- | generate a VexFlow indication of pitch
 pitch :: PitchClass -> Accidental -> Int -> String
@@ -187,6 +188,38 @@ brokenRhythm context abcNote1 broken abcNote2 =
       (Tuple _ (Left e2) ) ->
         Left e2
 
+-- | translate an ABC tuplet pair to a VexFlow tuplet spec
+-- | failing if any note duration cannot be translated
+-- | not finished - n1 can alter the context for n2
+tuplet :: AbcContext -> Int -> TupletSignature -> Array RestOrNote -> Either String TupletSpec
+tuplet context startOffset signature rns =
+  let
+    enoteSpecs = sequence $ map (restOrNote context) rns
+    vexTuplet =
+      { p : signature.p
+      , q : signature.q
+      , startPos : startOffset
+      , endPos : startOffset + (length rns)
+      }
+  in
+    case enoteSpecs of
+      Right noteSpecs ->
+        Right
+          { vexTuplet : vexTuplet
+          , noteSpecs : noteSpecs
+          }
+      Left x ->
+        Left x
+
+
+restOrNote :: AbcContext -> RestOrNote -> Either String NoteSpec
+restOrNote context rOrn =
+  case rOrn of
+    Left abcRest ->
+      rest context abcRest
+    Right abcNote ->
+      note context abcNote
+
 -- | translate a note duration within a chord
 -- | (in ABC, a chord has a duration over and above the individual
 -- | note durations and these are multiplicative)
@@ -237,3 +270,11 @@ duration ctx d =
           <> (show $ numerator d)
           <> "/"
           <> (show $ denominator d))
+
+buildMusicSpecFromNs :: Either String (Array NoteSpec) -> Either String MusicSpec
+buildMusicSpecFromNs ens =
+    map (\ns -> { noteSpecs : ns, tuplets : [] }) ens
+
+buildMusicSpecFromN :: Either String NoteSpec -> Either String MusicSpec
+buildMusicSpecFromN ens =
+    map (\ns -> { noteSpecs : [ns], tuplets : [] }) ens
