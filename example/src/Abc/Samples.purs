@@ -1,9 +1,11 @@
 module Abc.Samples where
 
+import Prelude (($))
 import Data.NonEmpty ((:|))
 import Data.List.Types ((:), NonEmptyList(..))
 import Data.List (List(..))
 import Data.Rational (fromInt)
+import Data.Either (Either(..))
 import Data.Abc
 
 
@@ -107,4 +109,22 @@ brokenRight d breakage =
 -- sample broken rhythm > pair
 brokenLeft :: Int -> Int -> Music
 brokenLeft d breakage =
-  BrokenRhythmPair (gn d) (LeftArrow breakage) (cn d) 
+  BrokenRhythmPair (gn d) (LeftArrow breakage) (cn d)
+
+-- sample triplet
+triplet :: Int -> Music
+triplet d =
+  let
+    signature = ({ p : 3, q : 2, r : 3})
+    notes = NonEmptyList ((Right $ gn 2) :| ( (Right $ cn d) : (Right $ fnatn d) : Nil))
+  in
+    Tuplet signature notes
+
+-- sample quadruplet
+quadruplet :: Int -> Music
+quadruplet d =
+  let
+    signature = ({ p : 4, q : 4, r : 4})
+    notes = NonEmptyList ((Right $ gn 2) :| ( (Right $ cn d) : (Right $ fnatn d) : (Right $ cn d) : Nil))
+  in
+    Tuplet signature notes

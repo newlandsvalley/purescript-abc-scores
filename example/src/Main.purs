@@ -125,6 +125,27 @@ example5 = void $ do
   _ <- displayMusics context true stave [brokenRight 2 1, brokenRight 2 1, brokenLeft 2 1, brokenLeft 2 1]
   displayStave stave
 
+-- | basic triplet in 3/4
+example6 :: Effect Unit
+example6 = void $ do
+  let
+    staveNo = 6
+    context = abcContext (Tuple 3 4)
+  stave <- newStave (staveConfig staveNo 0) dMajor
+  _ <- addTimeSignature stave context.timeSignature
+  _ <- displayMusics context true stave [triplet 2]
+  displayStave stave
+
+-- | basic quadruplet in 6/8
+example7 :: Effect Unit
+example7 = void $ do
+  let
+    staveNo = 7
+    context = abcContext (Tuple 6 8)
+  stave <- newStave (staveConfig staveNo 0) dMajor
+  _ <- addTimeSignature stave context.timeSignature
+  _ <- displayMusics context true stave [quadruplet 2]
+  displayStave stave
 
 main :: Effect Unit
 main = do
@@ -134,4 +155,6 @@ main = do
   _ <- example2
   _ <- example3
   _ <- example4
-  example5
+  _ <- example5
+  _ <- example6
+  example7

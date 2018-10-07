@@ -54,6 +54,16 @@ var wrapper = function() {
       }
     },
 
+    displayTupletedNotesImpl : function (abcContext) {
+      return function (stave) {
+        return function (musicSpec) {
+          return function () {
+            return wrapper.drawTupletedNotes(abcContext, stave, musicSpec);
+          }
+        }
+      }
+    },
+
     init: function (config) {
       // console.log(config);
 
@@ -99,7 +109,20 @@ var wrapper = function() {
 
       var beams = VF.Beam.generateBeams(notes, wrapper.beamGroup(abcContext) );
       Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
-      beams.forEach(function(b) {b.setContext(context).draw()})
+      beams.forEach(function(b) {b.setContext(context).draw()});
+    },
+
+    drawTupletedNotes: function (abcContext, stave, musicSpec) {
+      // console.log(musicSpec);
+      var notes = musicSpec.noteSpecs.map(wrapper.makeStaveNote);
+      var tuplets = musicSpec.tuplets.map(wrapper.makeTupletLayout (notes));
+
+      var beams = VF.Beam.generateBeams(notes, wrapper.beamGroup(abcContext) );
+      Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
+      beams.forEach(function(b) {b.setContext(context).draw()});
+      tuplets.forEach(function(tuplet){
+        tuplet.setContext(context).draw();
+      });
     },
 
     // not complete and maybe not useful
@@ -125,6 +148,15 @@ var wrapper = function() {
       wrapper.addAccidentals (sn, noteSpec.accidentals);
       wrapper.addDots (sn, noteSpec.dots);
       return sn;
+    },
+
+    // make a tuplet layout
+    makeTupletLayout: function (notes) {
+      return function (vexTuplet) {
+        return new Vex.Flow.Tuplet(notes.slice(vexTuplet.startPos, vexTuplet.endPos), {
+           num_notes: vexTuplet.p, notes_occupied: vexTuplet.q
+         });
+      };
     },
 
     // auto-beaming based on the time signature
@@ -165,4 +197,5 @@ exports.newStaveImpl = wrapper.newStaveImpl;
 exports.displayStave = wrapper.displayStave;
 exports.displayNotesImpl = wrapper.displayNotesImpl;
 exports.displayAutoBeamedNotesImpl = wrapper.displayAutoBeamedNotesImpl;
+exports.displayTupletedNotesImpl = wrapper.displayTupletedNotesImpl;
 exports.timeSignatureImpl = wrapper.timeSignatureImpl;
