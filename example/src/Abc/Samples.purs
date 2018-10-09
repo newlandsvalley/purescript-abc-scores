@@ -106,7 +106,7 @@ brokenRight :: Int -> Int -> Music
 brokenRight d breakage =
   BrokenRhythmPair (gn d) (RightArrow breakage) (cn d)
 
--- sample broken rhythm > pair
+-- sample broken rhythm < pair
 brokenLeft :: Int -> Int -> Music
 brokenLeft d breakage =
   BrokenRhythmPair (gn d) (LeftArrow breakage) (cn d)

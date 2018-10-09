@@ -1,6 +1,7 @@
 module VexFlow.Types where
 
 import Data.Abc (NoteDuration)
+import VexFlow.Abc.TickableContext (TickableContext)
 
 -- | the configuration of the VexFlow Canvas
 type Config =
@@ -30,8 +31,6 @@ type AbcContext =
   , unitNoteLength :: NoteDuration
   , beatsPerBeam :: Int
   }
-
--- | a complete specification of Note(s) for VexFlow
 type NoteSpec =
   { vexNote :: VexNote
   , accidentals :: Array String
@@ -66,4 +65,5 @@ type TupletSpec =
 type MusicSpec =
   { noteSpecs :: Array NoteSpec
   , tuplets :: Array VexTuplet
+  , tickableContext :: TickableContext
   }
