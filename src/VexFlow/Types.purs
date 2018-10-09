@@ -1,5 +1,6 @@
 module VexFlow.Types where
 
+import Prelude (class Semigroup, class Monoid, (<>), mempty)
 import Data.Abc (NoteDuration)
 import VexFlow.Abc.TickableContext (TickableContext)
 
@@ -62,7 +63,23 @@ type TupletSpec =
 -- | we may just have note specs in either or we may have
 -- | one tuple spec (in the case of a single tuple item)
 -- | or many (in the case of a full bar of music items)
-type MusicSpec =
+newtype MusicSpec = MusicSpec MusicSpecContents
+
+instance musicSpecSemigroup :: Semigroup MusicSpec  where
+  append (MusicSpec ms1) (MusicSpec ms2) =
+    MusicSpec (ms1 <> ms2)
+
+instance musicSpecMonoid:: Monoid MusicSpec where
+  mempty = MusicSpec
+    { noteSpecs : []
+    , tuplets : []
+    , tickableContext : mempty
+    }
+
+
+-- | we define MusicSpecComntents separately from MusicSpec
+-- | because we need to pass it to JavaScript
+type MusicSpecContents =
   { noteSpecs :: Array NoteSpec
   , tuplets :: Array VexTuplet
   , tickableContext :: TickableContext

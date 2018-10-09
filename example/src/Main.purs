@@ -133,7 +133,7 @@ example6 = void $ do
     context = abcContext (Tuple 3 4)
   stave <- newStave (staveConfig staveNo 0) dMajor
   _ <- addTimeSignature stave context.timeSignature
-  _ <- displayMusics context true stave [triplet 2]
+  _ <- displayMusics context true stave [c 2, f 2, triplet 2, c 4]
   displayStave stave
 
 -- | basic quadruplet in 6/8

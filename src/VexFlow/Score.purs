@@ -7,7 +7,7 @@ import Effect.Console (log)
 import Effect (Effect)
 import Prelude ((<>), Unit, bind, pure, unit)
 import VexFlow.Abc.Translate (keySignature, musics) as Translate
-import VexFlow.Types (AbcContext, Config, MusicSpec, NoteSpec, StaveConfig, TimeSignature)
+import VexFlow.Types (AbcContext, Config, MusicSpec(..), MusicSpecContents, NoteSpec, StaveConfig, TimeSignature)
 
 
 -- | a stave
@@ -43,7 +43,7 @@ displayMusics abcContext isAutoBeam stave abcMusics =
     eMusicSpec = Translate.musics abcContext abcMusics
   in
     case eMusicSpec of
-      Right musicSpec ->
+      Right (MusicSpec musicSpec) ->
         if (isAutoBeam) then
           if (null musicSpec.tuplets) then
             displayAutoBeamedNotesImpl abcContext stave musicSpec.noteSpecs
@@ -61,6 +61,6 @@ foreign import initialise :: Config -> Effect Unit
 foreign import newStaveImpl :: StaveConfig -> String -> Effect Stave
 foreign import displayNotesImpl :: Stave -> Array NoteSpec -> Effect Unit
 foreign import displayAutoBeamedNotesImpl :: AbcContext -> Stave -> Array NoteSpec -> Effect Unit
-foreign import displayTupletedNotesImpl :: AbcContext -> Stave -> MusicSpec -> Effect Unit
+foreign import displayTupletedNotesImpl :: AbcContext -> Stave -> MusicSpecContents -> Effect Unit
 foreign import displayStave :: Stave -> Effect Unit
 foreign import timeSignatureImpl :: Stave -> TimeSignature -> Effect Unit

@@ -16,7 +16,7 @@ import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import Prelude ((<>), ($), (*), (+), map, mempty, show)
 import VexFlow.Abc.Utils (dotCount, normaliseBroken, noteDotCount, noteTicks)
-import VexFlow.Types (AbcContext, NoteSpec, TupletSpec, MusicSpec)
+import VexFlow.Types (AbcContext, NoteSpec, TupletSpec, MusicSpec(..))
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), getTickableContext)
 
 -- | generate a VexFlow indication of pitch
@@ -56,36 +56,6 @@ keySignature ks =
   in
     show newks.pitchClass <> (keySignatureAccidental newks.accidental) <> modeStr
 
-{-}
--- | translate an array of ABC music (from a bar) to a VexFlow music spec
-musics :: AbcContext -> Array Music -> Either String MusicSpec
-musics context abcMusics =
-  let
-    -- mSpec = map join $ sequence $ map (music context) abcMusics
-    emSpecs :: Either String (Array MusicSpec)
-    emSpecs = sequence $ map (music context) abcMusics
-  in
-    case emSpecs of
-      Right mSpecs ->
-        let
-          -- join all the noteSpecs together
-          fullNoteSpecs :: Array NoteSpec
-          fullNoteSpecs = join $ map (\ms -> ms.noteSpecs) mSpecs
-            -- join all the tuolet Specs together
-          fullTuplets :: Array VexTuplet
-          fullTuplets = join $ map (\ms -> ms.tuplets) mSpecs
-        in
-          -- NOT FINISHED
-          -- complete when we turn map into a fold
-          Right
-            { noteSpecs : fullNoteSpecs
-            , tuplets : fullTuplets
-            , tickableContext : (mempty :: TickableContext)
-            }
-      Left err ->
-        Left err
--}
-
 musics :: AbcContext -> Array Music -> Either String MusicSpec
 musics context abcMusics =
   foldOverMusics context abcMusics
@@ -94,19 +64,13 @@ foldOverMusics :: AbcContext -> Array Music -> Either String MusicSpec
 foldOverMusics context=
   let
     acc =
-      Right
-        { noteSpecs : []
-        , tuplets : []
-        , tickableContext : mempty
-        }
+      Right $ mempty :: MusicSpec
   in
     foldl (foldMusicsFunction context) acc
 
 -- | fold the music function over the array of music.
--- | the monoidal behaviour of TickableContext
+-- | the monoidal behaviour of TickableContext within MusicSpec
 -- | accumulates this context by threading through the fold
--- | the noteSpecs and tuplets component just accumulate
--- | We should really make MusicSpec iself a monoid to simplify this.
 foldMusicsFunction ::
   AbcContext ->
   Either String MusicSpec ->
@@ -116,32 +80,22 @@ foldMusicsFunction context eacc m =
   let
     (TickableContext position duration) =
       case eacc of
-        Right acc ->
+        Right (MusicSpec acc) ->
           acc.tickableContext
         _ ->
           mempty
+    enext :: Either String MusicSpec
     enext = music context position m
   in
     case (Tuple eacc enext) of
       (Tuple (Right acc) (Right next)) ->
-        let
-          noteSpecs = acc.noteSpecs <> next.noteSpecs
-          tuplets = acc.tuplets <> next.tuplets
-          tickableContext = acc.tickableContext <> next.tickableContext
-        in
-          Right
-            { noteSpecs : noteSpecs
-            , tuplets : tuplets
-            , tickableContext : tickableContext
-            }
+        Right $ acc <> next
 
       (Tuple (Left err) _ ) ->
         Left err
 
       (Tuple _ (Left err) ) ->
         Left err
-
-
 
 -- | translate any ABC music item that produces score to a VexFlow music spec
 -- | producing an empty array if it doesn't do so
@@ -172,6 +126,7 @@ music context tickablePosition m =
           eRes = tuplet context tickablePosition signature (Nel.toUnfoldable rOrNs)
         in
           map (\tupletSpec ->
+             MusicSpec
                 { noteSpecs : tupletSpec.noteSpecs
                 , tuplets : [tupletSpec.vexTuplet]
                 , tickableContext : tickableContext
@@ -368,8 +323,8 @@ duration ctx d =
 
 buildMusicSpecFromNs :: TickableContext -> Either String (Array NoteSpec) -> Either String MusicSpec
 buildMusicSpecFromNs tCtx ens =
-    map (\ns -> { noteSpecs : ns, tuplets : [], tickableContext : tCtx }) ens
+    map (\ns -> MusicSpec { noteSpecs : ns, tuplets : [], tickableContext : tCtx }) ens
 
 buildMusicSpecFromN :: TickableContext -> Either String NoteSpec -> Either String MusicSpec
 buildMusicSpecFromN tCtx ens =
-    map (\ns -> { noteSpecs : [ns], tuplets : [], tickableContext : tCtx }) ens
+    map (\ns -> MusicSpec { noteSpecs : [ns], tuplets : [], tickableContext : tCtx }) ens
