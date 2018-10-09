@@ -7,7 +7,7 @@ import Data.Rational ((%))
 import Data.Maybe (Maybe(..))
 import Data.List (fromFoldable)
 
-import VexFlow.Score (displayBar, initialise)
+import VexFlow.Score (displayBar, displayBars, initialise)
 import VexFlow.Abc.Utils (beatsPerBeam)
 import VexFlow.Types (Config, AbcContext)
 import Data.Abc
@@ -49,9 +49,7 @@ example0 =
       , music : fromFoldable [c 2, f 2, g 2, g 2, f 2, c 2]
       }
   in
-    do
-      _ <- displayBar context staveNo 0 bar0
-      displayBar context staveNo 1 bar1
+    displayBars context staveNo [bar0, bar1]
 
 -- | simple 4/4
 example1 :: Effect Unit
@@ -77,10 +75,7 @@ example1 =
       , music : fromFoldable [c 4, r 4]
       }
   in
-    do
-      _ <- displayBar context staveNo 0 bar0
-      _ <- displayBar context staveNo 1 bar1
-      displayBar context staveNo 2 bar2
+    displayBars context staveNo [bar0, bar1, bar2]
 
 -- | simple 2/4
 example2 :: Effect Unit
@@ -102,9 +97,7 @@ example2 =
       , music : fromFoldable [c 2, f 2, f 1, c 1, g 1, g 1]
       }
   in
-    do
-      _ <- displayBar context staveNo 0 bar0
-      displayBar context staveNo 1 bar1
+    displayBars context staveNo [bar0, bar1]
 
 -- | simple 3/4
 example3 :: Effect Unit
@@ -126,9 +119,7 @@ example3 =
       , music : fromFoldable [f 1, c 1, g 1, g 1, gs 8]
       }
   in
-    do
-      _ <- displayBar context staveNo 0 bar0
-      displayBar context staveNo 1 bar1
+    displayBars context staveNo [bar0, bar1]
 
 -- | chords in 4/4
 example4 :: Effect Unit
@@ -150,9 +141,7 @@ example4 =
       , music : fromFoldable [chord 2, chord 2, f 2, c 2, g 3, g 1]
       }
   in
-    do
-      _ <- displayBar context staveNo 0 bar0
-      displayBar context staveNo 1 bar1
+    displayBars context staveNo [bar0, bar1]
 
 
 -- | broken rhythm pair in 4/4
