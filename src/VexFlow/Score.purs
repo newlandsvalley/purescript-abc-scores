@@ -5,7 +5,7 @@ import Data.Array (null)
 import Data.Either (Either(..))
 import Effect (Effect)
 import Effect.Console (log)
-import Prelude ((<>), (+), (*), Unit, bind, discard, pure, unit)
+import Prelude ((<>), (+), (*), (==), Unit, bind, discard, pure, unit)
 import VexFlow.Abc.Translate (bar, keySignature, musics) as Translate
 import VexFlow.Types (AbcContext, Config, MusicSpec(..), MusicSpecContents, NoteSpec, StaveConfig, TimeSignature)
 
@@ -57,7 +57,11 @@ displayBar abcContext staveNo barNo abcBar =
         in
           do
             staveBar <- newStave (staveConfig staveNo barNo) dMajor
-            _ <- addTimeSignature staveBar abcContext.timeSignature
+            if (barNo == 0)
+              then
+                addTimeSignature staveBar abcContext.timeSignature
+              else
+                pure unit
             if (null musicSpec.tuplets)
               then
                 displayAutoBeamedNotesImpl abcContext staveBar musicSpec.noteSpecs
