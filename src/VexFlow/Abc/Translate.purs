@@ -1,4 +1,4 @@
-module VexFlow.Abc.Translate (keySignature, musics) where
+module VexFlow.Abc.Translate (bar, keySignature, musics) where
 
 -- | Translate between Abc types and VexFlow types which are
 -- | (at base) Strings
@@ -10,13 +10,14 @@ import Data.Array (length)
 import Data.Either (Either(..))
 import Data.Foldable (foldl)
 import Data.List.NonEmpty (head, toUnfoldable) as Nel
+import Data.List (toUnfoldable)
 import Data.Rational (numerator, denominator)
 import Data.String.Common (toLower)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import Prelude ((<>), ($), (*), (+), map, mempty, show)
 import VexFlow.Abc.Utils (dotCount, normaliseBroken, noteDotCount, noteTicks)
-import VexFlow.Types (AbcContext, NoteSpec, TupletSpec, MusicSpec(..))
+import VexFlow.Types (AbcContext, BarSpec, NoteSpec, TupletSpec, MusicSpec(..))
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), getTickableContext)
 
 -- | generate a VexFlow indication of pitch
@@ -55,6 +56,24 @@ keySignature ks =
       _ -> ""
   in
     show newks.pitchClass <> (keySignatureAccidental newks.accidental) <> modeStr
+
+bar :: AbcContext -> Int -> Bar -> Either String BarSpec
+bar context barNumber abcBar =
+  let
+    emusics = musics context $ toUnfoldable abcBar.music
+  in
+    case emusics of
+      Right m ->
+        let
+          barSpec =
+            { barNumber : barNumber
+            , startLine : "single"
+            , musicSpec : m
+            }
+         in
+           Right barSpec
+      Left err ->
+        Left (err <> ": bar " <> show barNumber)
 
 musics :: AbcContext -> Array Music -> Either String MusicSpec
 musics context abcMusics =

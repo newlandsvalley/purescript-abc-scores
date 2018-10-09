@@ -102,6 +102,7 @@ var wrapper = function() {
     },
 
     drawAutoBeamedNotes: function (abcContext, stave, noteSpec) {
+      console.log("drawAutoBeamedNotes")
       console.log(noteSpec);
       var notes = noteSpec.map(wrapper.makeStaveNote);
       // notes.push (new VF.BarNote({ type: 'single' }));
@@ -113,7 +114,8 @@ var wrapper = function() {
     },
 
     drawTupletedNotes: function (abcContext, stave, musicSpec) {
-      // console.log(musicSpec);
+      console.log("drawTupletedNotes")
+      console.log(musicSpec);
       var notes = musicSpec.noteSpecs.map(wrapper.makeStaveNote);
       var tuplets = musicSpec.tuplets.map(wrapper.makeTupletLayout (notes));
 

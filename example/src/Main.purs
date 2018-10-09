@@ -4,8 +4,10 @@ import Prelude
 import Effect (Effect)
 import Data.Tuple (Tuple(..))
 import Data.Rational ((%))
+import Data.Maybe (Maybe(..))
+import Data.List (fromFoldable)
 
-import VexFlow.Score (addTimeSignature, displayMusics, displayStave, initialise, newStave)
+import VexFlow.Score (addTimeSignature, displayBar, displayMusics, displayStave, initialise, newStave)
 import VexFlow.Abc.Utils (beatsPerBeam)
 import VexFlow.Types (Config, StaveConfig, AbcContext)
 import Data.Abc
@@ -49,10 +51,10 @@ example0 = void $ do
     context = abcContext (Tuple 6 8)
   stave <- newStave (staveConfig staveNo 0) dMajor
   _ <- addTimeSignature stave context.timeSignature
-  _ <- displayMusics context true stave [c 2, f 2, g 2, g 2, f 2, enat 1, b 1]
+  _ <- displayMusics context stave [c 2, f 2, g 2, g 2, f 2, enat 1, b 1]
   _ <- displayStave stave
   stave1 <- newStave (staveConfig staveNo 1) eMinor
-  _ <- displayMusics context true stave1 [c 2, f 2, g 2, g 2, f 2, c 2]
+  _ <- displayMusics context stave1 [c 2, f 2, g 2, g 2, f 2, c 2]
   displayStave stave1
 
 -- | simple 4/4
@@ -63,13 +65,13 @@ example1 = void $ do
     context = abcContext (Tuple 4 4)
   stave <- newStave (staveConfig staveNo 0) dMajor
   _ <- addTimeSignature stave context.timeSignature
-  _ <- displayMusics context true stave [c 2, f 2, g 2, g 2, f 2, enat 1, b 1, f 2, g 2]
+  _ <- displayMusics context stave [c 2, f 2, g 2, g 2, f 2, enat 1, b 1, f 2, g 2]
   _ <- displayStave stave
   stave1 <- newStave (staveConfig staveNo 1) dMajor
-  _ <- displayMusics context true stave1 [c 2, f 2, bf 2, g 2, f 2, c 2, g 3, g 1]
+  _ <- displayMusics context stave1 [c 2, f 2, bf 2, g 2, f 2, c 2, g 3, g 1]
   displayStave stave1
   stave2 <- newStave (staveConfig staveNo 2) dMajor
-  _ <- displayMusics context true stave2 [c 4, r 4]
+  _ <- displayMusics context stave2 [c 4, r 4]
   displayStave stave2
 
 -- | simple 2/4
@@ -80,10 +82,10 @@ example2 = void $ do
     context = abcContext (Tuple 2 4)
   stave <- newStave (staveConfig staveNo 0) dMajor
   _ <- addTimeSignature stave context.timeSignature
-  _ <- displayMusics context true stave [c 4, f 2, r 2]
+  _ <- displayMusics context stave [c 4, f 2, r 2]
   _ <- displayStave stave
   stave1 <- newStave (staveConfig staveNo 1) eMinor
-  _ <- displayMusics context true stave1 [c 2, f 2, f 1, c 1, g 1, g 1]
+  _ <- displayMusics context stave1 [c 2, f 2, f 1, c 1, g 1, g 1]
   displayStave stave1
 
 -- | simple 3/4
@@ -94,10 +96,10 @@ example3 = void $ do
     context = abcContext (Tuple 3 4)
   stave <- newStave (staveConfig staveNo 0) dMajor
   _ <- addTimeSignature stave context.timeSignature
-  _ <- displayMusics context true stave [c 4, f 1, f 1, g 1, g 1, f 2, g 2]
+  _ <- displayMusics context stave [c 4, f 1, f 1, g 1, g 1, f 2, g 2]
   _ <- displayStave stave
   stave1 <- newStave (staveConfig staveNo 1) eMinor
-  _ <- displayMusics context true stave1 [f 1, c 1, g 1, g 1, gs 8]
+  _ <- displayMusics context stave1 [f 1, c 1, g 1, g 1, gs 8]
   displayStave stave1
 
 -- | chords in 4/4
@@ -108,10 +110,10 @@ example4 = void $ do
     context = abcContext (Tuple 4 4)
   stave <- newStave (staveConfig staveNo 0) dMajor
   _ <- addTimeSignature stave context.timeSignature
-  _ <- displayMusics context true stave [c 2, f 2, g 2, g 2, chord 4]
+  _ <- displayMusics context stave [c 2, f 2, g 2, g 2, chord 4]
   _ <- displayStave stave
   stave1 <- newStave (staveConfig staveNo 1) dMajor
-  _ <- displayMusics context true stave1 [chord 2, chord 2, f 2, c 2, g 3, g 1]
+  _ <- displayMusics context stave1 [chord 2, chord 2, f 2, c 2, g 3, g 1]
   displayStave stave1
 
 -- | broken rhythm pair in 4/4
@@ -122,9 +124,30 @@ example5 = void $ do
     context = abcContext (Tuple 4 4)
   stave <- newStave (staveConfig staveNo 0) dMajor
   _ <- addTimeSignature stave context.timeSignature
-  _ <- displayMusics context true stave [brokenRight 2 1, brokenRight 2 1, brokenLeft 2 1, brokenLeft 2 1]
+  _ <- displayMusics context stave [brokenRight 2 1, brokenRight 2 1, brokenLeft 2 1, brokenLeft 2 1]
   displayStave stave
 
+-- | basic triplet in 3/4
+example6 :: Effect Unit
+example6 =
+  let
+    staveNo = 6
+    context = abcContext (Tuple 3 4)
+    music = fromFoldable [c 2, f 2, triplet 2, c 4]
+    barType =
+      { thickness : Thin
+      , repeat : Nothing
+      , iteration : Nothing
+      }
+    bar =
+      { startLine : barType
+      , music : music
+      }
+  in
+    displayBar context staveNo 0 bar
+
+
+{-
 -- | basic triplet in 3/4
 example6 :: Effect Unit
 example6 = void $ do
@@ -133,9 +156,31 @@ example6 = void $ do
     context = abcContext (Tuple 3 4)
   stave <- newStave (staveConfig staveNo 0) dMajor
   _ <- addTimeSignature stave context.timeSignature
-  _ <- displayMusics context true stave [c 2, f 2, triplet 2, c 4]
+  _ <- displayMusics context stave [c 2, f 2, triplet 2, c 4]
   displayStave stave
+-}
 
+
+-- | basic quadruplet in 6/8
+example7 :: Effect Unit
+example7 =
+  let
+    staveNo = 7
+    context = abcContext (Tuple 6 8)
+    music = fromFoldable [c 2, f 2, g 2, quadruplet 2]
+    barType =
+      { thickness : Thin
+      , repeat : Nothing
+      , iteration : Nothing
+      }
+    bar =
+      { startLine : barType
+      , music : music
+      }
+  in
+    displayBar context staveNo 0 bar
+
+{-
 -- | basic quadruplet in 6/8
 example7 :: Effect Unit
 example7 = void $ do
@@ -144,8 +189,10 @@ example7 = void $ do
     context = abcContext (Tuple 6 8)
   stave <- newStave (staveConfig staveNo 0) dMajor
   _ <- addTimeSignature stave context.timeSignature
-  _ <- displayMusics context true stave [quadruplet 2]
+  _ <- displayMusics context stave [c 2, f 2, g 2, quadruplet 2]
   displayStave stave
+-}
+
 
 main :: Effect Unit
 main = do
@@ -158,3 +205,9 @@ main = do
   _ <- example5
   _ <- example6
   example7
+
+  {-}
+  _ <- example5
+  _ <- example6
+  example7
+  -}

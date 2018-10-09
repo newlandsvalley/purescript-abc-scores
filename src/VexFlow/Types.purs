@@ -84,3 +84,9 @@ type MusicSpecContents =
   , tuplets :: Array VexTuplet
   , tickableContext :: TickableContext
   }
+
+type BarSpec =
+  { barNumber :: Int
+  , startLine :: String
+  , musicSpec :: MusicSpec
+  }

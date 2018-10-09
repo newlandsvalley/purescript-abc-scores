@@ -1,46 +1,80 @@
-module VexFlow.Score (Stave, addTimeSignature, displayMusics, displayStave, initialise, newStave) where
+module VexFlow.Score (Stave, addTimeSignature, displayBar, displayMusics, displayStave, initialise, newStave) where
 
-import Data.Either (Either(..))
-import Data.Abc (KeySignature, Music)
+import Data.Abc (Accidental(..), Bar, KeySignature, Mode(..), Music, PitchClass(..))
 import Data.Array (null)
-import Effect.Console (log)
+import Data.Either (Either(..))
 import Effect (Effect)
-import Prelude ((<>), Unit, bind, pure, unit)
-import VexFlow.Abc.Translate (keySignature, musics) as Translate
+import Effect.Console (log)
+import Prelude ((<>), (+), (*), Unit, bind, discard, pure, unit)
+import VexFlow.Abc.Translate (bar, keySignature, musics) as Translate
 import VexFlow.Types (AbcContext, Config, MusicSpec(..), MusicSpecContents, NoteSpec, StaveConfig, TimeSignature)
 
 
 -- | a stave
 foreign import data Stave :: Type
 
+staveWidth :: Int
+staveWidth = 250
+
+staveSeparation :: Int
+staveSeparation = 100
+
+-- temporary constants until we can parse the key signature
+dMajor :: KeySignature
+dMajor =
+  {  pitchClass : D
+  ,  accidental : Natural
+  ,  mode : Major
+  }
+
 addTimeSignature :: Stave -> TimeSignature -> Effect Unit
 addTimeSignature stave timeSignature =
   timeSignatureImpl stave timeSignature
 
+staveConfig :: Int -> Int -> StaveConfig
+staveConfig staveNo barNo =
+  { x : 10 + (staveWidth * barNo)
+  , y : 10 + (staveSeparation * staveNo)
+  , width : staveWidth
+  , barNo : barNo
+  }
+
+
 newStave :: StaveConfig -> KeySignature -> Effect Stave
-newStave staveConfig ks =
-  newStaveImpl staveConfig (Translate.keySignature ks)
+newStave staveCnfg ks =
+  newStaveImpl staveCnfg (Translate.keySignature ks)
 
-{-}
-displayNotes :: AbcContext -> Boolean -> Stave -> Array AbcNote -> Effect Unit
-displayNotes abcContext isAutoBeam stave abcNotes =
+-- | display a single bar of music
+displayBar :: AbcContext -> Int -> Int -> Bar -> Effect Unit
+displayBar abcContext staveNo barNo abcBar =
   let
-    eNotes = Stringify.notes abcContext abcNotes
+    eBarSpec = Translate.bar abcContext barNo abcBar
   in
-    case eNotes of
-      Right notes ->
-        if (isAutoBeam) then
-          displayAutoBeamedNotesImpl abcContext stave  notes
-        else
-          displayNotesImpl stave notes
-      _ ->
-        pure unit
--}
+    case eBarSpec of
+      Right barSpec ->
+        let
+          (MusicSpec musicSpec) = barSpec.musicSpec
+        in
+          do
+            staveBar <- newStave (staveConfig staveNo barNo) dMajor
+            _ <- addTimeSignature staveBar abcContext.timeSignature
+            if (null musicSpec.tuplets)
+              then
+                displayAutoBeamedNotesImpl abcContext staveBar musicSpec.noteSpecs
+              else
+                displayTupletedNotesImpl abcContext staveBar musicSpec
+            displayStave staveBar
+      Left err ->
+        do
+          _ <- log ("error in translating bar " <> err)
+          pure unit
 
-displayMusics :: AbcContext -> Boolean -> Stave -> Array Music -> Effect Unit
-displayMusics abcContext isAutoBeam stave abcMusics =
+
+displayMusics :: AbcContext -> Stave -> Array Music -> Effect Unit
+displayMusics abcContext stave abcMusics =
   let
     eMusicSpec = Translate.musics abcContext abcMusics
+    isAutoBeam = true
   in
     case eMusicSpec of
       Right (MusicSpec musicSpec) ->
