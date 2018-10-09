@@ -1,8 +1,17 @@
-module VexFlow.Score (Stave, addTimeSignature, displayBar, displayMusics, displayStave, initialise, newStave) where
+module VexFlow.Score
+  ( Stave
+  , addTimeSignature
+  , displayBar
+  , displayBarBeginRepeat
+  , displayMusics
+  , displayStave
+  , initialise
+  , newStave) where
 
-import Data.Abc (Accidental(..), Bar, KeySignature, Mode(..), Music, PitchClass(..))
+import Data.Abc (Accidental(..), Bar, KeySignature, Mode(..), Music, PitchClass(..), Repeat(..))
 import Data.Array (null)
 import Data.Either (Either(..))
+import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Console (log)
 import Prelude ((<>), (+), (*), (==), Unit, bind, discard, pure, unit)
@@ -62,6 +71,13 @@ displayBar abcContext staveNo barNo abcBar =
                 addTimeSignature staveBar abcContext.timeSignature
               else
                 pure unit
+
+            if (barSpec.startLine.repeat == Just Begin)
+              then
+                displayBarBeginRepeat staveBar
+              else
+                pure unit
+                
             if (null musicSpec.tuplets)
               then
                 displayAutoBeamedNotesImpl abcContext staveBar musicSpec.noteSpecs
@@ -101,4 +117,5 @@ foreign import displayNotesImpl :: Stave -> Array NoteSpec -> Effect Unit
 foreign import displayAutoBeamedNotesImpl :: AbcContext -> Stave -> Array NoteSpec -> Effect Unit
 foreign import displayTupletedNotesImpl :: AbcContext -> Stave -> MusicSpecContents -> Effect Unit
 foreign import displayStave :: Stave -> Effect Unit
+foreign import displayBarBeginRepeat :: Stave -> Effect Unit
 foreign import timeSignatureImpl :: Stave -> TimeSignature -> Effect Unit

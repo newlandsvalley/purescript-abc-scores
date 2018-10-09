@@ -28,6 +28,12 @@ var wrapper = function() {
       }
     },
 
+    displayBarBeginRepeat : function (stave) {
+      return function () {
+        stave.setBegBarType(VF.Barline.type.REPEAT_BEGIN);
+      }
+    },
+
     timeSignatureImpl : function (stave) {
       return function (timeSignature) {
         return function () {
@@ -88,6 +94,8 @@ var wrapper = function() {
         stave.setKeySignature(keySignature);
       }
 
+
+
       return stave;
     },
 
@@ -105,7 +113,7 @@ var wrapper = function() {
       console.log("drawAutoBeamedNotes")
       console.log(noteSpec);
       var notes = noteSpec.map(wrapper.makeStaveNote);
-      // notes.push (new VF.BarNote({ type: 'single' }));
+      // notes.unshift (new VF.BarNote({ type: 'single' }));  Doesn't work
       console.log(notes);
 
       var beams = VF.Beam.generateBeams(notes, wrapper.beamGroup(abcContext) );
@@ -197,6 +205,7 @@ var wrapper = function() {
 exports.initialise = wrapper.initialise;
 exports.newStaveImpl = wrapper.newStaveImpl;
 exports.displayStave = wrapper.displayStave;
+exports.displayBarBeginRepeat = wrapper.displayBarBeginRepeat;
 exports.displayNotesImpl = wrapper.displayNotesImpl;
 exports.displayAutoBeamedNotesImpl = wrapper.displayAutoBeamedNotesImpl;
 exports.displayTupletedNotesImpl = wrapper.displayTupletedNotesImpl;

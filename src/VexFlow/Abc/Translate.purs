@@ -67,7 +67,7 @@ bar context barNumber abcBar =
         let
           barSpec =
             { barNumber : barNumber
-            , startLine : "single"
+            , startLine : abcBar.startLine
             , musicSpec : m
             }
          in

@@ -1,7 +1,7 @@
 module VexFlow.Types where
 
 import Prelude (class Semigroup, class Monoid, (<>), mempty)
-import Data.Abc (NoteDuration)
+import Data.Abc (BarType, NoteDuration)
 import VexFlow.Abc.TickableContext (TickableContext)
 
 -- | the configuration of the VexFlow Canvas
@@ -87,6 +87,6 @@ type MusicSpecContents =
 
 type BarSpec =
   { barNumber :: Int
-  , startLine :: String
+  , startLine :: BarType
   , musicSpec :: MusicSpec
   }

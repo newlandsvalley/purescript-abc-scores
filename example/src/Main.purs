@@ -199,7 +199,7 @@ example7 =
     context = abcContext (Tuple 6 8)
     barType =
       { thickness : Thin
-      , repeat : Nothing
+      , repeat : Just Begin
       , iteration : Nothing
       }
     bar =
@@ -208,7 +208,6 @@ example7 =
       }
   in
     displayBar context staveNo 0 bar
-
 
 
 main :: Effect Unit
