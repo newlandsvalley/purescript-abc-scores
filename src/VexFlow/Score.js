@@ -22,15 +22,21 @@ var wrapper = function() {
       }
     },
 
+    displayBarBeginRepeat : function (stave) {
+      return function () {
+        stave.setBegBarType(VF.Barline.type.REPEAT_BEGIN);
+      }
+    },
+
     displayStave : function (stave) {
       return function () {
         return wrapper.drawStave(stave);
       }
     },
 
-    displayBarBeginRepeat : function (stave) {
+    getStaveWidth : function (stave) {
       return function () {
-        stave.setBegBarType(VF.Barline.type.REPEAT_BEGIN);
+        return stave.getWidth();
       }
     },
 
@@ -93,8 +99,6 @@ var wrapper = function() {
         stave.addClef("treble");
         stave.setKeySignature(keySignature);
       }
-
-
 
       return stave;
     },
@@ -205,6 +209,7 @@ var wrapper = function() {
 exports.initialise = wrapper.initialise;
 exports.newStaveImpl = wrapper.newStaveImpl;
 exports.displayStave = wrapper.displayStave;
+exports.getStaveWidth = wrapper.getStaveWidth;
 exports.displayBarBeginRepeat = wrapper.displayBarBeginRepeat;
 exports.displayNotesImpl = wrapper.displayNotesImpl;
 exports.displayAutoBeamedNotesImpl = wrapper.displayAutoBeamedNotesImpl;

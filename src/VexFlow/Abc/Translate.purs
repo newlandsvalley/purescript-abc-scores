@@ -19,6 +19,7 @@ import Prelude ((<>), ($), (*), (+), map, mempty, show)
 import VexFlow.Abc.Utils (dotCount, normaliseBroken, noteDotCount, noteTicks)
 import VexFlow.Types (AbcContext, BarSpec, NoteSpec, TupletSpec, MusicSpec(..))
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), getTickableContext)
+import VexFlow.Abc.ContextChange (ContextChange(..))
 
 -- | generate a VexFlow indication of pitch
 pitch :: PitchClass -> Accidental -> Int -> String
@@ -149,6 +150,7 @@ music context tickablePosition m =
                 { noteSpecs : tupletSpec.noteSpecs
                 , tuplets : [tupletSpec.vexTuplet]
                 , tickableContext : tickableContext
+                , contextChange : mempty
                 }
               ) eRes
 
@@ -342,8 +344,18 @@ duration ctx d =
 
 buildMusicSpecFromNs :: TickableContext -> Either String (Array NoteSpec) -> Either String MusicSpec
 buildMusicSpecFromNs tCtx ens =
-    map (\ns -> MusicSpec { noteSpecs : ns, tuplets : [], tickableContext : tCtx }) ens
+    map (\ns -> MusicSpec
+      { noteSpecs : ns
+      , tuplets : []
+      , tickableContext : tCtx
+      , contextChange : mempty
+      }) ens
 
 buildMusicSpecFromN :: TickableContext -> Either String NoteSpec -> Either String MusicSpec
 buildMusicSpecFromN tCtx ens =
-    map (\ns -> MusicSpec { noteSpecs : [ns], tuplets : [], tickableContext : tCtx }) ens
+    map (\ns -> MusicSpec
+      { noteSpecs : [ns]
+      , tuplets : []
+      , tickableContext : tCtx
+      , contextChange : mempty
+      }) ens

@@ -1,5 +1,10 @@
 module VexFlow.Abc.TickableContext where
 
+-- | A 'tickable' item is a first class item that exists on a bar stave
+-- | and occupies real estate - notably notes and rests.
+-- | We need to take account of these in each bar ( for instance, to determine
+-- | the start position amongst the tickables of any tuplet)
+
 import Prelude (class Semigroup, class Monoid, (+), (*), mempty)
 import Data.Abc (Music(..), NoteDuration, RestOrNote)
 import Data.Rational ((%), fromInt)
@@ -9,10 +14,6 @@ import Data.List.NonEmpty (head, toUnfoldable) as Nel
 
 type NoteCount = Int
 
--- | experimental
--- | we will need to pass state through the translation.
--- | one reason is that we need to know the number of notes
--- | in a bar before each tuplet we wish to translate
 data  TickableContext = TickableContext NoteCount NoteDuration
 
 instance tickableSemigroupCtx :: Semigroup TickableContext where

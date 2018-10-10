@@ -3,6 +3,7 @@ module VexFlow.Types where
 import Prelude (class Semigroup, class Monoid, (<>), mempty)
 import Data.Abc (BarType, NoteDuration)
 import VexFlow.Abc.TickableContext (TickableContext)
+import VexFlow.Abc.ContextChange (ContextChange)
 
 -- | the configuration of the VexFlow Canvas
 type Config =
@@ -61,7 +62,7 @@ type TupletSpec =
 
 -- | the specification of a music item or a bar of same
 -- | we may just have note specs in either or we may have
--- | one tuple spec (in the case of a single tuple item)
+-- | one tuple spec (in the case of a single tupinstance
 -- | or many (in the case of a full bar of music items)
 newtype MusicSpec = MusicSpec MusicSpecContents
 
@@ -74,6 +75,7 @@ instance musicSpecMonoid:: Monoid MusicSpec where
     { noteSpecs : []
     , tuplets : []
     , tickableContext : mempty
+    , contextChange : mempty
     }
 
 
@@ -83,6 +85,7 @@ type MusicSpecContents =
   { noteSpecs :: Array NoteSpec
   , tuplets :: Array VexTuplet
   , tickableContext :: TickableContext
+  , contextChange :: ContextChange
   }
 
 type BarSpec =

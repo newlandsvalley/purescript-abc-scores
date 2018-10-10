@@ -136,6 +136,7 @@ displayMusics abcContext stave abcMusics =
 
 foreign import initialise :: Config -> Effect Unit
 foreign import newStaveImpl :: StaveConfig -> String -> Effect Stave
+foreign import getStaveWidth :: Stave -> Effect Int
 foreign import displayNotesImpl :: Stave -> Array NoteSpec -> Effect Unit
 foreign import displayAutoBeamedNotesImpl :: AbcContext -> Stave -> Array NoteSpec -> Effect Unit
 foreign import displayTupletedNotesImpl :: AbcContext -> Stave -> MusicSpecContents -> Effect Unit
