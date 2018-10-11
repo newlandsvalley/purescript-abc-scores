@@ -1,4 +1,10 @@
-module VexFlow.Abc.Utils (beatsPerBeam, dotCount, normaliseBroken, noteDotCount, noteTicks) where
+module VexFlow.Abc.Utils
+  ( beatsPerBeam
+  , dotCount
+  , normaliseBroken
+  , noteDotCount
+  , noteTicks
+  , updateAbcContext) where
 
 import Prelude (($), (*), (+), (-))
 import Data.Int (round)
@@ -7,6 +13,7 @@ import Data.Tuple (Tuple(..))
 import Data.Abc (AbcNote, Broken(..), MeterSignature, NoteDuration)
 import Data.Abc.Metadata (dotFactor)
 import VexFlow.Types (AbcContext)
+import VexFlow.Abc.ContextChange (ContextChange(..))
 
 -- | set the defaullt grouping of notes that are beamed together
 -- | according to the meter signature
@@ -81,3 +88,19 @@ normaliseBroken broken n1 n2 =
             n2 { duration = n2.duration * (down i) }
         in
           (Tuple left right )
+
+updateAbcContext :: ContextChange -> AbcContext -> AbcContext
+updateAbcContext change abcContext =
+  case change of
+    MeterChange meterSignature ->
+      let
+        (Tuple numerator denominator) = meterSignature
+        timeSignature = { numerator, denominator }
+      in
+        abcContext { timeSignature = timeSignature
+                   , beatsPerBeam = beatsPerBeam meterSignature
+                   }
+    KeyChange modifiedKeySignature ->
+      abcContext
+    UnitNoteChange length ->
+      abcContext { unitNoteLength = length }
