@@ -134,7 +134,7 @@ example4 =
       }
     bar0 =
       { startLine : barType
-      , music : fromFoldable [c 2, f 2, g 2, g 2, chord 4]
+      , music : fromFoldable [c 2, f 2, g 2, g 2, chord 4, c 4]
       }
     bar1 =
       { startLine : barType
@@ -220,6 +220,27 @@ example8 =
   in
     displayBars context staveNo [bar0, bar1]
 
+-- | change key to Gm
+example9 :: Effect Unit
+example9 =
+  let
+    staveNo = 9
+    context = abcContext (Tuple 3 4)
+    barType =
+      { thickness : Thin
+      , repeat : Nothing
+      , iteration : Nothing
+      }
+    bar0 =
+      { startLine : barType
+      , music : fromFoldable [c 4, f 4, g 4]
+      }
+    bar1 =
+      { startLine : barType
+      , music : fromFoldable [keyChange, f 2, f 2, c 4, g 4]
+      }
+  in
+    displayBars context staveNo [bar0, bar1]
 
 main :: Effect Unit
 main = do
@@ -232,4 +253,5 @@ main = do
   _ <- example5
   _ <- example6
   _ <- example7
-  example8
+  _ <- example8
+  example9

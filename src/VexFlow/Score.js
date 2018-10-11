@@ -48,6 +48,14 @@ var wrapper = function() {
       }
     },
 
+    keySignatureImpl : function (stave) {
+      return function (keySignature) {
+        return function () {
+          return wrapper.drawKeySignature(stave, keySignature);
+        }
+      }
+    },
+
     displayNotesImpl : function (stave) {
       return function (notes) {
         return function () {
@@ -96,8 +104,7 @@ var wrapper = function() {
 
       // Add a clef and key signature if it's the first bar in the stave
       if (staveConfig.barNo == 0) {
-        stave.addClef("treble");
-        stave.setKeySignature(keySignature);
+        wrapper.drawKeySignature (stave, keySignature);
       }
 
       return stave;
@@ -110,7 +117,11 @@ var wrapper = function() {
     drawTimeSignature: function (stave, timeSignature) {
       var meter = timeSignature.numerator + "/" + timeSignature.denominator;
       stave.setTimeSignature(meter);
-      //  stave.addTimeSignature(meter);
+    },
+
+    drawKeySignature: function (stave, keySignature) {
+      stave.addClef("treble");
+      stave.setKeySignature(keySignature);
     },
 
     drawAutoBeamedNotes: function (abcContext, stave, noteSpec) {
@@ -215,3 +226,4 @@ exports.displayNotesImpl = wrapper.displayNotesImpl;
 exports.displayAutoBeamedNotesImpl = wrapper.displayAutoBeamedNotesImpl;
 exports.displayTupletedNotesImpl = wrapper.displayTupletedNotesImpl;
 exports.timeSignatureImpl = wrapper.timeSignatureImpl;
+exports.keySignatureImpl = wrapper.keySignatureImpl;

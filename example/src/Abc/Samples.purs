@@ -131,7 +131,21 @@ quadruplet d =
   in
     Tuplet signature notes
 
--- sample meter change
+-- sample meter change (to 3/4)
 meterChange :: Music
 meterChange =
   Inline $ Meter $ Just (Tuple 3 4)
+
+-- sample meter change (to Gm)
+keyChange :: Music
+keyChange =
+  let
+    gMinor =
+      {  pitchClass : G
+      ,  accidental : Natural
+      ,  mode : Minor
+      }
+  in
+    Inline $ Key $ { keySignature : gMinor
+                   , modifications : Nil
+                   }

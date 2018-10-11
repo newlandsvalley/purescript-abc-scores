@@ -44,6 +44,11 @@ addTimeSignature :: Stave -> TimeSignature -> Effect Unit
 addTimeSignature stave timeSignature =
   timeSignatureImpl stave timeSignature
 
+addKeySignature :: Stave -> KeySignature -> Effect Unit
+addKeySignature stave ks =
+  keySignatureImpl stave (Translate.keySignature ks)
+
+
 staveConfig :: Int -> Int -> StaveConfig
 staveConfig staveNo barNo =
   { x : 10 + (staveWidth * barNo)
@@ -145,8 +150,10 @@ displayContextChange abcContext staveBar contextChange =
     MeterChange (Tuple numerator denominator) ->
       addTimeSignature staveBar { numerator, denominator}
     KeyChange modifiedKeySignature ->
-      pure unit
+      -- note - this is dropping the modifications
+      addKeySignature staveBar modifiedKeySignature.keySignature
     UnitNoteChange _ ->
+      -- this has no immediate effect on the displayed stave
       pure unit
 
 
@@ -159,3 +166,4 @@ foreign import displayTupletedNotesImpl :: AbcContext -> Stave -> MusicSpecConte
 foreign import displayStave :: Stave -> Effect Unit
 foreign import displayBarBeginRepeat :: Stave -> Effect Unit
 foreign import timeSignatureImpl :: Stave -> TimeSignature -> Effect Unit
+foreign import keySignatureImpl :: Stave -> String -> Effect Unit
