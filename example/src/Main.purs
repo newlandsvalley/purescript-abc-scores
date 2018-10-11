@@ -198,6 +198,28 @@ example7 =
   in
     displayBar context staveNo 0 bar
 
+-- | change meter from 4/4 to 3/4
+example8 :: Effect Unit
+example8 =
+  let
+    staveNo = 8
+    context = abcContext (Tuple 4 4)
+    barType =
+      { thickness : Thin
+      , repeat : Nothing
+      , iteration : Nothing
+      }
+    bar0 =
+      { startLine : barType
+      , music : fromFoldable [c 4, f 4, g 4, f 4]
+      }
+    bar1 =
+      { startLine : barType
+      , music : fromFoldable [meterChange, f 4, c 4, g 4]
+      }
+  in
+    displayBars context staveNo [bar0, bar1]
+
 
 main :: Effect Unit
 main = do
@@ -209,4 +231,5 @@ main = do
   _ <- example4
   _ <- example5
   _ <- example6
-  example7
+  _ <- example7
+  example8

@@ -15,6 +15,7 @@ import Data.Rational (numerator, denominator)
 import Data.String.Common (toLower)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
+import Data.Maybe (Maybe(..))
 import Prelude ((<>), ($), (*), (+), map, mempty, show)
 import VexFlow.Abc.Utils (dotCount, normaliseBroken, noteDotCount, noteTicks)
 import VexFlow.Types (AbcContext, BarSpec, NoteSpec, TupletSpec, MusicSpec(..))
@@ -154,6 +155,9 @@ music context tickablePosition m =
                 }
               ) eRes
 
+      Inline header ->
+        buildMusicSpecFromContextChange $ headerChange context header
+
       _ ->
         buildMusicSpecFromNs tickableContext (Right [])
 
@@ -291,6 +295,29 @@ restOrNote context rOrn =
     Right abcNote ->
       note context abcNote
 
+-- | cater for an inline header (within a stave)
+-- |   we need to cater for changes in key signature, meter or unit note length
+-- | which all alter the translation context.  All other headers may be ignored
+
+headerChange :: AbcContext -> Header -> Array ContextChange
+headerChange ctx h =
+  case h of
+    Key mks ->
+      [KeyChange mks]
+
+    UnitNoteLength dur ->
+      [UnitNoteChange dur]
+
+    Meter maybeSignature ->
+      case maybeSignature of
+        Just meterSignature ->
+          [MeterChange meterSignature]
+        _ ->
+          []
+    _ ->
+      []
+
+
 -- | translate a note duration within a chord
 -- | (in ABC, a chord has a duration over and above the individual
 -- | note durations and these are multiplicative)
@@ -348,7 +375,7 @@ buildMusicSpecFromNs tCtx ens =
       { noteSpecs : ns
       , tuplets : []
       , tickableContext : tCtx
-      , contextChange : mempty
+      , contextChange : []
       }) ens
 
 buildMusicSpecFromN :: TickableContext -> Either String NoteSpec -> Either String MusicSpec
@@ -357,5 +384,14 @@ buildMusicSpecFromN tCtx ens =
       { noteSpecs : [ns]
       , tuplets : []
       , tickableContext : tCtx
-      , contextChange : mempty
+      , contextChange : []
       }) ens
+
+buildMusicSpecFromContextChange :: Array ContextChange -> Either String MusicSpec
+buildMusicSpecFromContextChange contextChange =
+    Right $ MusicSpec
+      { noteSpecs : []
+      , tuplets : []
+      , tickableContext : mempty
+      , contextChange : contextChange
+      }

@@ -13,12 +13,14 @@ import Data.Abc (Accidental(..), Bar, KeySignature, Mode(..), Music, PitchClass(
 import Data.Array (null, mapWithIndex)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
+import Data.Tuple (Tuple(..))
 import Data.Traversable (sequence, traverse_)
 import Effect (Effect)
 import Effect.Console (log)
 import Prelude (($), (<>), (+), (*), (==), Unit, bind, discard, pure, unit)
 import VexFlow.Abc.Translate (bar, keySignature, musics) as Translate
 import VexFlow.Types (AbcContext, BarSpec, Config, MusicSpec(..), MusicSpecContents, NoteSpec, StaveConfig, TimeSignature)
+import VexFlow.Abc.ContextChange (ContextChange(..))
 
 
 -- | a stave
@@ -93,6 +95,10 @@ displayBarSpec abcContext staveNo barSpec=
   in
     do
       staveBar <- newStave (staveConfig staveNo barSpec.barNumber) dMajor
+
+      -- add any meter or key change markers
+      traverse_ (displayContextChange abcContext staveBar) musicSpec.contextChange
+
       if (barSpec.barNumber == 0)
         then
           addTimeSignature staveBar abcContext.timeSignature
@@ -132,6 +138,16 @@ displayMusics abcContext stave abcMusics =
         do
           _ <- log ("error in translating musics: " <> err)
           pure unit
+
+displayContextChange :: AbcContext -> Stave -> ContextChange -> Effect Unit
+displayContextChange abcContext staveBar contextChange =
+  case contextChange of
+    MeterChange (Tuple numerator denominator) ->
+      addTimeSignature staveBar { numerator, denominator}
+    KeyChange modifiedKeySignature ->
+      pure unit
+    UnitNoteChange _ ->
+      pure unit
 
 
 foreign import initialise :: Config -> Effect Unit

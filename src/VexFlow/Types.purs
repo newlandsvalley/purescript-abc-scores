@@ -85,7 +85,7 @@ type MusicSpecContents =
   { noteSpecs :: Array NoteSpec
   , tuplets :: Array VexTuplet
   , tickableContext :: TickableContext
-  , contextChange :: ContextChange
+  , contextChange :: Array ContextChange
   }
 
 type BarSpec =

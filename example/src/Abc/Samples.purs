@@ -5,7 +5,9 @@ import Data.NonEmpty ((:|))
 import Data.List.Types ((:), NonEmptyList(..))
 import Data.List (List(..))
 import Data.Rational (fromInt)
+import Data.Tuple (Tuple(..))
 import Data.Either (Either(..))
+import Data.Maybe (Maybe(..))
 import Data.Abc
 
 
@@ -128,3 +130,8 @@ quadruplet d =
     notes = NonEmptyList ((Right $ gn 2) :| ( (Right $ cn d) : (Right $ fnatn d) : (Right $ cn d) : Nil))
   in
     Tuplet signature notes
+
+-- sample meter change
+meterChange :: Music
+meterChange =
+  Inline $ Meter $ Just (Tuple 3 4)
