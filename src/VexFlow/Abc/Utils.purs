@@ -1,5 +1,6 @@
 module VexFlow.Abc.Utils
-  ( beatsPerBeam
+  ( applyContextChanges
+  , beatsPerBeam
   , dotCount
   , normaliseBroken
   , noteDotCount
@@ -10,9 +11,11 @@ import Prelude (($), (*), (+), (-))
 import Data.Int (round)
 import Data.Rational (fromInt, toNumber)
 import Data.Tuple (Tuple(..))
+import Data.Either (Either(..))
+import Data.Foldable (foldl)
 import Data.Abc (AbcNote, Broken(..), MeterSignature, NoteDuration)
 import Data.Abc.Metadata (dotFactor)
-import VexFlow.Types (AbcContext)
+import VexFlow.Types (AbcContext, MusicSpec(..))
 import VexFlow.Abc.ContextChange (ContextChange(..))
 
 -- | set the defaullt grouping of notes that are beamed together
@@ -89,8 +92,8 @@ normaliseBroken broken n1 n2 =
         in
           (Tuple left right )
 
-updateAbcContext :: ContextChange -> AbcContext -> AbcContext
-updateAbcContext change abcContext =
+updateAbcContext :: AbcContext -> ContextChange ->  AbcContext
+updateAbcContext abcContext change =
   case change of
     MeterChange meterSignature ->
       let
@@ -104,3 +107,11 @@ updateAbcContext change abcContext =
       abcContext
     UnitNoteChange length ->
       abcContext { unitNoteLength = length }
+
+applyContextChanges :: AbcContext -> Either String MusicSpec ->  AbcContext
+applyContextChanges abcContext eSpec  =
+  case eSpec of
+    Right (MusicSpec spec) ->
+      foldl updateAbcContext abcContext spec.contextChanges
+    _ ->
+      abcContext

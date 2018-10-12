@@ -75,7 +75,7 @@ instance musicSpecMonoid:: Monoid MusicSpec where
     { noteSpecs : []
     , tuplets : []
     , tickableContext : mempty
-    , contextChange : mempty
+    , contextChanges : mempty
     }
 
 
@@ -85,7 +85,7 @@ type MusicSpecContents =
   { noteSpecs :: Array NoteSpec
   , tuplets :: Array VexTuplet
   , tickableContext :: TickableContext
-  , contextChange :: Array ContextChange
+  , contextChanges :: Array ContextChange
   }
 
 type BarSpec =

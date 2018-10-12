@@ -7,7 +7,7 @@ import Data.Rational ((%))
 import Data.Maybe (Maybe(..))
 import Data.List (fromFoldable)
 
-import VexFlow.Score (displayBar, displayBars, initialise)
+import VexFlow.Score (displayBar, displayBars, initialise, displayBarStateful)
 import VexFlow.Abc.Utils (beatsPerBeam)
 import VexFlow.Types (Config, AbcContext)
 import Data.Abc
@@ -160,7 +160,7 @@ example5 =
       , music : fromFoldable [brokenRight 2 1, brokenRight 2 1, brokenLeft 2 1, brokenLeft 2 1]
       }
   in
-    displayBar context staveNo 0 bar
+    displayBarStateful context staveNo 0 bar
 
 -- | basic triplet in 3/4
 example6 :: Effect Unit
@@ -178,7 +178,7 @@ example6 =
       , music :fromFoldable [c 2, f 2, triplet 2, c 4]
       }
   in
-    displayBar context staveNo 0 bar
+    displayBarStateful context staveNo 0 bar
 
 -- | basic quadruplet in 6/8
 example7 :: Effect Unit

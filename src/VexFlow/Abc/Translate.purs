@@ -1,4 +1,8 @@
-module VexFlow.Abc.Translate (bar, keySignature, musics) where
+module VexFlow.Abc.Translate
+  ( bar
+  , keySignature
+  , musics
+  , music) where
 
 -- | Translate between Abc types and VexFlow types which are
 -- | (at base) Strings
@@ -151,7 +155,7 @@ music context tickablePosition m =
                 { noteSpecs : tupletSpec.noteSpecs
                 , tuplets : [tupletSpec.vexTuplet]
                 , tickableContext : tickableContext
-                , contextChange : mempty
+                , contextChanges : mempty
                 }
               ) eRes
 
@@ -375,7 +379,7 @@ buildMusicSpecFromNs tCtx ens =
       { noteSpecs : ns
       , tuplets : []
       , tickableContext : tCtx
-      , contextChange : []
+      , contextChanges : []
       }) ens
 
 buildMusicSpecFromN :: TickableContext -> Either String NoteSpec -> Either String MusicSpec
@@ -384,7 +388,7 @@ buildMusicSpecFromN tCtx ens =
       { noteSpecs : [ns]
       , tuplets : []
       , tickableContext : tCtx
-      , contextChange : []
+      , contextChanges : []
       }) ens
 
 buildMusicSpecFromContextChange :: Array ContextChange -> Either String MusicSpec
@@ -393,5 +397,5 @@ buildMusicSpecFromContextChange contextChange =
       { noteSpecs : []
       , tuplets : []
       , tickableContext : mempty
-      , contextChange : contextChange
+      , contextChanges : contextChange
       }

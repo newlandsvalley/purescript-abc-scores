@@ -2,6 +2,7 @@ module VexFlow.Score
   ( Stave
   , addTimeSignature
   , displayBar
+  , displayBarStateful
   , displayBars
   , displayBarBeginRepeat
   , displayMusics
@@ -19,6 +20,7 @@ import Effect (Effect)
 import Effect.Console (log)
 import Prelude (($), (<>), (+), (*), (==), Unit, bind, discard, pure, unit)
 import VexFlow.Abc.Translate (bar, keySignature, musics) as Translate
+import VexFlow.Abc.TranslateStateful (runBar)
 import VexFlow.Types (AbcContext, BarSpec, Config, MusicSpec(..), MusicSpecContents, NoteSpec, StaveConfig, TimeSignature)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 
@@ -92,6 +94,21 @@ displayBar abcContext staveNo barNo abcBar =
           _ <- log ("error in translating bar " <> err)
           pure unit
 
+-- | ditto with state threading
+displayBarStateful :: AbcContext -> Int -> Int -> Bar -> Effect Unit
+displayBarStateful abcContext staveNo barNo abcBar =
+  let
+    eBarSpec :: Either String BarSpec
+    eBarSpec = runBar abcContext barNo abcBar
+  in
+    case eBarSpec of
+      Right barSpec ->
+        displayBarSpec abcContext staveNo barSpec
+      Left err ->
+        do
+          _ <- log ("error in translating stateful bar " <> err)
+          pure unit
+
 -- | display a single bar from the (translated) BarSpec
 displayBarSpec :: AbcContext -> Int -> BarSpec -> Effect Unit
 displayBarSpec abcContext staveNo barSpec=
@@ -102,7 +119,7 @@ displayBarSpec abcContext staveNo barSpec=
       staveBar <- newStave (staveConfig staveNo barSpec.barNumber) dMajor
 
       -- add any meter or key change markers
-      traverse_ (displayContextChange abcContext staveBar) musicSpec.contextChange
+      traverse_ (displayContextChange abcContext staveBar) musicSpec.contextChanges
 
       if (barSpec.barNumber == 0)
         then
