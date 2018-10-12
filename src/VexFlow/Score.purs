@@ -2,8 +2,9 @@ module VexFlow.Score
   ( Stave
   , addTimeSignature
   , displayBar
-  , displayBarStateful
+  , displayBarStateless
   , displayBars
+  , displayBarsStateless
   , displayBarBeginRepeat
   , displayMusics
   , displayStave
@@ -11,16 +12,17 @@ module VexFlow.Score
   , newStave) where
 
 import Data.Abc (Accidental(..), Bar, KeySignature, Mode(..), Music, PitchClass(..), Repeat(..))
-import Data.Array (null, mapWithIndex)
+import Data.Array (null, mapWithIndex, fromFoldable)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
 import Data.Traversable (sequence, traverse_)
+import Data.List (List)
 import Effect (Effect)
 import Effect.Console (log)
 import Prelude (($), (<>), (+), (*), (==), Unit, bind, discard, pure, unit)
 import VexFlow.Abc.Translate (bar, keySignature, musics) as Translate
-import VexFlow.Abc.TranslateStateful (runBar)
+import VexFlow.Abc.TranslateStateful (runBar, runBars)
 import VexFlow.Types (AbcContext, BarSpec, Config, MusicSpec(..), MusicSpecContents, NoteSpec, StaveConfig, TimeSignature)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 
@@ -65,12 +67,27 @@ newStave staveCnfg ks =
   newStaveImpl staveCnfg (Translate.keySignature ks)
 
 -- | display all the bars in a stave of music
-displayBars :: AbcContext -> Int -> Array Bar -> Effect Unit
+displayBarsStateless :: AbcContext -> Int -> List Bar -> Effect Unit
+displayBarsStateless abcContext staveNo bars =
+  let
+    eBarSpecs :: Either String (Array BarSpec)
+    eBarSpecs =
+      sequence $ mapWithIndex (Translate.bar abcContext) (fromFoldable bars)
+  in
+    case eBarSpecs of
+      Right barSpecs ->
+        traverse_ (displayBarSpec abcContext staveNo) barSpecs
+      Left err -> do
+        _ <- log ("error in translating stave  " <> err)
+        pure unit
+
+
+displayBars :: AbcContext -> Int -> List Bar -> Effect Unit
 displayBars abcContext staveNo bars =
   let
     eBarSpecs :: Either String (Array BarSpec)
     eBarSpecs =
-      sequence $ mapWithIndex (Translate.bar abcContext) bars
+      runBars abcContext bars
   in
     case eBarSpecs of
       Right barSpecs ->
@@ -80,8 +97,8 @@ displayBars abcContext staveNo bars =
         pure unit
 
 -- | display a single bar of music
-displayBar :: AbcContext -> Int -> Int -> Bar -> Effect Unit
-displayBar abcContext staveNo barNo abcBar =
+displayBarStateless :: AbcContext -> Int -> Int -> Bar -> Effect Unit
+displayBarStateless abcContext staveNo barNo abcBar =
   let
     eBarSpec :: Either String BarSpec
     eBarSpec = Translate.bar abcContext barNo abcBar
@@ -95,8 +112,8 @@ displayBar abcContext staveNo barNo abcBar =
           pure unit
 
 -- | ditto with state threading
-displayBarStateful :: AbcContext -> Int -> Int -> Bar -> Effect Unit
-displayBarStateful abcContext staveNo barNo abcBar =
+displayBar :: AbcContext -> Int -> Int -> Bar -> Effect Unit
+displayBar abcContext staveNo barNo abcBar =
   let
     eBarSpec :: Either String BarSpec
     eBarSpec = runBar abcContext barNo abcBar

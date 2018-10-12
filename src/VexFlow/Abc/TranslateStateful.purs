@@ -12,8 +12,11 @@ import Control.Monad.State
 import VexFlow.Abc.Translate as Trans
 import Data.Either (Either, either)
 import Data.Foldable (foldM)
-import Data.List (toUnfoldable)
+import Data.List (List, toUnfoldable, length)
+import Data.Tuple (Tuple(..))
 import Data.Newtype (unwrap)
+import Data.Array ((..), zip)
+import Data.Traversable (traverse)
 import Data.Abc
 import VexFlow.Abc.TickableContext (NoteCount)
 import VexFlow.Abc.Utils (applyContextChanges)
@@ -25,6 +28,25 @@ type Translation a = ExceptT String (State AbcContext) a
 runBar :: AbcContext -> Int -> Bar -> Either String BarSpec
 runBar abcContext barNumber abcBar =
   unwrap $ evalStateT (runExceptT $ bar barNumber abcBar) abcContext
+
+runBars :: AbcContext -> List Bar -> Either String (Array BarSpec)
+runBars abcContext bs =
+  unwrap $ evalStateT (runExceptT $ bars bs) abcContext  
+
+zipBars :: List Bar -> Array (Tuple Int Bar)
+zipBars bars =
+  let
+    barArray = toUnfoldable bars
+    intArray = 0 .. length bars
+  in
+    zip intArray barArray
+
+bars :: List Bar -> Translation (Array BarSpec)
+bars bs =
+  let
+    tupleArray = zipBars bs
+  in
+    traverse (\(Tuple index b) -> bar index b) tupleArray
 
 bar :: Int -> Bar -> Translation BarSpec
 bar barNumber abcBar =

@@ -6,8 +6,10 @@ import Data.Tuple (Tuple(..))
 import Data.Rational ((%))
 import Data.Maybe (Maybe(..))
 import Data.List (fromFoldable)
+import Data.Array (toUnfoldable)
 
-import VexFlow.Score (displayBar, displayBars, initialise, displayBarStateful)
+import VexFlow.Score (displayBar, displayBars, initialise, displayBarStateless,
+       displayBarsStateless)
 import VexFlow.Abc.Utils (beatsPerBeam)
 import VexFlow.Types (Config, AbcContext)
 import Data.Abc
@@ -49,7 +51,7 @@ example0 =
       , music : fromFoldable [c 2, f 2, g 2, g 2, f 2, c 2]
       }
   in
-    displayBars context staveNo [bar0, bar1]
+    displayBars context staveNo $ toUnfoldable [bar0, bar1]
 
 -- | simple 4/4
 example1 :: Effect Unit
@@ -75,7 +77,7 @@ example1 =
       , music : fromFoldable [c 4, r 4]
       }
   in
-    displayBars context staveNo [bar0, bar1, bar2]
+    displayBars context staveNo  $ toUnfoldable [bar0, bar1, bar2]
 
 -- | simple 2/4
 example2 :: Effect Unit
@@ -97,7 +99,7 @@ example2 =
       , music : fromFoldable [c 2, f 2, f 1, c 1, g 1, g 1]
       }
   in
-    displayBars context staveNo [bar0, bar1]
+    displayBars context staveNo $ toUnfoldable [bar0, bar1]
 
 -- | simple 3/4
 example3 :: Effect Unit
@@ -119,7 +121,7 @@ example3 =
       , music : fromFoldable [f 1, c 1, g 1, g 1, gs 8]
       }
   in
-    displayBars context staveNo [bar0, bar1]
+    displayBars context staveNo $ toUnfoldable [bar0, bar1]
 
 -- | chords in 4/4
 example4 :: Effect Unit
@@ -141,7 +143,7 @@ example4 =
       , music : fromFoldable [chord 2, chord 2, f 2, c 2, g 3, g 1]
       }
   in
-    displayBars context staveNo [bar0, bar1]
+    displayBars context staveNo $ toUnfoldable [bar0, bar1]
 
 
 -- | broken rhythm pair in 4/4
@@ -160,7 +162,7 @@ example5 =
       , music : fromFoldable [brokenRight 2 1, brokenRight 2 1, brokenLeft 2 1, brokenLeft 2 1]
       }
   in
-    displayBarStateful context staveNo 0 bar
+    displayBar context staveNo 0 bar
 
 -- | basic triplet in 3/4
 example6 :: Effect Unit
@@ -178,7 +180,7 @@ example6 =
       , music :fromFoldable [c 2, f 2, triplet 2, c 4]
       }
   in
-    displayBarStateful context staveNo 0 bar
+    displayBar context staveNo 0 bar
 
 -- | basic quadruplet in 6/8
 example7 :: Effect Unit
@@ -218,7 +220,7 @@ example8 =
       , music : fromFoldable [meterChange, f 4, c 4, g 4]
       }
   in
-    displayBars context staveNo [bar0, bar1]
+    displayBars context staveNo $ toUnfoldable [bar0, bar1]
 
 -- | change key to Gm
 example9 :: Effect Unit
@@ -240,7 +242,7 @@ example9 =
       , music : fromFoldable [keyChange, f 2, f 2, c 4, g 4]
       }
   in
-    displayBars context staveNo [bar0, bar1]
+    displayBars context staveNo $ toUnfoldable [bar0, bar1]
 
 main :: Effect Unit
 main = do
