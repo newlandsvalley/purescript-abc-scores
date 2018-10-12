@@ -31,7 +31,11 @@ runBar abcContext barNumber abcBar =
 
 runBars :: AbcContext -> List Bar -> Either String (Array BarSpec)
 runBars abcContext bs =
-  unwrap $ evalStateT (runExceptT $ bars bs) abcContext  
+  unwrap $ evalStateT (runExceptT $ bars bs) abcContext
+
+execBars :: AbcContext -> List Bar -> AbcContext
+execBars abcContext bs =
+  unwrap $ execStateT (runExceptT $ bars bs) abcContext    
 
 zipBars :: List Bar -> Array (Tuple Int Bar)
 zipBars bars =

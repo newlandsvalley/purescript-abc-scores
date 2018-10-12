@@ -13,6 +13,7 @@
     "purescript-abc-parser": "https://github.com/newlandsvalley/purescript-abc-parser.git#master"
   },
   "devDependencies": {
-    "purescript-psci-support": "^4.0.0"
+    "purescript-psci-support": "^4.0.0",
+    "purescript-test-unit": "^14.0.0"
   }
 }
