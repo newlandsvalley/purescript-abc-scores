@@ -35,9 +35,8 @@ pitch pc acc oct =
 -- | return the VexFlow pitch of a note
 notePitch :: AbcNote -> String
 notePitch abcNote =
-  pitch abcNote.pitchClass abcNote.accidental abcNote.octave
-  -- note should probably be
-  --  pitch abcNote.pitchClass abcNote.accidental (abcNote.octave - 1)
+  -- VexFlow's notation of octave is one higher thab our ABC's
+  pitch abcNote.pitchClass abcNote.accidental (abcNote.octave - 1)
 
 accidental :: Accidental -> String
 accidental Sharp = "#"
