@@ -6,6 +6,13 @@ import Data.Abc (BarType, NoteDuration)
 import VexFlow.Abc.TickableContext (TickableContext)
 import VexFlow.Abc.ContextChange (ContextChange)
 
+staveIndentation :: Int
+staveIndentation = 10
+
+-- | just temporary while we have fixed width bars
+staveWidth :: Int
+staveWidth = 250
+
 -- | the configuration of the VexFlow Canvas
 type Config =
     { canvasDivId :: String
@@ -34,8 +41,9 @@ type AbcContext =
   , unitNoteLength :: NoteDuration
   , beatsPerBeam :: Int
   , staveNo :: Maybe Int
+  , accumulatedStaveWidth :: Int
   }
-  
+
 type NoteSpec =
   { vexNote :: VexNote
   , accidentals :: Array String
@@ -93,6 +101,8 @@ type MusicSpecContents =
 
 type BarSpec =
   { barNumber :: Int
+  , width  :: Int
+  , xOffset :: Int
   , startLine :: BarType
   , musicSpec :: MusicSpec
   }

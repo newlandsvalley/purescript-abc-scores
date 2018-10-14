@@ -18,7 +18,7 @@ import Data.Foldable (foldl)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Abc (AbcTune, AbcNote, Broken(..), MeterSignature, NoteDuration)
 import Data.Abc.Metadata (dotFactor, getMeter, getUnitNoteLength)
-import VexFlow.Types (AbcContext, MusicSpec(..))
+import VexFlow.Types (AbcContext, MusicSpec(..), staveIndentation)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 
 -- | set the defaullt grouping of notes that are beamed together
@@ -108,6 +108,7 @@ initialAbcContext tune =
     , unitNoteLength : unitNote
     , beatsPerBeam : beatsPerBeam meterSignature
     , staveNo : Nothing
+    , accumulatedStaveWidth : staveIndentation  -- just the initial margin
     }
 
 

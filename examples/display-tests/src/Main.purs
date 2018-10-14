@@ -10,7 +10,7 @@ import Data.Array (singleton, toUnfoldable)
 
 import VexFlow.Score (displayBars, initialise, displayFullStave)
 import VexFlow.Abc.Utils (beatsPerBeam)
-import VexFlow.Types (Config, AbcContext)
+import VexFlow.Types (Config, AbcContext, staveIndentation)
 import Data.Abc
 import Examples.DisplayTests.Samples
 
@@ -29,6 +29,7 @@ abcContext (Tuple x y) =
   , unitNoteLength : ( 1 % 16)
   , beatsPerBeam : beatsPerBeam (Tuple x y)
   , staveNo : Nothing
+  , accumulatedStaveWidth : staveIndentation
   }
 
 -- | simple 6/8

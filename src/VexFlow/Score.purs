@@ -21,16 +21,14 @@ import Prelude (($), (<>), (+), (*), (==), Unit, bind, discard, pure, unit)
 import VexFlow.Abc.Translate (bar, keySignature, musics) as Translate
 import VexFlow.Abc.TranslateStateful (runBar, runBars, runBodyPart, runTuneBody)
 import VexFlow.Types (AbcContext, BarSpec, Config, MusicSpec(..)
-         ,MusicSpecContents, NoteSpec, StaveConfig, StaveSpec, TimeSignature)
+         , MusicSpecContents, NoteSpec, StaveConfig, StaveSpec, TimeSignature
+         , staveWidth)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Utils (initialAbcContext)
 
 
 -- | a stave
 foreign import data Stave :: Type
-
-staveWidth :: Int
-staveWidth = 250
 
 staveSeparation :: Int
 staveSeparation = 100
@@ -51,12 +49,21 @@ addKeySignature :: Stave -> KeySignature -> Effect Unit
 addKeySignature stave ks =
   keySignatureImpl stave (Translate.keySignature ks)
 
-
+{-}
 staveConfig :: Int -> Int -> StaveConfig
 staveConfig staveNo barNo =
   { x : 10 + (staveWidth * barNo)
   , y : 10 + (staveSeparation * staveNo)
   , width : staveWidth
+  , barNo : barNo
+  }
+-}
+
+staveConfig :: Int -> Int -> Int -> Int -> StaveConfig
+staveConfig staveNo barNo xOffset width =
+  { x : xOffset
+  , y : 10 + (staveSeparation * staveNo)
+  , width : width
   , barNo : barNo
   }
 
@@ -140,14 +147,19 @@ displayBars abcContext staveNo bars =
         _ <- log ("error in translating stave  " <> err)
         pure unit
 
+
 -- | display a single bar from the (translated) BarSpec
 displayBarSpec :: AbcContext -> Int -> BarSpec -> Effect Unit
-displayBarSpec abcContext staveNo barSpec=
+displayBarSpec abcContext staveNo barSpec =
   let
     (MusicSpec musicSpec) = barSpec.musicSpec
+    -- xOffset hard coded at the moment - fixed width bars
+    -- xOffset = 10 + (staveWidth * barSpec.barNumber)
+    -- now tracked in the BarSpec
+    xOffset = barSpec.xOffset
   in
     do
-      staveBar <- newStave (staveConfig staveNo barSpec.barNumber) dMajor
+      staveBar <- newStave (staveConfig staveNo barSpec.barNumber xOffset staveWidth) dMajor
 
       -- add any meter or key change markers
       traverse_ (displayContextChange abcContext staveBar) musicSpec.contextChanges
@@ -170,6 +182,7 @@ displayBarSpec abcContext staveNo barSpec=
         else
           displayTupletedNotesImpl abcContext staveBar musicSpec
       displayStave staveBar
+
 
 
 {- Just for debug

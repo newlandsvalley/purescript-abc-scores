@@ -2,7 +2,7 @@ module Test.Samples where
 
 import Prelude (($))
 import VexFlow.Abc.Utils (beatsPerBeam)
-import VexFlow.Types (AbcContext)
+import VexFlow.Types (AbcContext, staveIndentation)
 import Data.Abc
 import Data.Tuple (Tuple(..))
 import Data.Rational ((%), fromInt)
@@ -17,6 +17,7 @@ startAbcContext (Tuple x y) =
   , unitNoteLength : ( 1 % 16)
   , beatsPerBeam : beatsPerBeam (Tuple x y)
   , staveNo : Nothing
+  , accumulatedStaveWidth : staveIndentation
   }
 
 c :: Int -> Music
@@ -60,5 +61,22 @@ meterChangeTo34 initialContext =
       , music : fromFoldable [meterChange34, f 2, f 2, c 4, g 4]
       }
     bodyPart = Score $ toUnfoldable [bar0, bar1]
+  in
+    execBodyPart initialContext bodyPart
+
+-- | keep generating and storing the accumulated stave width
+accumulateBarWidths :: AbcContext -> AbcContext
+accumulateBarWidths initialContext =
+  let
+    barType =
+      { thickness : Thin
+      , repeat : Nothing
+      , iteration : Nothing
+      }
+    bar =
+      { startLine : barType
+      , music : fromFoldable [c 4, f 4, g 4]
+      }
+    bodyPart = Score $ toUnfoldable [bar, bar, bar, bar]
   in
     execBodyPart initialContext bodyPart

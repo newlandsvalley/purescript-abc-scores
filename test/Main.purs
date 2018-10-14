@@ -27,3 +27,10 @@ configThreadingSuite =
        Assert.equal 1 abcContext.beatsPerBeam
        -- score item sets the first stave number to 0
        Assert.equal (Just 0) abcContext.staveNo
+    -- this test must be re-written when we implement variable length bars
+    test "4 bars width" do
+      let
+        initialContext = startAbcContext (Tuple 4 4)
+        abcContext = accumulateBarWidths initialContext
+        -- key change alters the time signature and beats per beam
+      Assert.equal 1010 abcContext.accumulatedStaveWidth

@@ -23,7 +23,8 @@ import Data.Tuple (Tuple(..))
 import Data.Maybe (Maybe(..))
 import Prelude ((<>), ($), (*), (+), (-), map, mempty, show)
 import VexFlow.Abc.Utils (dotCount, normaliseBroken, noteDotCount, noteTicks)
-import VexFlow.Types (AbcContext, BarSpec, NoteSpec, TupletSpec, MusicSpec(..))
+import VexFlow.Types (AbcContext, BarSpec, NoteSpec, TupletSpec, MusicSpec(..)
+    ,staveWidth)
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), getTickableContext)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 
@@ -75,6 +76,8 @@ bar context barNumber abcBar =
         let
           barSpec =
             { barNumber : barNumber
+            , width : staveWidth
+            , xOffset : context.accumulatedStaveWidth
             , startLine : abcBar.startLine
             , musicSpec : m
             }

@@ -6,7 +6,7 @@ module VexFlow.Abc.TranslateStateful  where
 -- Any change in headers for time signature, key signature or unit note length
 -- will alter the state.
 
-import Prelude (($), (<>), Unit, bind, discard, mempty, pure, show)
+import Prelude (($), (<>), (+), Unit, bind, discard, mempty, pure, show)
 import Control.Monad.Except.Trans
 import Control.Monad.State
 import VexFlow.Abc.Translate as Trans
@@ -20,7 +20,8 @@ import Data.Array ((..), zip)
 import Data.Traversable (traverse)
 import Data.Abc (Bar, BodyPart(..), Music)
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext)
-import VexFlow.Types (AbcContext, BarSpec, MusicSpec(..), StaveSpec)
+import VexFlow.Types (AbcContext, BarSpec, MusicSpec(..), StaveSpec
+      , staveIndentation, staveWidth)
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..))
 
 type Translation a = ExceptT String (State AbcContext) a
@@ -71,7 +72,9 @@ bodyPart bp =
         let
           mStaveNo = nextStaveNo abcContext.staveNo
           staveNo = fromMaybe 0 mStaveNo
-        _ <- put (abcContext { staveNo = mStaveNo })
+          -- reset the stave offset to be just the margin
+        _ <- put (abcContext { staveNo = mStaveNo
+                             , accumulatedStaveWidth = staveIndentation})
         -- then translate the bars
         staveBars <- bars bs
         -- return the stave specification
@@ -97,13 +100,21 @@ bar :: Int -> Bar -> Translation BarSpec
 bar barNumber abcBar =
   do
     musicSpec <- foldOverMusics $ toUnfoldable abcBar.music
+    -- we MUST get the context after iterating through the music
+    abcContext <- get
     let
       barSpec :: BarSpec
       barSpec =
         { barNumber : barNumber
+        , width : staveWidth
+        , xOffset : abcContext.accumulatedStaveWidth
         , startLine : abcBar.startLine
         , musicSpec : musicSpec
         }
+      -- accumulate the bar width
+      newWidth = abcContext.accumulatedStaveWidth + barSpec.width
+      newAbcContext = abcContext {accumulatedStaveWidth = newWidth}
+    _ <- put newAbcContext
     withExceptT (\err -> err <> ": bar " <> show barNumber) $ pure barSpec
 
 music :: NoteCount -> Music -> Translation MusicSpec
