@@ -6,21 +6,23 @@ module VexFlow.Score
   , initialise
   , newStave) where
 
-import Data.Abc (Accidental(..), Bar, BodyPart, KeySignature, Mode(..), Music, PitchClass(..), Repeat(..))
-import Data.Array (null, mapWithIndex, fromFoldable)
+import Data.Abc (AbcTune, Accidental(..), Bar, BodyPart, KeySignature
+     ,Mode(..), Music, PitchClass(..), Repeat(..))
+import Data.Array (null)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
-import Data.Traversable (sequence, traverse_)
+import Data.Traversable (traverse_)
 import Data.List (List)
 import Effect (Effect)
 import Effect.Console (log)
 import Prelude (($), (<>), (+), (*), (==), Unit, bind, discard, pure, unit)
 import VexFlow.Abc.Translate (bar, keySignature, musics) as Translate
-import VexFlow.Abc.TranslateStateful (runBar, runBars, runBodyPart)
-import VexFlow.Types (AbcContext, BarSpec, Config, MusicSpec(..), MusicSpecContents,
-     NoteSpec, StaveConfig, StaveSpec, TimeSignature)
+import VexFlow.Abc.TranslateStateful (runBar, runBars, runBodyPart, runTuneBody)
+import VexFlow.Types (AbcContext, BarSpec, Config, MusicSpec(..)
+         ,MusicSpecContents, NoteSpec, StaveConfig, StaveSpec, TimeSignature)
 import VexFlow.Abc.ContextChange (ContextChange(..))
+import VexFlow.Abc.Utils (initialAbcContext)
 
 
 -- | a stave
@@ -61,6 +63,13 @@ staveConfig staveNo barNo =
 newStave :: StaveConfig -> KeySignature -> Effect Stave
 newStave staveCnfg ks =
   newStaveImpl staveCnfg (Translate.keySignature ks)
+
+displayTune :: AbcTune -> Effect Unit
+displayTune abcTune =
+  let
+    abcContext = initialAbcContext abcTune
+  in
+    traverse_ (displayFullStave abcContext) abcTune.body
 
 -- | display a full stave of music
 -- | (in cases where the stave consists of actual music)

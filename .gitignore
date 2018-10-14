@@ -3,7 +3,7 @@
 /.pulp-cache/
 /output/
 /deprecated/
-/example/dist/app.js
+/examples/display-tests/dist/app.js
 /.psc*
 /.psa*
 /.purs*

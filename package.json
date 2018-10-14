@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "build": "pulp build",
-    "example": "pulp build --main Example.Main --include example/src --to example/dist/app.js"
+    "display-tests": "pulp build --main Example.Main --include examples/display-tests/src --to examples/display-tests/dist/app.js"
   },
   "devDependencies": {
     "pulp": "^12.3.0",

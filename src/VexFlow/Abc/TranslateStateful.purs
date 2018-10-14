@@ -37,6 +37,10 @@ runBodyPart :: AbcContext -> BodyPart -> Either String (Maybe StaveSpec)
 runBodyPart abcContext bp =
   unwrap $ evalStateT (runExceptT $ bodyPart bp) abcContext
 
+runTuneBody :: AbcContext -> List BodyPart -> Either String (Array (Maybe StaveSpec))
+runTuneBody abcContext bps =
+  unwrap $ evalStateT (runExceptT $ tuneBody bps) abcContext
+
 execBars :: AbcContext -> List Bar -> AbcContext
 execBars abcContext bs =
   unwrap $ execStateT (runExceptT $ bars bs) abcContext
@@ -52,6 +56,10 @@ zipBars bs =
     intArray = 0 .. length bs
   in
     zip intArray barArray
+
+tuneBody :: List BodyPart -> Translation (Array (Maybe StaveSpec))
+tuneBody bodyParts =
+  traverse bodyPart $ toUnfoldable bodyParts
 
 bodyPart :: BodyPart -> Translation (Maybe StaveSpec)
 bodyPart bp =

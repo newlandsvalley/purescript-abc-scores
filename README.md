@@ -13,7 +13,7 @@ To build the library
      bower install
      npm run build
 
-To build the example
---------------------
+To build the small display examples
+-----------------------------------
      bower install
-     npm run example
+     npm run display-tests

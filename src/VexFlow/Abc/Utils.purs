@@ -5,18 +5,19 @@ module VexFlow.Abc.Utils
   , normaliseBroken
   , noteDotCount
   , noteTicks
+  , initialAbcContext
   , updateAbcContext
   , nextStaveNo) where
 
 import Prelude (($), (*), (+), (-))
 import Data.Int (round)
-import Data.Rational (fromInt, toNumber)
+import Data.Rational (fromInt, toNumber, (%))
 import Data.Tuple (Tuple(..))
 import Data.Either (Either(..))
 import Data.Foldable (foldl)
-import Data.Maybe (Maybe(..))
-import Data.Abc (AbcNote, Broken(..), MeterSignature, NoteDuration)
-import Data.Abc.Metadata (dotFactor)
+import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Abc (AbcTune, AbcNote, Broken(..), MeterSignature, NoteDuration)
+import Data.Abc.Metadata (dotFactor, getMeter, getUnitNoteLength)
 import VexFlow.Types (AbcContext, MusicSpec(..))
 import VexFlow.Abc.ContextChange (ContextChange(..))
 
@@ -94,6 +95,22 @@ normaliseBroken broken n1 n2 =
         in
           (Tuple left right )
 
+initialAbcContext :: AbcTune -> AbcContext
+initialAbcContext tune =
+  let
+    meterSignature =
+      fromMaybe (Tuple 4 4) $ getMeter tune
+    (Tuple numerator denominator) = meterSignature
+    unitNote =
+      fromMaybe (1 % 16) $ getUnitNoteLength tune
+  in
+    { timeSignature : { numerator, denominator }
+    , unitNoteLength : unitNote
+    , beatsPerBeam : beatsPerBeam meterSignature
+    , staveNo : Nothing
+    }
+
+
 updateAbcContext :: AbcContext -> ContextChange ->  AbcContext
 updateAbcContext abcContext change =
   case change of
@@ -122,14 +139,3 @@ applyContextChanges abcContext eSpec  =
 nextStaveNo :: Maybe Int -> Maybe Int
 nextStaveNo Nothing = Just 0
 nextStaveNo (Just x) = Just (x + 1)
-
-{-}
-incrementContextStaveNo :: Maybe Int -> AbcContext -> AbcContext
-incrementContextStaveNo staveNo abcContext =
-  let
-    nextStave :: Maybe Int -> Maybe Int
-    nextStave Nothing = Just 0
-    nextStave (Just x) = Just (x + 1)
-  in
-    abcContext { staveNo = nextStave abcContext.staveNo}
--}
