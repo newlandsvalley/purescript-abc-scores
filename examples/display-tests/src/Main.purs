@@ -1,4 +1,4 @@
-module Example.Main where
+module Examples.DisplayTests.Main where
 
 import Prelude (Unit, bind, ($))
 import Effect (Effect)
@@ -12,7 +12,7 @@ import VexFlow.Score (displayBars, initialise, displayFullStave)
 import VexFlow.Abc.Utils (beatsPerBeam)
 import VexFlow.Types (Config, AbcContext)
 import Data.Abc
-import Abc.Samples
+import Examples.DisplayTests.Samples
 
 
 config :: Config

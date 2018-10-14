@@ -21,7 +21,7 @@ import Data.String.Common (toLower)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import Data.Maybe (Maybe(..))
-import Prelude ((<>), ($), (*), (+), map, mempty, show)
+import Prelude ((<>), ($), (*), (+), (-), map, mempty, show)
 import VexFlow.Abc.Utils (dotCount, normaliseBroken, noteDotCount, noteTicks)
 import VexFlow.Types (AbcContext, BarSpec, NoteSpec, TupletSpec, MusicSpec(..))
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), getTickableContext)
@@ -36,6 +36,8 @@ pitch pc acc oct =
 notePitch :: AbcNote -> String
 notePitch abcNote =
   pitch abcNote.pitchClass abcNote.accidental abcNote.octave
+  -- note should probably be
+  --  pitch abcNote.pitchClass abcNote.accidental (abcNote.octave - 1)
 
 accidental :: Accidental -> String
 accidental Sharp = "#"

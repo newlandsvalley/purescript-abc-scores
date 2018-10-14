@@ -1,6 +1,7 @@
 module VexFlow.Score
   ( Stave
   , addTimeSignature
+  , displayTune
   , displayFullStave
   , displayBars
   , initialise
@@ -64,12 +65,20 @@ newStave :: StaveConfig -> KeySignature -> Effect Stave
 newStave staveCnfg ks =
   newStaveImpl staveCnfg (Translate.keySignature ks)
 
+
 displayTune :: AbcTune -> Effect Unit
 displayTune abcTune =
   let
     abcContext = initialAbcContext abcTune
+    eStaveSpecs :: Either String (Array (Maybe StaveSpec))
+    eStaveSpecs = runTuneBody abcContext abcTune.body
   in
-    traverse_ (displayFullStave abcContext) abcTune.body
+    case eStaveSpecs of
+      Right staveSpecs ->
+        traverse_ (displayStaveSpec abcContext) staveSpecs
+      Left err -> do
+        _ <- log ("error in translating tune  " <> err)
+        pure unit
 
 -- | display a full stave of music
 -- | (in cases where the stave consists of actual music)
@@ -89,6 +98,15 @@ displayFullStave abcContext bodyPart =
       Left err -> do
         _ <- log ("error in translating stave  " <> err)
         pure unit
+
+displayStaveSpec :: AbcContext -> Maybe StaveSpec -> Effect Unit
+displayStaveSpec abcContext mStaveSpec =
+  case mStaveSpec of
+    (Just staveSpec) ->
+      traverse_ (displayBarSpec abcContext staveSpec.staveNo) staveSpec.barSpecs
+    _ ->
+      -- the body part is merely a header - no display needed
+      pure unit
 
 {- Just for debug
 -- | display all the bars in a stave of music

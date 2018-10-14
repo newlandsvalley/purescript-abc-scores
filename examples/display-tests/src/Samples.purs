@@ -1,4 +1,4 @@
-module Abc.Samples where
+module Examples.DisplayTests.Samples where
 
 import Prelude (($))
 import Data.NonEmpty ((:|))

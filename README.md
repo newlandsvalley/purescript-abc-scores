@@ -17,3 +17,8 @@ To build the small display examples
 -----------------------------------
      bower install
      npm run display-tests
+
+To build the full tune examples
+-----------------------------------
+     bower install
+     npm run display-tests

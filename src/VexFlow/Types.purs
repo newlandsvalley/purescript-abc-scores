@@ -35,6 +35,7 @@ type AbcContext =
   , beatsPerBeam :: Int
   , staveNo :: Maybe Int
   }
+  
 type NoteSpec =
   { vexNote :: VexNote
   , accidentals :: Array String
