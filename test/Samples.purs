@@ -7,15 +7,16 @@ import Data.Abc
 import Data.Tuple (Tuple(..))
 import Data.Rational ((%), fromInt)
 import Data.Maybe (Maybe(..))
-import Data.List (List (..), fromFoldable)
+import Data.List (fromFoldable)
 import Data.Array (toUnfoldable)
-import VexFlow.Abc.TranslateStateful (execBars)
+import VexFlow.Abc.TranslateStateful (execBodyPart)
 
-abcContext :: MeterSignature -> AbcContext
-abcContext (Tuple x y) =
+startAbcContext :: MeterSignature -> AbcContext
+startAbcContext (Tuple x y) =
   { timeSignature : { numerator: x, denominator: y }
   , unitNoteLength : ( 1 % 16)
   , beatsPerBeam : beatsPerBeam (Tuple x y)
+  , staveNo : Nothing
   }
 
 c :: Int -> Music
@@ -42,10 +43,9 @@ meterChange34 :: Music
 meterChange34 =
   Inline $ Meter $ Just (Tuple 3 4)
 
-meterChangeTo34 :: AbcContext
-meterChangeTo34 =
+meterChangeTo34 :: AbcContext -> AbcContext
+meterChangeTo34 initialContext =
   let
-    context = abcContext (Tuple 4 4)
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -59,5 +59,6 @@ meterChangeTo34 =
       { startLine : barType
       , music : fromFoldable [meterChange34, f 2, f 2, c 4, g 4]
       }
+    bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
-    execBars context $ toUnfoldable [bar0, bar1]
+    execBodyPart initialContext bodyPart

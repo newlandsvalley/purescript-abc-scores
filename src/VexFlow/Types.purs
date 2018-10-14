@@ -1,6 +1,7 @@
 module VexFlow.Types where
 
 import Prelude (class Semigroup, class Monoid, (<>), mempty)
+import Data.Maybe (Maybe)
 import Data.Abc (BarType, NoteDuration)
 import VexFlow.Abc.TickableContext (TickableContext)
 import VexFlow.Abc.ContextChange (ContextChange)
@@ -32,6 +33,7 @@ type AbcContext =
   { timeSignature :: TimeSignature
   , unitNoteLength :: NoteDuration
   , beatsPerBeam :: Int
+  , staveNo :: Maybe Int
   }
 type NoteSpec =
   { vexNote :: VexNote
@@ -92,4 +94,9 @@ type BarSpec =
   { barNumber :: Int
   , startLine :: BarType
   , musicSpec :: MusicSpec
+  }
+
+type StaveSpec =
+  { staveNo :: Int
+  , barSpecs :: Array BarSpec
   }

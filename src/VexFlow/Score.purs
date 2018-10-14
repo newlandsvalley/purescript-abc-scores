@@ -1,17 +1,12 @@
 module VexFlow.Score
   ( Stave
   , addTimeSignature
-  , displayBar
-  , displayBarStateless
+  , displayFullStave
   , displayBars
-  , displayBarsStateless
-  , displayBarBeginRepeat
-  , displayMusics
-  , displayStave
   , initialise
   , newStave) where
 
-import Data.Abc (Accidental(..), Bar, KeySignature, Mode(..), Music, PitchClass(..), Repeat(..))
+import Data.Abc (Accidental(..), Bar, BodyPart, KeySignature, Mode(..), Music, PitchClass(..), Repeat(..))
 import Data.Array (null, mapWithIndex, fromFoldable)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
@@ -22,8 +17,9 @@ import Effect (Effect)
 import Effect.Console (log)
 import Prelude (($), (<>), (+), (*), (==), Unit, bind, discard, pure, unit)
 import VexFlow.Abc.Translate (bar, keySignature, musics) as Translate
-import VexFlow.Abc.TranslateStateful (runBar, runBars)
-import VexFlow.Types (AbcContext, BarSpec, Config, MusicSpec(..), MusicSpecContents, NoteSpec, StaveConfig, TimeSignature)
+import VexFlow.Abc.TranslateStateful (runBar, runBars, runBodyPart)
+import VexFlow.Types (AbcContext, BarSpec, Config, MusicSpec(..), MusicSpecContents,
+     NoteSpec, StaveConfig, StaveSpec, TimeSignature)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 
 
@@ -66,6 +62,26 @@ newStave :: StaveConfig -> KeySignature -> Effect Stave
 newStave staveCnfg ks =
   newStaveImpl staveCnfg (Translate.keySignature ks)
 
+-- | display a full stave of music
+-- | (in cases where the stave consists of actual music)
+displayFullStave :: AbcContext -> BodyPart -> Effect Unit
+displayFullStave abcContext bodyPart =
+  let
+    emStaveSpec :: Either String (Maybe StaveSpec)
+    emStaveSpec =
+      runBodyPart abcContext bodyPart
+  in
+    case emStaveSpec of
+      Right (Just staveSpec) ->
+        traverse_ (displayBarSpec abcContext staveSpec.staveNo) staveSpec.barSpecs
+      Right _ ->
+        -- the body part is merely a header - no display needed
+        pure unit
+      Left err -> do
+        _ <- log ("error in translating stave  " <> err)
+        pure unit
+
+{- Just for debug
 -- | display all the bars in a stave of music
 displayBarsStateless :: AbcContext -> Int -> List Bar -> Effect Unit
 displayBarsStateless abcContext staveNo bars =
@@ -80,6 +96,7 @@ displayBarsStateless abcContext staveNo bars =
       Left err -> do
         _ <- log ("error in translating stave  " <> err)
         pure unit
+-}
 
 
 displayBars :: AbcContext -> Int -> List Bar -> Effect Unit
@@ -95,36 +112,6 @@ displayBars abcContext staveNo bars =
       Left err -> do
         _ <- log ("error in translating stave  " <> err)
         pure unit
-
--- | display a single bar of music
-displayBarStateless :: AbcContext -> Int -> Int -> Bar -> Effect Unit
-displayBarStateless abcContext staveNo barNo abcBar =
-  let
-    eBarSpec :: Either String BarSpec
-    eBarSpec = Translate.bar abcContext barNo abcBar
-  in
-    case eBarSpec of
-      Right barSpec ->
-        displayBarSpec abcContext staveNo barSpec
-      Left err ->
-        do
-          _ <- log ("error in translating bar " <> err)
-          pure unit
-
--- | ditto with state threading
-displayBar :: AbcContext -> Int -> Int -> Bar -> Effect Unit
-displayBar abcContext staveNo barNo abcBar =
-  let
-    eBarSpec :: Either String BarSpec
-    eBarSpec = runBar abcContext barNo abcBar
-  in
-    case eBarSpec of
-      Right barSpec ->
-        displayBarSpec abcContext staveNo barSpec
-      Left err ->
-        do
-          _ <- log ("error in translating stateful bar " <> err)
-          pure unit
 
 -- | display a single bar from the (translated) BarSpec
 displayBarSpec :: AbcContext -> Int -> BarSpec -> Effect Unit
@@ -158,6 +145,41 @@ displayBarSpec abcContext staveNo barSpec=
       displayStave staveBar
 
 
+{- Just for debug
+-- | display a single bar of music
+displayBarStateless :: AbcContext -> Int -> Int -> Bar -> Effect Unit
+displayBarStateless abcContext staveNo barNo abcBar =
+  let
+    eBarSpec :: Either String BarSpec
+    eBarSpec = Translate.bar abcContext barNo abcBar
+  in
+    case eBarSpec of
+      Right barSpec ->
+        displayBarSpec abcContext staveNo barSpec
+      Left err ->
+        do
+          _ <- log ("error in translating bar " <> err)
+          pure unit
+-}
+
+{- not really needed now}
+-- | ditto with state threading
+displayBar :: AbcContext -> Int -> Int -> Bar -> Effect Unit
+displayBar abcContext staveNo barNo abcBar =
+  let
+    eBarSpec :: Either String BarSpec
+    eBarSpec = runBar abcContext barNo abcBar
+  in
+    case eBarSpec of
+      Right barSpec ->
+        displayBarSpec abcContext staveNo barSpec
+      Left err ->
+        do
+          _ <- log ("error in translating stateful bar " <> err)
+          pure unit
+-}
+
+
 displayMusics :: AbcContext -> Stave -> Array Music -> Effect Unit
 displayMusics abcContext stave abcMusics =
   let
@@ -189,6 +211,7 @@ displayContextChange abcContext staveBar contextChange =
     UnitNoteChange _ ->
       -- this has no immediate effect on the displayed stave
       pure unit
+
 
 
 foreign import initialise :: Config -> Effect Unit

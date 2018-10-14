@@ -1,6 +1,7 @@
 module VexFlow.Abc.Translate
   ( bar
   , keySignature
+  , headerChange
   , musics
   , music) where
 

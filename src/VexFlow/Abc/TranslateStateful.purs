@@ -6,22 +6,22 @@ module VexFlow.Abc.TranslateStateful  where
 -- Any change in headers for time signature, key signature or unit note length
 -- will alter the state.
 
-import Prelude (($), (<>), Unit, bind, discard, mempty, pure, show, unit)
+import Prelude (($), (<>), Unit, bind, discard, mempty, pure, show)
 import Control.Monad.Except.Trans
 import Control.Monad.State
 import VexFlow.Abc.Translate as Trans
 import Data.Either (Either, either)
-import Data.Foldable (foldM)
+import Data.Foldable (foldM, foldl)
 import Data.List (List, toUnfoldable, length)
 import Data.Tuple (Tuple(..))
+import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Newtype (unwrap)
 import Data.Array ((..), zip)
 import Data.Traversable (traverse)
-import Data.Abc
-import VexFlow.Abc.TickableContext (NoteCount)
-import VexFlow.Abc.Utils (applyContextChanges)
-import VexFlow.Types (AbcContext, BarSpec, NoteSpec, TupletSpec, MusicSpec(..))
-import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), getTickableContext)
+import Data.Abc (Bar, BodyPart(..), Music)
+import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext)
+import VexFlow.Types (AbcContext, BarSpec, MusicSpec(..), StaveSpec)
+import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..))
 
 type Translation a = ExceptT String (State AbcContext) a
 
@@ -33,17 +33,50 @@ runBars :: AbcContext -> List Bar -> Either String (Array BarSpec)
 runBars abcContext bs =
   unwrap $ evalStateT (runExceptT $ bars bs) abcContext
 
+runBodyPart :: AbcContext -> BodyPart -> Either String (Maybe StaveSpec)
+runBodyPart abcContext bp =
+  unwrap $ evalStateT (runExceptT $ bodyPart bp) abcContext
+
 execBars :: AbcContext -> List Bar -> AbcContext
 execBars abcContext bs =
-  unwrap $ execStateT (runExceptT $ bars bs) abcContext    
+  unwrap $ execStateT (runExceptT $ bars bs) abcContext
+
+execBodyPart :: AbcContext -> BodyPart -> AbcContext
+execBodyPart abcContext bp =
+  unwrap $ execStateT (runExceptT $ bodyPart bp) abcContext
 
 zipBars :: List Bar -> Array (Tuple Int Bar)
-zipBars bars =
+zipBars bs =
   let
-    barArray = toUnfoldable bars
-    intArray = 0 .. length bars
+    barArray = toUnfoldable bs
+    intArray = 0 .. length bs
   in
     zip intArray barArray
+
+bodyPart :: BodyPart -> Translation (Maybe StaveSpec)
+bodyPart bp =
+  case bp of
+    Score bs ->
+      do
+        -- increment the stave number and save to state
+        abcContext <- get
+        let
+          mStaveNo = nextStaveNo abcContext.staveNo
+          staveNo = fromMaybe 0 mStaveNo
+        _ <- put (abcContext { staveNo = mStaveNo })
+        -- then translate the bars
+        staveBars <- bars bs
+        -- return the stave specification
+        pure $ Just { staveNo : staveNo, barSpecs : staveBars}
+    BodyInfo header ->
+      do
+        -- save the new Abc context to state governed by any header change
+        abcContext <- get
+        let
+          contextChanges = Trans.headerChange abcContext header
+          newAbcContext = foldl updateAbcContext abcContext contextChanges
+        _ <- put newAbcContext
+        pure Nothing
 
 bars :: List Bar -> Translation (Array BarSpec)
 bars bs =

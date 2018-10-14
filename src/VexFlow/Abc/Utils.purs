@@ -5,7 +5,8 @@ module VexFlow.Abc.Utils
   , normaliseBroken
   , noteDotCount
   , noteTicks
-  , updateAbcContext) where
+  , updateAbcContext
+  , nextStaveNo) where
 
 import Prelude (($), (*), (+), (-))
 import Data.Int (round)
@@ -13,6 +14,7 @@ import Data.Rational (fromInt, toNumber)
 import Data.Tuple (Tuple(..))
 import Data.Either (Either(..))
 import Data.Foldable (foldl)
+import Data.Maybe (Maybe(..))
 import Data.Abc (AbcNote, Broken(..), MeterSignature, NoteDuration)
 import Data.Abc.Metadata (dotFactor)
 import VexFlow.Types (AbcContext, MusicSpec(..))
@@ -115,3 +117,19 @@ applyContextChanges abcContext eSpec  =
       foldl updateAbcContext abcContext spec.contextChanges
     _ ->
       abcContext
+
+
+nextStaveNo :: Maybe Int -> Maybe Int
+nextStaveNo Nothing = Just 0
+nextStaveNo (Just x) = Just (x + 1)
+
+{-}
+incrementContextStaveNo :: Maybe Int -> AbcContext -> AbcContext
+incrementContextStaveNo staveNo abcContext =
+  let
+    nextStave :: Maybe Int -> Maybe Int
+    nextStave Nothing = Just 0
+    nextStave (Just x) = Just (x + 1)
+  in
+    abcContext { staveNo = nextStave abcContext.staveNo}
+-}
