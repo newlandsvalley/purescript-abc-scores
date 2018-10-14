@@ -132,7 +132,7 @@ displayBarsStateless abcContext staveNo bars =
         pure unit
 -}
 
-
+-- only used in single stave display tests
 displayBars :: AbcContext -> Int -> List Bar -> Effect Unit
 displayBars abcContext staveNo bars =
   let
@@ -146,6 +146,7 @@ displayBars abcContext staveNo bars =
       Left err -> do
         _ <- log ("error in translating stave  " <> err)
         pure unit
+
 
 
 -- | display a single bar from the (translated) BarSpec
@@ -162,7 +163,7 @@ displayBarSpec abcContext staveNo barSpec =
       staveBar <- newStave (staveConfig staveNo barSpec.barNumber xOffset staveWidth) dMajor
 
       -- add any meter or key change markers
-      traverse_ (displayContextChange abcContext staveBar) musicSpec.contextChanges
+      traverse_ (displayContextChange staveBar) musicSpec.contextChanges
 
       if (barSpec.barNumber == 0)
         then
@@ -219,7 +220,7 @@ displayBar abcContext staveNo barNo abcBar =
           pure unit
 -}
 
-
+{- not really used now
 displayMusics :: AbcContext -> Stave -> Array Music -> Effect Unit
 displayMusics abcContext stave abcMusics =
   let
@@ -239,9 +240,10 @@ displayMusics abcContext stave abcMusics =
         do
           _ <- log ("error in translating musics: " <> err)
           pure unit
+-}
 
-displayContextChange :: AbcContext -> Stave -> ContextChange -> Effect Unit
-displayContextChange abcContext staveBar contextChange =
+displayContextChange :: Stave -> ContextChange -> Effect Unit
+displayContextChange staveBar contextChange =
   case contextChange of
     MeterChange (Tuple numerator denominator) ->
       addTimeSignature staveBar { numerator, denominator}
