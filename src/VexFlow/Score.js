@@ -64,21 +64,25 @@ var wrapper = function() {
       }
     },
 
-    displayAutoBeamedNotesImpl : function (abcContext) {
-      return function (stave) {
-        return function (notes) {
-          return function () {
-            return wrapper.drawAutoBeamedNotes(abcContext, stave, notes);
+    displayAutoBeamedNotesImpl : function (stave) {
+      return function (timeSignature) {
+        return function (beatsPerBeam) {
+          return function (notes) {
+            return function () {
+              return wrapper.drawAutoBeamedNotes(stave, timeSignature, beatsPerBeam, notes);
+            }
           }
         }
       }
     },
 
-    displayTupletedNotesImpl : function (abcContext) {
-      return function (stave) {
-        return function (musicSpec) {
-          return function () {
-            return wrapper.drawTupletedNotes(abcContext, stave, musicSpec);
+    displayTupletedNotesImpl : function (stave) {
+      return function (timeSignature) {
+        return function (beatsPerBeam) {
+          return function (musicSpec) {
+            return function () {
+             return wrapper.drawTupletedNotes(stave, timeSignature, beatsPerBeam, musicSpec);
+            }
           }
         }
       }
@@ -124,25 +128,26 @@ var wrapper = function() {
       stave.setKeySignature(keySignature);
     },
 
-    drawAutoBeamedNotes: function (abcContext, stave, noteSpec) {
+    drawAutoBeamedNotes: function (stave, timeSignature, beatsPerBeam, noteSpec) {
       console.log("drawAutoBeamedNotes")
       console.log(noteSpec);
+      console.log("numerator: ", timeSignature.numerator);
       var notes = noteSpec.map(wrapper.makeStaveNote);
       // notes.unshift (new VF.BarNote({ type: 'single' }));  Doesn't work
       console.log(notes);
 
-      var beams = VF.Beam.generateBeams(notes, wrapper.beamGroup(abcContext) );
+      var beams = VF.Beam.generateBeams(notes, wrapper.beamGroup(timeSignature, beatsPerBeam) );
       Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
       beams.forEach(function(b) {b.setContext(context).draw()});
     },
 
-    drawTupletedNotes: function (abcContext, stave, musicSpec) {
+    drawTupletedNotes: function (stave, timeSignature, beatsPerBeam, musicSpec) {
       console.log("drawTupletedNotes")
       console.log(musicSpec);
       var notes = musicSpec.noteSpecs.map(wrapper.makeStaveNote);
       var tuplets = musicSpec.tuplets.map(wrapper.makeTupletLayout (notes));
 
-      var beams = VF.Beam.generateBeams(notes, wrapper.beamGroup(abcContext) );
+      var beams = VF.Beam.generateBeams(notes, wrapper.beamGroup(timeSignature, beatsPerBeam) );
       Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
       beams.forEach(function(b) {b.setContext(context).draw()});
       tuplets.forEach(function(tuplet){
@@ -185,9 +190,10 @@ var wrapper = function() {
     },
 
     // auto-beaming based on the time signature
-    beamGroup: function (abcContext) {
-      return {groups: [new Vex.Flow.Fraction(abcContext.beatsPerBeam, abcContext.timeSignature.denominator)] };
+    beamGroup: function (timeSignature, beatsPerBeam) {
+      return {groups: [new Vex.Flow.Fraction(beatsPerBeam, timeSignature.denominator)] };
     },
+
 
     // add the accidental(s) to the staveNote(s)
     addAccidentals: function (staveNote, accidentals) {
@@ -207,8 +213,6 @@ var wrapper = function() {
         }
       });
     }
-
-
 
 
   }

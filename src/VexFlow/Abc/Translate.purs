@@ -22,7 +22,7 @@ import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import Data.Maybe (Maybe(..))
 import Prelude ((<>), ($), (*), (+), (-), map, mempty, show)
-import VexFlow.Abc.Utils (dotCount, normaliseBroken, noteDotCount, noteTicks)
+import VexFlow.Abc.Utils (beatsPerBeam', dotCount, normaliseBroken, noteDotCount, noteTicks)
 import VexFlow.Types (AbcContext, BarSpec, NoteSpec, TupletSpec, MusicSpec(..)
     ,staveWidth)
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), getTickableContext)
@@ -79,6 +79,8 @@ bar context barNumber abcBar =
             , width : staveWidth
             , xOffset : context.accumulatedStaveWidth
             , startLine : abcBar.startLine
+            , timeSignature : context.timeSignature
+            , beatsPerBeam : beatsPerBeam' context.timeSignature
             , musicSpec : m
             }
          in

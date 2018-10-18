@@ -132,9 +132,14 @@ quadruplet d =
     Tuplet signature notes
 
 -- sample meter change (to 3/4)
-meterChange :: Music
-meterChange =
+meterChange34 :: Music
+meterChange34 =
   Inline $ Meter $ Just (Tuple 3 4)
+
+-- sample meter change (to 3/4)
+meterChange68 :: Music
+meterChange68 =
+  Inline $ Meter $ Just (Tuple 6 8)
 
 -- sample meter change (to Gm)
 keyChange :: Music

@@ -210,7 +210,7 @@ example6 =
   in
     displayFullStave context bodyPart
 
--- | change meter from 4/4 to 3/4
+-- | change meter from 4/4 to 6/8 to 3/4
 example7 :: Effect Unit
 example7 =
   let
@@ -223,13 +223,17 @@ example7 =
       }
     bar0 =
       { startLine : barType
-      , music : fromFoldable [c 4, f 4, g 4, f 4]
+      , music : fromFoldable [c 2, f 2, f 4, g 4, f 4]
       }
     bar1 =
       { startLine : barType
-      , music : fromFoldable [meterChange, f 4, c 4, g 4]
+      , music : fromFoldable [meterChange68, f 2, c 2, f 2, g 2, g 2, c 2]
       }
-    bodyPart = Score $ toUnfoldable [bar0, bar1]
+    bar2 =
+      { startLine : barType
+      , music : fromFoldable [meterChange34, f 2, f 2 , c 2, c 2, g 4]
+      }
+    bodyPart = Score $ toUnfoldable [bar0, bar1, bar2]
   in
     displayFullStave context bodyPart
 
@@ -256,6 +260,7 @@ example8 =
   in
     displayFullStave context bodyPart
 
+
 main :: Effect Unit
 main = do
   _ <- initialise config
@@ -269,3 +274,10 @@ main = do
   _ <- example6
   _ <- example7
   example8
+
+{-}
+main :: Effect Unit
+main = do
+  _ <- initialise config
+  example5
+-}

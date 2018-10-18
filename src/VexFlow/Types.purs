@@ -104,6 +104,8 @@ type BarSpec =
   , width  :: Int
   , xOffset :: Int
   , startLine :: BarType
+  , timeSignature :: TimeSignature
+  , beatsPerBeam :: Int
   , musicSpec :: MusicSpec
   }
 

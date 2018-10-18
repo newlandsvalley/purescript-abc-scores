@@ -109,6 +109,8 @@ bar barNumber abcBar =
         , width : staveWidth
         , xOffset : abcContext.accumulatedStaveWidth
         , startLine : abcBar.startLine
+        , timeSignature : abcContext.timeSignature
+        , beatsPerBeam : abcContext.beatsPerBeam
         , musicSpec : musicSpec
         }
       -- accumulate the bar width

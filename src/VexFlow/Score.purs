@@ -80,13 +80,15 @@ displayTune abcTune =
   in
     case eStaveSpecs of
       Right staveSpecs ->
-        traverse_ (displayStaveSpec abcContext) staveSpecs
+        traverse_ displayStaveSpec staveSpecs
       Left err -> do
         _ <- log ("error in translating tune  " <> err)
         pure unit
 
+
 -- | display a full stave of music
 -- | (in cases where the stave consists of actual music)
+-- | Only used in single line display tests
 displayFullStave :: AbcContext -> BodyPart -> Effect Unit
 displayFullStave abcContext bodyPart =
   let
@@ -96,7 +98,7 @@ displayFullStave abcContext bodyPart =
   in
     case emStaveSpec of
       Right (Just staveSpec) ->
-        traverse_ (displayBarSpec abcContext staveSpec.staveNo) staveSpec.barSpecs
+        traverse_ (displayBarSpec staveSpec.staveNo) staveSpec.barSpecs
       Right _ ->
         -- the body part is merely a header - no display needed
         pure unit
@@ -104,11 +106,12 @@ displayFullStave abcContext bodyPart =
         _ <- log ("error in translating stave  " <> err)
         pure unit
 
-displayStaveSpec :: AbcContext -> Maybe StaveSpec -> Effect Unit
-displayStaveSpec abcContext mStaveSpec =
+
+displayStaveSpec :: Maybe StaveSpec -> Effect Unit
+displayStaveSpec mStaveSpec =
   case mStaveSpec of
     (Just staveSpec) ->
-      traverse_ (displayBarSpec abcContext staveSpec.staveNo) staveSpec.barSpecs
+      traverse_ (displayBarSpec staveSpec.staveNo) staveSpec.barSpecs
     _ ->
       -- the body part is merely a header - no display needed
       pure unit
@@ -124,7 +127,7 @@ displayBarsStateless abcContext staveNo bars =
   in
     case eBarSpecs of
       Right barSpecs ->
-        traverse_ (displayBarSpec abcContext staveNo) barSpecs
+        traverse_ (displayBarSpec staveNo) barSpecs
       Left err -> do
         _ <- log ("error in translating stave  " <> err)
         pure unit
@@ -148,8 +151,8 @@ displayBars abcContext staveNo bars =
 
 
 -- | display a single bar from the (translated) BarSpec
-displayBarSpec :: AbcContext -> Int -> BarSpec -> Effect Unit
-displayBarSpec abcContext staveNo barSpec =
+displayBarSpec :: Int -> BarSpec -> Effect Unit
+displayBarSpec staveNo barSpec =
   let
     (MusicSpec musicSpec) = barSpec.musicSpec
     -- xOffset hard coded at the moment - fixed width bars
@@ -165,7 +168,7 @@ displayBarSpec abcContext staveNo barSpec =
 
       if (barSpec.barNumber == 0)
         then
-          addTimeSignature staveBar abcContext.timeSignature
+          addTimeSignature staveBar barSpec.timeSignature
         else
           pure unit
 
@@ -177,9 +180,9 @@ displayBarSpec abcContext staveNo barSpec =
 
       if (null musicSpec.tuplets)
         then
-          displayAutoBeamedNotesImpl abcContext staveBar musicSpec.noteSpecs
+          displayAutoBeamedNotesImpl staveBar barSpec.timeSignature barSpec.beatsPerBeam musicSpec.noteSpecs
         else
-          displayTupletedNotesImpl abcContext staveBar musicSpec
+          displayTupletedNotesImpl staveBar barSpec.timeSignature barSpec.beatsPerBeam musicSpec
       displayStave staveBar
 
 
@@ -258,8 +261,8 @@ foreign import initialise :: Config -> Effect Unit
 foreign import newStaveImpl :: StaveConfig -> String -> Effect Stave
 foreign import getStaveWidth :: Stave -> Effect Int
 foreign import displayNotesImpl :: Stave -> Array NoteSpec -> Effect Unit
-foreign import displayAutoBeamedNotesImpl :: AbcContext -> Stave -> Array NoteSpec -> Effect Unit
-foreign import displayTupletedNotesImpl :: AbcContext -> Stave -> MusicSpecContents -> Effect Unit
+foreign import displayAutoBeamedNotesImpl :: Stave -> TimeSignature -> Int -> Array NoteSpec -> Effect Unit
+foreign import displayTupletedNotesImpl :: Stave -> TimeSignature -> Int -> MusicSpecContents -> Effect Unit
 foreign import displayStave :: Stave -> Effect Unit
 foreign import displayBarBeginRepeat :: Stave -> Effect Unit
 foreign import timeSignatureImpl :: Stave -> TimeSignature -> Effect Unit
