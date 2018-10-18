@@ -7,8 +7,7 @@ import Data.Rational ((%))
 import Data.Maybe (Maybe(..))
 import Data.List (fromFoldable)
 import Data.Array (singleton, toUnfoldable)
-
-import VexFlow.Score (displayBars, initialise, displayFullStave)
+import VexFlow.Score (initialise, displayFullStave)
 import VexFlow.Abc.Utils (beatsPerBeam)
 import VexFlow.Types (Config, AbcContext, staveIndentation)
 import Data.Abc
@@ -23,22 +22,23 @@ config =
   , scale : 0.8
   }
 
-abcContext :: MeterSignature -> AbcContext
-abcContext (Tuple x y) =
+abcContext :: MeterSignature -> Int -> AbcContext
+abcContext (Tuple x y) staveNo =
   { timeSignature : { numerator: x, denominator: y }
   , unitNoteLength : ( 1 % 16)
   , beatsPerBeam : beatsPerBeam (Tuple x y)
-  , staveNo : Nothing
+  , staveNo : Just staveNo
   , accumulatedStaveWidth : staveIndentation
   }
 
 -- | simple 6/8
 -- | we can use displayFullStve here because it will always display stave 0
-example0 :: Effect Unit
-example0 =
+exampleNothing :: Effect Unit
+exampleNothing =
   let
     staveNo = 0
-    context = abcContext (Tuple 6 8)
+    context0 = abcContext (Tuple 6 8) staveNo
+    context = context0 { staveNo = Nothing }
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -57,11 +57,11 @@ example0 =
     displayFullStave context bodyPart
 
 -- | simple 4/4
-example1 :: Effect Unit
-example1 =
+example0 :: Effect Unit
+example0 =
   let
-    staveNo = 1
-    context = abcContext (Tuple 4 4)
+    staveNo = 0
+    context = abcContext (Tuple 4 4) staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -81,14 +81,14 @@ example1 =
       }
     bodyPart = Score $ toUnfoldable [bar0, bar1, bar2]
   in
-    displayBars context staveNo  $ toUnfoldable [bar0, bar1, bar2]
+    displayFullStave context bodyPart
 
 -- | simple 2/4
-example2 :: Effect Unit
-example2 =
+example1 :: Effect Unit
+example1 =
   let
-    staveNo = 2
-    context = abcContext (Tuple 2 4)
+    staveNo = 1
+    context = abcContext (Tuple 2 4) staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -102,15 +102,16 @@ example2 =
       { startLine : barType
       , music : fromFoldable [c 2, f 2, f 1, c 1, g 1, g 1]
       }
+    bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
-    displayBars context staveNo $ toUnfoldable [bar0, bar1]
+    displayFullStave context bodyPart
 
 -- | simple 3/4
-example3 :: Effect Unit
-example3 =
+example2 :: Effect Unit
+example2 =
   let
-    staveNo = 3
-    context = abcContext (Tuple 3 4)
+    staveNo = 2
+    context = abcContext (Tuple 3 4) staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -124,15 +125,16 @@ example3 =
       { startLine : barType
       , music : fromFoldable [f 1, c 1, g 1, g 1, gs 8]
       }
+    bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
-    displayBars context staveNo $ toUnfoldable [bar0, bar1]
+    displayFullStave context bodyPart
 
 -- | chords in 4/4
-example4 :: Effect Unit
-example4 =
+example3 :: Effect Unit
+example3 =
   let
-    staveNo = 4
-    context = abcContext (Tuple 4 4)
+    staveNo = 3
+    context = abcContext (Tuple 4 4) staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -146,16 +148,17 @@ example4 =
       { startLine : barType
       , music : fromFoldable [chord 2, chord 2, f 2, c 2, g 3, g 1]
       }
+    bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
-    displayBars context staveNo $ toUnfoldable [bar0, bar1]
+    displayFullStave context bodyPart
 
 
 -- | broken rhythm pair in 4/4
-example5 :: Effect Unit
-example5 =
+example4 :: Effect Unit
+example4 =
   let
-    staveNo = 5
-    context = abcContext (Tuple 4 4)
+    staveNo = 4
+    context = abcContext (Tuple 4 4) staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -165,15 +168,16 @@ example5 =
       { startLine : barType
       , music : fromFoldable [brokenRight 2 1, brokenRight 2 1, brokenLeft 2 1, brokenLeft 2 1]
       }
+    bodyPart = Score $ toUnfoldable [bar]
   in
-    displayBars context staveNo $ toUnfoldable $ singleton bar
+    displayFullStave context bodyPart
 
 -- | basic triplet in 3/4
-example6 :: Effect Unit
-example6 =
+example5 :: Effect Unit
+example5 =
   let
-    staveNo = 6
-    context = abcContext (Tuple 3 4)
+    staveNo = 5
+    context = abcContext (Tuple 3 4) staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -183,15 +187,16 @@ example6 =
       { startLine : barType
       , music :fromFoldable [c 2, f 2, triplet 2, c 4]
       }
+    bodyPart = Score $ toUnfoldable [bar]
   in
-    displayBars context staveNo $ toUnfoldable $ singleton bar
+    displayFullStave context bodyPart
 
 -- | basic quadruplet in 6/8
-example7 :: Effect Unit
-example7 =
+example6 :: Effect Unit
+example6 =
   let
-    staveNo = 7
-    context = abcContext (Tuple 6 8)
+    staveNo = 6
+    context = abcContext (Tuple 6 8) staveNo
     barType =
       { thickness : Thin
       , repeat : Just Begin
@@ -201,15 +206,16 @@ example7 =
       { startLine : barType
       , music : fromFoldable [c 2, f 2, g 2, quadruplet 2]
       }
+    bodyPart = Score $ toUnfoldable [bar]
   in
-    displayBars context staveNo $ toUnfoldable $ singleton bar
+    displayFullStave context bodyPart
 
 -- | change meter from 4/4 to 3/4
-example8 :: Effect Unit
-example8 =
+example7 :: Effect Unit
+example7 =
   let
-    staveNo = 8
-    context = abcContext (Tuple 4 4)
+    staveNo = 7
+    context = abcContext (Tuple 4 4) staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -223,15 +229,16 @@ example8 =
       { startLine : barType
       , music : fromFoldable [meterChange, f 4, c 4, g 4]
       }
+    bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
-    displayBars context staveNo $ toUnfoldable [bar0, bar1]
+    displayFullStave context bodyPart
 
 -- | change key to Gm
-example9 :: Effect Unit
-example9 =
+example8 :: Effect Unit
+example8 =
   let
-    staveNo = 9
-    context = abcContext (Tuple 3 4)
+    staveNo = 8
+    context = abcContext (Tuple 3 4) staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -245,12 +252,14 @@ example9 =
       { startLine : barType
       , music : fromFoldable [keyChange, f 2, f 2, c 4, g 4]
       }
+    bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
-    displayBars context staveNo $ toUnfoldable [bar0, bar1]
+    displayFullStave context bodyPart
 
 main :: Effect Unit
 main = do
   _ <- initialise config
+  _ <- exampleNothing
   _ <- example0
   _ <- example1
   _ <- example2
@@ -259,5 +268,4 @@ main = do
   _ <- example5
   _ <- example6
   _ <- example7
-  _ <- example8
-  example9
+  example8

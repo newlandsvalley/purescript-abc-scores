@@ -3,18 +3,16 @@ module VexFlow.Score
   , addTimeSignature
   , displayTune
   , displayFullStave
-  , displayBars
   , initialise
   , newStave) where
 
 import Data.Abc (AbcTune, Accidental(..), Bar, BodyPart, KeySignature
-     ,Mode(..), Music, PitchClass(..), Repeat(..))
+     ,Mode(..), PitchClass(..), Repeat(..))
 import Data.Array (null)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
 import Data.Traversable (traverse_)
-import Data.List (List)
 import Effect (Effect)
 import Effect.Console (log)
 import Prelude (($), (<>), (+), (*), (==), Unit, bind, discard, pure, unit)
@@ -130,9 +128,9 @@ displayBarsStateless abcContext staveNo bars =
       Left err -> do
         _ <- log ("error in translating stave  " <> err)
         pure unit
--}
 
--- only used in single stave display tests
+
+
 displayBars :: AbcContext -> Int -> List Bar -> Effect Unit
 displayBars abcContext staveNo bars =
   let
@@ -146,7 +144,7 @@ displayBars abcContext staveNo bars =
       Left err -> do
         _ <- log ("error in translating stave  " <> err)
         pure unit
-
+-}
 
 
 -- | display a single bar from the (translated) BarSpec
