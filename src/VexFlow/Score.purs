@@ -172,11 +172,7 @@ displayBarSpec staveNo barSpec =
         else
           pure unit
 
-      if (barSpec.startLine.repeat == Just Begin)
-        then
-          displayBarBeginRepeat staveBar
-        else
-          pure unit
+      _ <- displayBarRepeat staveBar barSpec.startLine.repeat
 
       if (null musicSpec.tuplets)
         then
@@ -185,7 +181,18 @@ displayBarSpec staveNo barSpec =
           displayTupletedNotesImpl staveBar barSpec.timeSignature barSpec.beatsPerBeam musicSpec
       displayStave staveBar
 
-
+-- | dispkay bar repeat markers
+displayBarRepeat :: Stave -> Maybe Repeat -> Effect Unit
+displayBarRepeat staveBar mRepeat =
+  case mRepeat of
+    Just Begin ->
+      displayBarBeginRepeat staveBar
+    Just End ->
+      displayBarEndRepeat staveBar
+    Just BeginAndEnd ->
+      displayBarBothRepeat staveBar
+    _ ->
+      pure unit
 
 {- Just for debug
 -- | display a single bar of music
@@ -265,5 +272,7 @@ foreign import displayAutoBeamedNotesImpl :: Stave -> TimeSignature -> Int -> Ar
 foreign import displayTupletedNotesImpl :: Stave -> TimeSignature -> Int -> MusicSpecContents -> Effect Unit
 foreign import displayStave :: Stave -> Effect Unit
 foreign import displayBarBeginRepeat :: Stave -> Effect Unit
+foreign import displayBarEndRepeat :: Stave -> Effect Unit
+foreign import displayBarBothRepeat :: Stave -> Effect Unit
 foreign import timeSignatureImpl :: Stave -> TimeSignature -> Effect Unit
 foreign import keySignatureImpl :: Stave -> String -> Effect Unit

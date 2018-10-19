@@ -5,7 +5,7 @@ import Effect (Effect)
 import Data.Tuple (Tuple(..))
 import Data.Rational ((%))
 import Data.Maybe (Maybe(..))
-import Data.List (fromFoldable)
+import Data.List (List(..), fromFoldable)
 import Data.Array (singleton, toUnfoldable)
 import VexFlow.Score (initialise, displayFullStave)
 import VexFlow.Abc.Utils (beatsPerBeam)
@@ -197,16 +197,25 @@ example6 =
   let
     staveNo = 6
     context = abcContext (Tuple 6 8) staveNo
-    barType =
+    barType0 =
       { thickness : Thin
       , repeat : Just Begin
       , iteration : Nothing
       }
-    bar =
-      { startLine : barType
+    bar0 =
+      { startLine : barType0
       , music : fromFoldable [c 2, f 2, g 2, quadruplet 2]
       }
-    bodyPart = Score $ toUnfoldable [bar]
+    barType1 =
+        { thickness : Thin
+        , repeat : Just End
+        , iteration : Nothing
+        }
+    bar1 =
+        { startLine : barType1
+        , music : Nil
+        }
+    bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
     displayFullStave context bodyPart
 

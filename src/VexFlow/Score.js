@@ -28,6 +28,19 @@ var wrapper = function() {
       }
     },
 
+    displayBarEndRepeat : function (stave) {
+      return function () {
+        stave.setEndBarType(VF.Barline.type.REPEAT_END);
+      }
+    },
+
+    displayBarBothRepeat : function (stave) {
+      return function () {
+        stave.setBegBarType(VF.Barline.type.REPEAT_BEGIN);
+        stave.setEndBarType(VF.Barline.type.REPEAT_END);
+      }
+    },
+
     displayStave : function (stave) {
       return function () {
         return wrapper.drawStave(stave);
@@ -226,6 +239,8 @@ exports.newStaveImpl = wrapper.newStaveImpl;
 exports.displayStave = wrapper.displayStave;
 exports.getStaveWidth = wrapper.getStaveWidth;
 exports.displayBarBeginRepeat = wrapper.displayBarBeginRepeat;
+exports.displayBarEndRepeat = wrapper.displayBarEndRepeat;
+exports.displayBarBothRepeat = wrapper.displayBarBothRepeat;
 exports.displayNotesImpl = wrapper.displayNotesImpl;
 exports.displayAutoBeamedNotesImpl = wrapper.displayAutoBeamedNotesImpl;
 exports.displayTupletedNotesImpl = wrapper.displayTupletedNotesImpl;
