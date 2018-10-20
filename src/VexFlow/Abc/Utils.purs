@@ -47,18 +47,27 @@ beatsPerBeam' ts =
 
 
 -- | the degree to which a note is dotted
--- | not complete - no account yet of double-dotted
 dotCount :: AbcContext -> NoteDuration -> Int
 dotCount ctx d =
   case noteTicks ctx d of
+    112 ->
+      2
     96 ->
       1
+    56 ->
+      2
     48 ->
       1
+    28 ->
+      2
     24 ->
       1
+    14 ->
+      2
     12 ->
       1
+    7 ->
+      2
     6 ->
       1
     3 ->

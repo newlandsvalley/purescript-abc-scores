@@ -351,22 +351,32 @@ duration ctx d =
   case noteTicks ctx d of
     128 ->
       Right "w"
+    112 ->
+      Right "hdd"
     96 ->
       Right "hd"
     64 ->
       Right "h"
+    56 ->
+      Right "qdd"
     48 ->
       Right "qd"
     32 ->
       Right "q"
+    28 ->
+      Right "8dd"
     24 ->
       Right "8d"
     16 ->
       Right "8"
+    14 ->
+      Right "16dd"
     12 ->
       Right "16d"
     8 ->
       Right "16"
+    7 ->
+      Right "32dd"
     6 ->
       Right "32d"
     4 ->

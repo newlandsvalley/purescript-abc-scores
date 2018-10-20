@@ -218,10 +218,13 @@ var wrapper = function() {
     },
 
     // add the accidental(s) to the staveNote(s)
-    // no account yet taken of double-dots
+    // not sure yet how to represent double-dots
     addDots: function (staveNote, dots) {
       dots.forEach (function (dotCount, index) {
-        if (dotCount > 0) {
+        if (dotCount == 2) {
+          staveNote.addDot(index).addDot(index);
+        }
+        else if (dotCount == 1) {
           staveNote.addDot(index);
         }
       });
