@@ -6,7 +6,7 @@ import Data.Tuple (Tuple(..))
 import Data.Rational ((%))
 import Data.Maybe (Maybe(..))
 import Data.List (List(..), fromFoldable)
-import Data.Array (singleton, toUnfoldable)
+import Data.Array (toUnfoldable)
 import VexFlow.Score (initialise, displayFullStave)
 import VexFlow.Abc.Utils (beatsPerBeam)
 import VexFlow.Types (Config, AbcContext, staveIndentation)
@@ -191,7 +191,7 @@ example5 =
   in
     displayFullStave context bodyPart
 
--- | basic quadruplet in 6/8
+-- | basic quadruplet in 6/8 and also illustrates bar repeat markers
 example6 :: Effect Unit
 example6 =
   let

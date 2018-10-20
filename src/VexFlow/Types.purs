@@ -104,6 +104,7 @@ type BarSpec =
   , width  :: Int
   , xOffset :: Int
   , startLine :: BarType
+  , endLineRepeat :: Boolean   -- important for end repeat markers
   , timeSignature :: TimeSignature
   , beatsPerBeam :: Int
   , musicSpec :: MusicSpec

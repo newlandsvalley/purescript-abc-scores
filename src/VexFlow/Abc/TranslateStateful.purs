@@ -6,10 +6,10 @@ module VexFlow.Abc.TranslateStateful  where
 -- Any change in headers for time signature, key signature or unit note length
 -- will alter the state.
 
-import Prelude (($), (<>), (+), Unit, bind, discard, mempty, pure, show)
+import Prelude (($), (<>), (+), bind, mempty, pure, show)
 import Control.Monad.Except.Trans
-import Control.Monad.State
-import VexFlow.Abc.Translate as Trans
+import Control.Monad.State (State, evalStateT, execStateT, get, put)
+import VexFlow.Abc.Translate (headerChange, music) as Trans
 import Data.Either (Either, either)
 import Data.Foldable (foldM, foldl)
 import Data.List (List, toUnfoldable, length)
@@ -23,6 +23,7 @@ import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext)
 import VexFlow.Types (AbcContext, BarSpec, MusicSpec(..), StaveSpec
       , staveIndentation, staveWidth)
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..))
+import VexFlow.Abc.BarEnd (repositionBarEndRepeats)
 
 type Translation a = ExceptT String (State AbcContext) a
 
@@ -77,8 +78,10 @@ bodyPart bp =
                              , accumulatedStaveWidth = staveIndentation})
         -- then translate the bars
         staveBars <- bars bs
+        let
+          normalisedStaveBars = repositionBarEndRepeats staveBars
         -- return the stave specification
-        pure $ Just { staveNo : staveNo, barSpecs : staveBars}
+        pure $ Just { staveNo : staveNo, barSpecs : normalisedStaveBars}
     BodyInfo header ->
       do
         -- save the new Abc context to state governed by any header change
@@ -109,6 +112,7 @@ bar barNumber abcBar =
         , width : staveWidth
         , xOffset : abcContext.accumulatedStaveWidth
         , startLine : abcBar.startLine
+        , endLineRepeat : false
         , timeSignature : abcContext.timeSignature
         , beatsPerBeam : abcContext.beatsPerBeam
         , musicSpec : musicSpec

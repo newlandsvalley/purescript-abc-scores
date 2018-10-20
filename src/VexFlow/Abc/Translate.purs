@@ -79,6 +79,7 @@ bar context barNumber abcBar =
             , width : staveWidth
             , xOffset : context.accumulatedStaveWidth
             , startLine : abcBar.startLine
+            , endLineRepeat : false
             , timeSignature : context.timeSignature
             , beatsPerBeam : beatsPerBeam' context.timeSignature
             , musicSpec : m

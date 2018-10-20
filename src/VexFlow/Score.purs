@@ -6,7 +6,7 @@ module VexFlow.Score
   , initialise
   , newStave) where
 
-import Data.Abc (AbcTune, Accidental(..), Bar, BodyPart, KeySignature
+import Data.Abc (AbcTune, Accidental(..), BodyPart, KeySignature
      ,Mode(..), PitchClass(..), Repeat(..))
 import Data.Array (null)
 import Data.Either (Either(..))
@@ -15,9 +15,9 @@ import Data.Tuple (Tuple(..))
 import Data.Traversable (traverse_)
 import Effect (Effect)
 import Effect.Console (log)
-import Prelude (($), (<>), (+), (*), (==), Unit, bind, discard, pure, unit)
-import VexFlow.Abc.Translate (bar, keySignature, musics) as Translate
-import VexFlow.Abc.TranslateStateful (runBar, runBars, runBodyPart, runTuneBody)
+import Prelude ((<>), (+), (*), (==), Unit, bind, discard, pure, unit)
+import VexFlow.Abc.Translate (keySignature) as Translate
+import VexFlow.Abc.TranslateStateful (runBodyPart, runTuneBody)
 import VexFlow.Types (AbcContext, BarSpec, Config, MusicSpec(..)
          , MusicSpecContents, NoteSpec, StaveConfig, StaveSpec, TimeSignature
          , staveWidth)
@@ -172,7 +172,8 @@ displayBarSpec staveNo barSpec =
         else
           pure unit
 
-      _ <- displayBarRepeat staveBar barSpec.startLine.repeat
+      _ <- processBarBeginRepeat staveBar barSpec.startLine.repeat
+      _ <- processBarEndRepeat staveBar barSpec.endLineRepeat
 
       if (null musicSpec.tuplets)
         then
@@ -181,18 +182,29 @@ displayBarSpec staveNo barSpec =
           displayTupletedNotesImpl staveBar barSpec.timeSignature barSpec.beatsPerBeam musicSpec
       displayStave staveBar
 
--- | dispkay bar repeat markers
-displayBarRepeat :: Stave -> Maybe Repeat -> Effect Unit
-displayBarRepeat staveBar mRepeat =
+-- | display bar begin repeat markers
+processBarBeginRepeat :: Stave -> Maybe Repeat -> Effect Unit
+processBarBeginRepeat staveBar mRepeat =
   case mRepeat of
     Just Begin ->
       displayBarBeginRepeat staveBar
     Just End ->
-      displayBarEndRepeat staveBar
+      -- we ignore this because we now record bar end repeat separately
+      pure unit
     Just BeginAndEnd ->
-      displayBarBothRepeat staveBar
+      -- just show begin because we now record bar end repeat separately
+      displayBarBeginRepeat staveBar
     _ ->
       pure unit
+
+-- | display bar end repeat markers
+processBarEndRepeat :: Stave -> Boolean -> Effect Unit
+processBarEndRepeat staveBar isRepeat =
+  if isRepeat then
+    displayBarEndRepeat staveBar
+  else
+    pure unit
+
 
 {- Just for debug
 -- | display a single bar of music
