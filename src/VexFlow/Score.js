@@ -64,7 +64,7 @@ var wrapper = function() {
     keySignatureImpl : function (stave) {
       return function (keySignature) {
         return function () {
-          return wrapper.drawKeySignature(stave, keySignature);
+          return wrapper.drawKeySignature(stave, keySignature, false);
         }
       }
     },
@@ -121,7 +121,7 @@ var wrapper = function() {
 
       // Add a clef and key signature if it's the first bar in the stave
       if (staveConfig.barNo == 0) {
-        wrapper.drawKeySignature (stave, keySignature);
+        wrapper.drawKeySignature (stave, keySignature, true);
       }
 
       return stave;
@@ -136,8 +136,10 @@ var wrapper = function() {
       stave.setTimeSignature(meter);
     },
 
-    drawKeySignature: function (stave, keySignature) {
-      stave.addClef("treble");
+    drawKeySignature: function (stave, keySignature, withClef) {
+      if (withClef) {
+        stave.addClef("treble");
+      }
       stave.setKeySignature(keySignature);
     },
 
