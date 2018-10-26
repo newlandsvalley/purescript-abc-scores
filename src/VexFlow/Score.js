@@ -112,6 +112,7 @@ var wrapper = function() {
       renderer.resize(config.canvasWidth, config.canvasHeight);
 
       context = renderer.getContext();
+      context.scale(config.scale, config.scale);
     },
 
     makeStave: function (staveConfig, keySignature) {
