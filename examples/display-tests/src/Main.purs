@@ -303,7 +303,11 @@ example10 =
       { startLine : barType
       , music :  fromFoldable   [c 4, f 4, (tie $ g 4), (tie $ g 4) ]
     }
-    bodyPart = Score $ toUnfoldable [bar0]
+    bar1 =
+      { startLine : barType
+      , music : fromFoldable [g 8, c 8]
+      }
+    bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
     displayFullStave context bodyPart
 

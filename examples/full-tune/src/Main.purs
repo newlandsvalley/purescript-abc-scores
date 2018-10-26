@@ -6,7 +6,7 @@ import Data.Either (Either(..))
 import VexFlow.Score (displayTune, initialise)
 import VexFlow.Types (Config)
 import Data.Abc.Parser (parse)
-import Examples.FullTune.Texts (sampleAbc)
+import Examples.FullTune.Texts (augustsson, ewa, fastan)
 
 config :: Config
 config =
@@ -19,7 +19,7 @@ config =
 main :: Effect Unit
 main =
   let
-    eAbcTune = parse sampleAbc
+    eAbcTune = parse ewa
   in
     case eAbcTune of
       Right abcTune -> do
