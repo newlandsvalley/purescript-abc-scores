@@ -122,6 +122,15 @@ triplet d =
   in
     Tuplet signature notes
 
+-- | hacky convenience function to tie a note (which is represented as Music)
+tie :: Music -> Music
+tie m =
+  case m of
+    Note n ->
+      Note n { tied = true }
+    _ ->
+      m
+
 -- sample quadruplet
 quadruplet :: Int -> Music
 quadruplet d =

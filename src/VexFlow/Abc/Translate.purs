@@ -1,8 +1,6 @@
 module VexFlow.Abc.Translate
-  ( bar
-  , keySignature
+  ( keySignature
   , headerChange
-  , musics
   , music) where
 
 -- | Translate between Abc types and VexFlow types which are
@@ -66,6 +64,8 @@ keySignature ks =
   in
     show newks.pitchClass <> (keySignatureAccidental newks.accidental) <> modeStr
 
+
+{- don't need this now - moved to TranslateSateful
 bar :: AbcContext -> Int -> Bar -> Either String BarSpec
 bar context barNumber abcBar =
   let
@@ -117,8 +117,14 @@ foldMusicsFunction context eacc m =
           acc.tickableContext
         _ ->
           mempty
+    noteIndex =
+      case eacc of
+        Right (MusicSpec acc) ->
+          length acc.noteSpecs
+        _ ->
+          0
     enext :: Either String MusicSpec
-    enext = music context position m
+    enext = music context position noteIndex m
   in
     case (Tuple eacc enext) of
       (Tuple (Right acc) (Right next)) ->
@@ -129,13 +135,15 @@ foldMusicsFunction context eacc m =
 
       (Tuple _ (Left err) ) ->
         Left err
+-}
+
 
 -- | translate any ABC music item that produces score to a VexFlow music spec
 -- | producing an empty array if it doesn't do so
 -- | NoteCount is the count of 'tickable' items (notes or otherwise)
 -- | that precede this music item in the bar
-music :: AbcContext -> NoteCount -> Music -> Either String MusicSpec
-music context tickablePosition m =
+music :: AbcContext -> NoteCount -> Int -> Music -> Either String MusicSpec
+music context tickablePosition noteIndex m =
   let
     -- find the number and size of 'tickable' items in this music item
     tickableContext :: TickableContext
@@ -143,13 +151,15 @@ music context tickablePosition m =
   in
     case m of
       Note abcNote ->
-        buildMusicSpecFromN tickableContext $ note context abcNote
+        buildMusicSpecFromN tickableContext noteIndex abcNote.tied $ note context abcNote
 
       Rest dur ->
-        buildMusicSpecFromN tickableContext $ rest context dur
+        -- rests are never tied
+        buildMusicSpecFromN tickableContext noteIndex false $ rest context dur
 
       Chord abcChord ->
-        buildMusicSpecFromN tickableContext $ chord context abcChord
+        -- we don't support tied chords at the moment
+        buildMusicSpecFromN tickableContext noteIndex false $ chord context abcChord
 
       BrokenRhythmPair abcNote1 broken abcNote2 ->
         buildMusicSpecFromNs tickableContext $ brokenRhythm context abcNote1 broken abcNote2
@@ -158,10 +168,12 @@ music context tickablePosition m =
         let
           eRes = tuplet context tickablePosition signature (Nel.toUnfoldable rOrNs)
         in
+          -- we don't support tied tuplets at the moment
           map (\tupletSpec ->
              MusicSpec
                 { noteSpecs : tupletSpec.noteSpecs
                 , tuplets : [tupletSpec.vexTuplet]
+                , ties : []
                 , tickableContext : tickableContext
                 , contextChanges : mempty
                 }
@@ -396,15 +408,22 @@ buildMusicSpecFromNs tCtx ens =
     map (\ns -> MusicSpec
       { noteSpecs : ns
       , tuplets : []
+      , ties : []
       , tickableContext : tCtx
       , contextChanges : []
       }) ens
 
-buildMusicSpecFromN :: TickableContext -> Either String NoteSpec -> Either String MusicSpec
-buildMusicSpecFromN tCtx ens =
+buildMusicSpecFromN :: TickableContext -> Int -> Boolean -> Either String NoteSpec -> Either String MusicSpec
+buildMusicSpecFromN tCtx noteIndex isTied ens =
+  let
+    (TickableContext count duration) = tCtx
+  in
     map (\ns -> MusicSpec
       { noteSpecs : [ns]
       , tuplets : []
+      , ties :
+         -- if the note is tied then save its index into the note array
+         if isTied then [noteIndex] else []
       , tickableContext : tCtx
       , contextChanges : []
       }) ens
@@ -414,6 +433,7 @@ buildMusicSpecFromContextChange contextChange =
     Right $ MusicSpec
       { noteSpecs : []
       , tuplets : []
+      , ties : []
       , tickableContext : mempty
       , contextChanges : contextChange
       }

@@ -288,6 +288,24 @@ example9 =
   in
     displayFullStave context bodyPart
 
+-- | simple tie
+example10 :: Effect Unit
+example10 =
+  let
+    staveNo = 10
+    context = abcContext (Tuple 4 4) staveNo
+    barType =
+      { thickness : Thin
+      , repeat : Nothing
+      , iteration : Nothing
+      }
+    bar0 =
+      { startLine : barType
+      , music :  fromFoldable   [c 4, f 4, (tie $ g 4), (tie $ g 4) ]
+    }
+    bodyPart = Score $ toUnfoldable [bar0]
+  in
+    displayFullStave context bodyPart
 
 main :: Effect Unit
 main = do
@@ -302,11 +320,13 @@ main = do
   _ <- example6
   _ <- example7
   _ <- example8
-  example9
+  _ <- example9
+  example10
+
 
 {-}
 main :: Effect Unit
 main = do
   _ <- initialise config
-  example5
+  example10
 -}

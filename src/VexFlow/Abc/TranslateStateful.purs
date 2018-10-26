@@ -17,6 +17,7 @@ import Data.Tuple (Tuple(..))
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Newtype (unwrap)
 import Data.Array ((..), zip)
+import Data.Array (length) as Array
 import Data.Traversable (traverse)
 import Data.Abc (Bar, BodyPart(..), Music)
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext)
@@ -123,12 +124,12 @@ bar barNumber abcBar =
     _ <- put newAbcContext
     withExceptT (\err -> err <> ": bar " <> show barNumber) $ pure barSpec
 
-music :: NoteCount -> Music -> Translation MusicSpec
-music tickablePosition m = do
+music :: NoteCount -> Int -> Music -> Translation MusicSpec
+music tickablePosition noteIndex m = do
   -- thread the context state through the translation
   abcContext <- get
   let
-    spec = Trans.music abcContext tickablePosition m
+    spec = Trans.music abcContext tickablePosition noteIndex m
     newContext = applyContextChanges abcContext spec
   _ <- put newContext
   either throwError pure spec
@@ -149,5 +150,6 @@ foldMusicsFunction eacc m = do
     (MusicSpec acc) = eacc
      -- find the position of the next note in the bar
     (TickableContext position duration) = acc.tickableContext
-  (MusicSpec enext) <- music position m
+    noteIndex = Array.length acc.noteSpecs
+  (MusicSpec enext) <- music position noteIndex m
   pure $ MusicSpec (acc <> enext)

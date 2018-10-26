@@ -80,9 +80,9 @@ var wrapper = function() {
     displayAutoBeamedNotesImpl : function (stave) {
       return function (timeSignature) {
         return function (beatsPerBeam) {
-          return function (notes) {
+          return function (musicSpec) {
             return function () {
-              return wrapper.drawAutoBeamedNotes(stave, timeSignature, beatsPerBeam, notes);
+              return wrapper.drawAutoBeamedNotes(stave, timeSignature, beatsPerBeam, musicSpec);
             }
           }
         }
@@ -143,16 +143,20 @@ var wrapper = function() {
       stave.setKeySignature(keySignature);
     },
 
-    drawAutoBeamedNotes: function (stave, timeSignature, beatsPerBeam, noteSpec) {
+    drawAutoBeamedNotes: function (stave, timeSignature, beatsPerBeam, musicSpec) {
       console.log("drawAutoBeamedNotes")
-      console.log(noteSpec);
+      console.log(musicSpec);
       console.log("numerator: ", timeSignature.numerator);
-      var notes = noteSpec.map(wrapper.makeStaveNote);
+      var notes = musicSpec.noteSpecs.map(wrapper.makeStaveNote);
       // notes.unshift (new VF.BarNote({ type: 'single' }));  Doesn't work
       console.log(notes);
 
+      var ties = musicSpec.ties.map(wrapper.makeTie (notes));
+      console.log(ties);
+
       var beams = VF.Beam.generateBeams(notes, wrapper.beamGroup(timeSignature, beatsPerBeam) );
       Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
+      ties.forEach(function(t) {t.setContext(context).draw()})
       beams.forEach(function(b) {b.setContext(context).draw()});
     },
 
@@ -161,10 +165,12 @@ var wrapper = function() {
       console.log(musicSpec);
       var notes = musicSpec.noteSpecs.map(wrapper.makeStaveNote);
       var tuplets = musicSpec.tuplets.map(wrapper.makeTupletLayout (notes));
+      var ties = musicSpec.ties.map(wrapper.makeTie (notes));
 
       var beams = VF.Beam.generateBeams(notes, wrapper.beamGroup(timeSignature, beatsPerBeam) );
       Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
       beams.forEach(function(b) {b.setContext(context).draw()});
+      ties.forEach(function(t) {t.setContext(context).draw()})
       tuplets.forEach(function(tuplet){
         tuplet.setContext(context).draw();
       });
@@ -201,6 +207,18 @@ var wrapper = function() {
         return new Vex.Flow.Tuplet(notes.slice(vexTuplet.startPos, vexTuplet.endPos), {
            num_notes: vexTuplet.p, notes_occupied: vexTuplet.q
          });
+      };
+    },
+
+    // tie a note to its successor
+    makeTie: function (notes) {
+      return function (noteIndex) {
+        return new VF.StaveTie({
+          first_note: notes[noteIndex],
+          last_note: notes[noteIndex + 1],
+          first_indices: [0],
+          last_indices: [0]
+        });
       };
     },
 
