@@ -33,6 +33,9 @@ abcContext (Tuple x y) staveNo =
   , isMidVolta : false
   }
 
+-- | we give each test it's own stave.  The downside is that subsequent staves
+-- | do not by default display the time signature (because it's assumed to be inherited)
+
 -- | simple 6/8
 -- | we can use displayFullStve here because it will always display stave 0
 exampleNothing :: Effect Unit

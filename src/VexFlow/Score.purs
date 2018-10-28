@@ -6,8 +6,7 @@ module VexFlow.Score
   , initialise
   , newStave) where
 
-import Data.Abc (AbcTune, Accidental(..), BodyPart, KeySignature
-     ,Mode(..), PitchClass(..), Repeat(..))
+import Data.Abc (AbcTune, BodyPart, KeySignature, Repeat(..))
 import Data.Array (null)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
@@ -15,7 +14,7 @@ import Data.Tuple (Tuple(..))
 import Data.Traversable (traverse_)
 import Effect (Effect)
 import Effect.Console (log)
-import Prelude ((<>), (+), (*), (==), Unit, bind, discard, pure, unit)
+import Prelude ((<>), (+), (*), (==), (&&), Unit, bind, discard, pure, unit)
 import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runBodyPart, runTuneBody)
 import VexFlow.Types (AbcContext, BarSpec, Config, MusicSpec(..)
@@ -159,7 +158,7 @@ displayBarSpec staveNo keySignature barSpec =
       -- add any meter or key change markers
       traverse_ (displayContextChange staveBar) musicSpec.contextChanges
 
-      if (barSpec.barNumber == 0)
+      if (barSpec.barNumber == 0) && (staveNo == 0)
         then
           addTimeSignature staveBar barSpec.timeSignature
         else
