@@ -1,7 +1,6 @@
 module VexFlow.Abc.Utils
   ( applyContextChanges
   , beatsPerBeam
-  , beatsPerBeam'
   , dotCount
   , normaliseBroken
   , noteDotCount
@@ -25,7 +24,7 @@ import Data.List (length)
 import Data.Abc (AbcTune, AbcNote, Broken(..), MeterSignature, KeySignature,
                  Accidental(..), Mode(..), NoteDuration, PitchClass(..))
 import Data.Abc.Metadata (dotFactor, getMeter, getKeySig, getUnitNoteLength)
-import VexFlow.Types (AbcContext, MusicSpec(..), TimeSignature, staveIndentation)
+import VexFlow.Types (AbcContext, MusicSpec(..), staveIndentation)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 
 -- | set the default grouping of notes that are beamed together
@@ -40,17 +39,6 @@ beatsPerBeam (Tuple n d) =
     9 -> 3
     12 -> 3
     _ -> 1
-
-beatsPerBeam' :: TimeSignature -> Int
-beatsPerBeam' ts =
-  case ts.numerator of
-    3 -> 1
-    4 -> 2
-    6 -> 3
-    9 -> 3
-    12 -> 3
-    _ -> 1
-
 
 -- | the degree to which a note is dotted
 dotCount :: AbcContext -> NoteDuration -> Int

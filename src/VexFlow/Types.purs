@@ -36,20 +36,6 @@ type TimeSignature =
   , denominator :: Int
   }
 
-{- from VexFlow StaveVolta}
-export class Volta extends StaveModifier {
-  static get type() {
-    return {
-      NONE: 1,
-      BEGIN: 2,
-      MID: 3,
-      END: 4,
-      BEGIN_END: 5,
-    };
-  }
--}
-
-
 -- | The ABC Context
 type AbcContext =
   { timeSignature :: TimeSignature
