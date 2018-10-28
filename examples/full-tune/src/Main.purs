@@ -5,14 +5,16 @@ import Effect (Effect)
 import Data.Either (Either(..))
 import VexFlow.Score (displayTune, initialise)
 import VexFlow.Types (Config)
+import VexFlow.Abc.Utils (canvasHeight)
 import Data.Abc.Parser (parse)
+import Data.Abc (AbcTune)
 import Examples.FullTune.Texts (augustsson, cig, ewa, fastan)
 
-config :: Config
-config =
+config :: AbcTune -> Config
+config tune =
   { canvasDivId : "canvas"
   , canvasWidth : 1500
-  , canvasHeight : 1000
+  , canvasHeight : canvasHeight tune
   , scale : 0.8
   }
 
@@ -23,7 +25,7 @@ main =
   in
     case eAbcTune of
       Right abcTune -> do
-        _ <- initialise config
+        _ <- initialise (config abcTune)
         displayTune abcTune
       _ ->
         pure unit

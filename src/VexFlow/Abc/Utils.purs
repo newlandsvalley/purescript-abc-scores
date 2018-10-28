@@ -10,7 +10,8 @@ module VexFlow.Abc.Utils
   , updateAbcContext
   , nextStaveNo
   , isEmptyMusicSpec
-  , cMajor) where
+  , cMajor
+  , canvasHeight) where
 
 import Prelude (($), (*), (+), (-), map)
 import Data.Int (round)
@@ -20,6 +21,7 @@ import Data.Either (Either(..))
 import Data.Foldable (foldl)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Array (null)
+import Data.List (length)
 import Data.Abc (AbcTune, AbcNote, Broken(..), MeterSignature, KeySignature,
                  Accidental(..), Mode(..), NoteDuration, PitchClass(..))
 import Data.Abc.Metadata (dotFactor, getMeter, getKeySig, getUnitNoteLength)
@@ -182,3 +184,8 @@ cMajor =
   ,  accidental : Natural
   ,  mode : Major
   }
+
+-- | Heuristic to measure the canvas height needed to display a tune
+canvasHeight :: AbcTune -> Int
+canvasHeight tune =
+  (length tune.body) * 100
