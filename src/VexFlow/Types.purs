@@ -59,6 +59,7 @@ type AbcContext =
   , staveNo :: Maybe Int
   , accumulatedStaveWidth :: Int
   , isMidVolta :: Boolean          -- we've started but not finished a volta
+  , maxWidth :: Int
   }
 
 type NoteSpec =

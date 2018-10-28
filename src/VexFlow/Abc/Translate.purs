@@ -3,26 +3,24 @@ module VexFlow.Abc.Translate
   , headerChange
   , music) where
 
--- | Translate between Abc types and VexFlow types which are
--- | (at base) Strings
+-- | Translate between low-level leaves of the Abc data structure  and VexFlow types
+-- | At the leaves, we don't need to thread context through the translation
+
 import Data.Abc
 
 import Data.Abc.Canonical (keySignatureAccidental)
 import Data.Abc.KeySignature (normaliseModalKey)
 import Data.Array (length)
 import Data.Either (Either(..))
-import Data.Foldable (foldl)
 import Data.List.NonEmpty (head, toUnfoldable) as Nel
-import Data.List (toUnfoldable)
 import Data.Rational (numerator, denominator)
 import Data.String.Common (toLower)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import Data.Maybe (Maybe(..))
 import Prelude ((<>), ($), (*), (+), (-), map, mempty, show)
-import VexFlow.Abc.Utils (beatsPerBeam', dotCount, normaliseBroken, noteDotCount, noteTicks)
-import VexFlow.Types (AbcContext, BarSpec, NoteSpec, TupletSpec, MusicSpec(..)
-    ,staveWidth)
+import VexFlow.Abc.Utils (dotCount, normaliseBroken, noteDotCount, noteTicks)
+import VexFlow.Types (AbcContext, NoteSpec, TupletSpec, MusicSpec(..))
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), getTickableContext)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 

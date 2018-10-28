@@ -123,8 +123,8 @@ normaliseBroken broken n1 n2 =
         in
           (Tuple left right )
 
-initialAbcContext :: AbcTune -> AbcContext
-initialAbcContext tune =
+initialAbcContext :: AbcTune -> Int -> AbcContext
+initialAbcContext tune maxWidth =
   let
     meterSignature =
       fromMaybe (Tuple 4 4) $ getMeter tune
@@ -141,6 +141,7 @@ initialAbcContext tune =
     , staveNo : Nothing
     , accumulatedStaveWidth : staveIndentation  -- just the initial margin
     , isMidVolta : false
+    , maxWidth : maxWidth
     }
 
 

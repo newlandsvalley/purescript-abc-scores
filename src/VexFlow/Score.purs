@@ -31,6 +31,9 @@ foreign import data Stave :: Type
 staveSeparation :: Int
 staveSeparation = 100
 
+staveMargin :: Int
+staveMargin = 10
+
 addTimeSignature :: Stave -> TimeSignature -> Effect Unit
 addTimeSignature stave timeSignature =
   timeSignatureImpl stave timeSignature
@@ -52,7 +55,7 @@ staveConfig staveNo barNo =
 staveConfig :: Int -> Int -> Int -> Int -> StaveConfig
 staveConfig staveNo barNo xOffset width =
   { x : xOffset
-  , y : 10 + (staveSeparation * staveNo)
+  , y : staveSeparation * staveNo
   , width : width
   , barNo : barNo
   }
@@ -63,10 +66,10 @@ newStave staveCnfg ks =
   newStaveImpl staveCnfg (Translate.keySignature ks)
 
 
-displayTune :: AbcTune -> Effect Unit
-displayTune abcTune =
+displayTune :: AbcTune -> Int -> Effect Unit
+displayTune abcTune maxWidth =
   let
-    abcContext = initialAbcContext abcTune
+    abcContext = initialAbcContext abcTune maxWidth
     eStaveSpecs :: Either String (Array (Maybe StaveSpec))
     eStaveSpecs = runTuneBody abcContext abcTune.body
   in
@@ -151,9 +154,10 @@ displayBarSpec staveNo keySignature barSpec =
     -- xOffset = 10 + (staveWidth * barSpec.barNumber)
     -- now tracked in the BarSpec
     xOffset = barSpec.xOffset
+    width = barSpec.width
   in
     do
-      staveBar <- newStave (staveConfig staveNo barSpec.barNumber xOffset staveWidth) keySignature
+      staveBar <- newStave (staveConfig staveNo barSpec.barNumber xOffset width) keySignature
 
       -- add any meter or key change markers
       traverse_ (displayContextChange staveBar) musicSpec.contextChanges

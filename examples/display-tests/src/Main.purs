@@ -13,11 +13,13 @@ import VexFlow.Types (Config, AbcContext, staveIndentation)
 import Data.Abc
 import Examples.DisplayTests.Samples
 
+maxWidth :: Int
+maxWidth = 1200
 
 config :: Config
 config =
   { canvasDivId : "canvas"
-  , canvasWidth : 1200
+  , canvasWidth : maxWidth
   , canvasHeight : 1600
   , scale : 0.8
   }
@@ -31,6 +33,7 @@ abcContext (Tuple x y) staveNo =
   , staveNo : Just staveNo
   , accumulatedStaveWidth : staveIndentation
   , isMidVolta : false
+  , maxWidth : maxWidth
   }
 
 -- | we give each test it's own stave.  The downside is that subsequent staves

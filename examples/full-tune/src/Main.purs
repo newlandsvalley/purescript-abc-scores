@@ -10,10 +10,13 @@ import Data.Abc.Parser (parse)
 import Data.Abc (AbcTune)
 import Examples.FullTune.Texts (augustsson, cig, ewa, fastan)
 
+maxWidth :: Int
+maxWidth = 1500
+
 config :: AbcTune -> Config
 config tune =
   { canvasDivId : "canvas"
-  , canvasWidth : 1500
+  , canvasWidth : maxWidth
   , canvasHeight : canvasHeight tune
   , scale : 0.8
   }
@@ -26,6 +29,6 @@ main =
     case eAbcTune of
       Right abcTune -> do
         _ <- initialise (config abcTune)
-        displayTune abcTune
+        displayTune abcTune maxWidth
       _ ->
         pure unit

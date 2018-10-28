@@ -1,4 +1,4 @@
-module VexFlow.Abc.BarEnd (repositionBarEndRepeats) where
+module VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine) where
 
 -- | Routine to handle the disparity between the manner in which ABC descibes
 -- | bars and the manner in which VexFlow does so.  In the former, bars hold a
@@ -9,13 +9,13 @@ module VexFlow.Abc.BarEnd (repositionBarEndRepeats) where
 
 import Prelude
 import Data.Maybe (Maybe(..))
-import Data.Array ((:), reverse)
+import Data.Array ((:), last, reverse, snoc)
 import Data.Foldable (foldM)
 import Control.Monad.State (State, evalState, get, put)
-import VexFlow.Types (BarSpec)
+import VexFlow.Types (BarSpec, MusicSpec)
 import VexFlow.Abc.Volta (completeVolta)
 import VexFlow.Abc.Utils (isEmptyMusicSpec)
-import Data.Abc (Repeat(..))
+import Data.Abc (BarType, Thickness(..), Repeat(..))
 
 type BarState = State Boolean (Array BarSpec)
 
@@ -59,8 +59,40 @@ redundantBar barSpec =
   (isEmptyMusicSpec barSpec.musicSpec) && (barSpec.barNumber /= 0)
 
 -- | reposition all bar end repeats in a stave to the previous bar
--- | as we're only allowed a foldl we need to reverse both at the end
--- | and the beginning.
+-- | as we're only allowed a foldl we need to reverse at the start
 repositionBarEndRepeats :: Array BarSpec -> Array BarSpec
 repositionBarEndRepeats bs =
-  reverse $ evalState (shiftBarEnds $ reverse bs) false
+  evalState (shiftBarEnds $ reverse bs) false
+
+-- | fill out the stave line to the maximum permiitted line width by specifiying
+-- | an empty final bar of the residual width
+fillStaveLine :: Int -> Array BarSpec -> Array BarSpec
+fillStaveLine maxWidth bs =
+  case (last bs) of
+    Just b ->
+      let
+        currentWidth = b.xOffset + b.width
+      in
+        if (currentWidth <= maxWidth) then
+          let
+            completionBar = b { barNumber = b.barNumber + 1
+                              , width = (maxWidth - currentWidth)
+                              , xOffset = currentWidth
+                              , startLine = simpleBarType
+                              , endLineRepeat = false
+                              , volta = Nothing
+                              , musicSpec = mempty :: MusicSpec
+                              }
+          in
+            snoc bs completionBar
+      else
+        bs
+    Nothing ->
+      bs
+
+simpleBarType :: BarType
+simpleBarType =
+  { thickness : Thin
+  , repeat : Nothing
+  , iteration : Nothing
+  }

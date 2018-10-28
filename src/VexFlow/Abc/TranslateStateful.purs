@@ -25,7 +25,7 @@ import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext
 import VexFlow.Types (AbcContext, BarSpec, MusicSpec(..), StaveSpec
       ,staveIndentation, staveWidth)
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..))
-import VexFlow.Abc.BarEnd (repositionBarEndRepeats)
+import VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine)
 import VexFlow.Abc.Volta (startVolta, isMidVolta)
 
 type Translation a = ExceptT String (State AbcContext) a
@@ -82,7 +82,7 @@ bodyPart bp =
         -- then translate the bars
         staveBars <- bars bs
         let
-          normalisedStaveBars = repositionBarEndRepeats staveBars
+          normalisedStaveBars = fillStaveLine abcContext.maxWidth $ repositionBarEndRepeats staveBars
         -- return the stave specification
         pure $ Just { staveNo : staveNo, barSpecs : normalisedStaveBars}
     BodyInfo header ->
