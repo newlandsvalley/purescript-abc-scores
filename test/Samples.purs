@@ -1,7 +1,7 @@
 module Test.Samples where
 
 import Prelude (($))
-import VexFlow.Abc.Utils (beatsPerBeam)
+import VexFlow.Abc.Utils (beatsPerBeam, cMajor)
 import VexFlow.Types (AbcContext, staveIndentation)
 import Data.Abc
 import Data.Tuple (Tuple(..))
@@ -14,6 +14,7 @@ import VexFlow.Abc.TranslateStateful (execBodyPart)
 startAbcContext :: MeterSignature -> AbcContext
 startAbcContext (Tuple x y) =
   { timeSignature : { numerator: x, denominator: y }
+  , keySignature : cMajor
   , unitNoteLength : ( 1 % 16)
   , beatsPerBeam : beatsPerBeam (Tuple x y)
   , staveNo : Nothing

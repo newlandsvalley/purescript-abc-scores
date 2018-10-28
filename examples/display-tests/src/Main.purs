@@ -8,7 +8,7 @@ import Data.Maybe (Maybe(..))
 import Data.List (List(..), fromFoldable)
 import Data.Array (toUnfoldable)
 import VexFlow.Score (initialise, displayFullStave)
-import VexFlow.Abc.Utils (beatsPerBeam)
+import VexFlow.Abc.Utils (beatsPerBeam, cMajor)
 import VexFlow.Types (Config, AbcContext, staveIndentation)
 import Data.Abc
 import Examples.DisplayTests.Samples
@@ -18,13 +18,14 @@ config :: Config
 config =
   { canvasDivId : "canvas"
   , canvasWidth : 1200
-  , canvasHeight : 6400
+  , canvasHeight : 1600
   , scale : 0.8
   }
 
 abcContext :: MeterSignature -> Int -> AbcContext
 abcContext (Tuple x y) staveNo =
   { timeSignature : { numerator: x, denominator: y }
+  , keySignature : cMajor
   , unitNoteLength : ( 1 % 16)
   , beatsPerBeam : beatsPerBeam (Tuple x y)
   , staveNo : Just staveNo

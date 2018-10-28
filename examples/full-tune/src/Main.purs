@@ -11,8 +11,8 @@ import Examples.FullTune.Texts (augustsson, cig, ewa, fastan)
 config :: Config
 config =
   { canvasDivId : "canvas"
-  , canvasWidth : 1600
-  , canvasHeight : 6400
+  , canvasWidth : 1500
+  , canvasHeight : 1000
   , scale : 0.8
   }
 

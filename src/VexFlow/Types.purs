@@ -2,7 +2,7 @@ module VexFlow.Types where
 
 import Prelude (class Semigroup, class Monoid, (<>), mempty)
 import Data.Maybe (Maybe)
-import Data.Abc (BarType, NoteDuration)
+import Data.Abc (BarType, NoteDuration, KeySignature)
 import VexFlow.Abc.TickableContext (TickableContext)
 import VexFlow.Abc.ContextChange (ContextChange)
 import VexFlow.Abc.Volta (Volta)
@@ -53,6 +53,7 @@ export class Volta extends StaveModifier {
 -- | The ABC Context
 type AbcContext =
   { timeSignature :: TimeSignature
+  , keySignature :: KeySignature
   , unitNoteLength :: NoteDuration
   , beatsPerBeam :: Int
   , staveNo :: Maybe Int

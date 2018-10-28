@@ -131,7 +131,7 @@ var wrapper = function() {
       // Add a clef and key signature if it's the first bar in the stave
       if (staveConfig.barNo == 0) {
         wrapper.drawKeySignature (stave, keySignature, true);
-      }
+      }      
 
       return stave;
     },

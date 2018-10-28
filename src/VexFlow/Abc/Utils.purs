@@ -9,9 +9,10 @@ module VexFlow.Abc.Utils
   , initialAbcContext
   , updateAbcContext
   , nextStaveNo
-  , isEmptyMusicSpec) where
+  , isEmptyMusicSpec
+  , cMajor) where
 
-import Prelude (($), (*), (+), (-))
+import Prelude (($), (*), (+), (-), map)
 import Data.Int (round)
 import Data.Rational (fromInt, toNumber, (%))
 import Data.Tuple (Tuple(..))
@@ -19,8 +20,9 @@ import Data.Either (Either(..))
 import Data.Foldable (foldl)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Array (null)
-import Data.Abc (AbcTune, AbcNote, Broken(..), MeterSignature, NoteDuration)
-import Data.Abc.Metadata (dotFactor, getMeter, getUnitNoteLength)
+import Data.Abc (AbcTune, AbcNote, Broken(..), MeterSignature, KeySignature,
+                 Accidental(..), Mode(..), NoteDuration, PitchClass(..))
+import Data.Abc.Metadata (dotFactor, getMeter, getKeySig, getUnitNoteLength)
 import VexFlow.Types (AbcContext, MusicSpec(..), TimeSignature, staveIndentation)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 
@@ -127,8 +129,11 @@ initialAbcContext tune =
     (Tuple numerator denominator) = meterSignature
     unitNote =
       fromMaybe (1 % 16) $ getUnitNoteLength tune
+    keySignature =
+      fromMaybe cMajor $ map (\mks -> mks.keySignature) (getKeySig tune)
   in
     { timeSignature : { numerator, denominator }
+    , keySignature : keySignature
     , unitNoteLength : unitNote
     , beatsPerBeam : beatsPerBeam meterSignature
     , staveNo : Nothing
@@ -170,3 +175,10 @@ nextStaveNo (Just x) = Just (x + 1)
 isEmptyMusicSpec :: MusicSpec -> Boolean
 isEmptyMusicSpec (MusicSpec contents) =
   null contents.noteSpecs
+
+cMajor :: KeySignature
+cMajor =
+  {  pitchClass : C
+  ,  accidental : Natural
+  ,  mode : Major
+  }

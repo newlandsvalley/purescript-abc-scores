@@ -32,14 +32,6 @@ foreign import data Stave :: Type
 staveSeparation :: Int
 staveSeparation = 100
 
--- temporary constants until we can parse the key signature
-dMajor :: KeySignature
-dMajor =
-  {  pitchClass : D
-  ,  accidental : Natural
-  ,  mode : Major
-  }
-
 addTimeSignature :: Stave -> TimeSignature -> Effect Unit
 addTimeSignature stave timeSignature =
   timeSignatureImpl stave timeSignature
@@ -81,7 +73,7 @@ displayTune abcTune =
   in
     case eStaveSpecs of
       Right staveSpecs ->
-        traverse_ displayStaveSpec staveSpecs
+        traverse_ (displayStaveSpec abcContext.keySignature) staveSpecs
       Left err -> do
         _ <- log ("error in translating tune  " <> err)
         pure unit
@@ -99,7 +91,7 @@ displayFullStave abcContext bodyPart =
   in
     case emStaveSpec of
       Right (Just staveSpec) ->
-        traverse_ (displayBarSpec staveSpec.staveNo) staveSpec.barSpecs
+        traverse_ (displayBarSpec staveSpec.staveNo abcContext.keySignature) staveSpec.barSpecs
       Right _ ->
         -- the body part is merely a header - no display needed
         pure unit
@@ -108,11 +100,11 @@ displayFullStave abcContext bodyPart =
         pure unit
 
 
-displayStaveSpec :: Maybe StaveSpec -> Effect Unit
-displayStaveSpec mStaveSpec =
+displayStaveSpec :: KeySignature -> Maybe StaveSpec -> Effect Unit
+displayStaveSpec keySignature mStaveSpec =
   case mStaveSpec of
     (Just staveSpec) ->
-      traverse_ (displayBarSpec staveSpec.staveNo) staveSpec.barSpecs
+      traverse_ (displayBarSpec staveSpec.staveNo keySignature) staveSpec.barSpecs
     _ ->
       -- the body part is merely a header - no display needed
       pure unit
@@ -152,8 +144,8 @@ displayBars abcContext staveNo bars =
 
 
 -- | display a single bar from the (translated) BarSpec
-displayBarSpec :: Int -> BarSpec -> Effect Unit
-displayBarSpec staveNo barSpec =
+displayBarSpec :: Int -> KeySignature -> BarSpec -> Effect Unit
+displayBarSpec staveNo keySignature barSpec =
   let
     (MusicSpec musicSpec) = barSpec.musicSpec
     -- xOffset hard coded at the moment - fixed width bars
@@ -162,7 +154,7 @@ displayBarSpec staveNo barSpec =
     xOffset = barSpec.xOffset
   in
     do
-      staveBar <- newStave (staveConfig staveNo barSpec.barNumber xOffset staveWidth) dMajor
+      staveBar <- newStave (staveConfig staveNo barSpec.barNumber xOffset staveWidth) keySignature
 
       -- add any meter or key change markers
       traverse_ (displayContextChange staveBar) musicSpec.contextChanges
