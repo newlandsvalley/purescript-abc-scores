@@ -5,6 +5,7 @@ import Data.Maybe (Maybe)
 import Data.Abc (BarType, NoteDuration)
 import VexFlow.Abc.TickableContext (TickableContext)
 import VexFlow.Abc.ContextChange (ContextChange)
+import VexFlow.Abc.Volta (Volta)
 
 staveIndentation :: Int
 staveIndentation = 10
@@ -35,6 +36,20 @@ type TimeSignature =
   , denominator :: Int
   }
 
+{- from VexFlow StaveVolta}
+export class Volta extends StaveModifier {
+  static get type() {
+    return {
+      NONE: 1,
+      BEGIN: 2,
+      MID: 3,
+      END: 4,
+      BEGIN_END: 5,
+    };
+  }
+-}
+
+
 -- | The ABC Context
 type AbcContext =
   { timeSignature :: TimeSignature
@@ -42,6 +57,7 @@ type AbcContext =
   , beatsPerBeam :: Int
   , staveNo :: Maybe Int
   , accumulatedStaveWidth :: Int
+  , isMidVolta :: Boolean          -- we've started but not finished a volta
   }
 
 type NoteSpec =
@@ -107,6 +123,7 @@ type BarSpec =
   , xOffset :: Int
   , startLine :: BarType
   , endLineRepeat :: Boolean   -- important for end repeat markers
+  , volta :: Maybe Volta
   , timeSignature :: TimeSignature
   , beatsPerBeam :: Int
   , musicSpec :: MusicSpec

@@ -18,6 +18,7 @@ startAbcContext (Tuple x y) =
   , beatsPerBeam : beatsPerBeam (Tuple x y)
   , staveNo : Nothing
   , accumulatedStaveWidth : staveIndentation
+  , isMidVolta : false
   }
 
 c :: Int -> Music

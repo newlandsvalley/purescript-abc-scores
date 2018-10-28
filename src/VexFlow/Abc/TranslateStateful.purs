@@ -20,11 +20,13 @@ import Data.Array ((..), zip)
 import Data.Array (length) as Array
 import Data.Traversable (traverse)
 import Data.Abc (Bar, BodyPart(..), Music)
-import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext)
+import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext
+                         ,isEmptyMusicSpec)
 import VexFlow.Types (AbcContext, BarSpec, MusicSpec(..), StaveSpec
-      , staveIndentation, staveWidth)
+      ,staveIndentation, staveWidth)
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..))
 import VexFlow.Abc.BarEnd (repositionBarEndRepeats)
+import VexFlow.Abc.Volta (startVolta, isMidVolta)
 
 type Translation a = ExceptT String (State AbcContext) a
 
@@ -104,7 +106,9 @@ bar :: Int -> Bar -> Translation BarSpec
 bar barNumber abcBar =
   do
     musicSpec <- foldOverMusics $ toUnfoldable abcBar.music
-    -- we MUST get the context after iterating through the music
+    let
+      isEmptyBar = isEmptyMusicSpec musicSpec
+    -- we must get the context AFTER iterating through the music
     abcContext <- get
     let
       barSpec :: BarSpec
@@ -114,13 +118,19 @@ bar barNumber abcBar =
         , xOffset : abcContext.accumulatedStaveWidth
         , startLine : abcBar.startLine
         , endLineRepeat : false
+        , volta : startVolta abcBar.startLine isEmptyBar abcContext.isMidVolta
         , timeSignature : abcContext.timeSignature
         , beatsPerBeam : abcContext.beatsPerBeam
         , musicSpec : musicSpec
         }
+      -- check if we're in the midst of a volta
+      newIsMidVolta = isMidVolta abcBar.startLine isEmptyBar abcContext.isMidVolta
       -- accumulate the bar width
       newWidth = abcContext.accumulatedStaveWidth + barSpec.width
-      newAbcContext = abcContext {accumulatedStaveWidth = newWidth}
+      -- set the new state
+      newAbcContext = abcContext { accumulatedStaveWidth = newWidth
+                                 , isMidVolta = newIsMidVolta
+                                 }
     _ <- put newAbcContext
     withExceptT (\err -> err <> ": bar " <> show barNumber) $ pure barSpec
 

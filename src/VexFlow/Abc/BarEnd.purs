@@ -9,10 +9,12 @@ module VexFlow.Abc.BarEnd (repositionBarEndRepeats) where
 
 import Prelude
 import Data.Maybe (Maybe(..))
-import Data.Array ((:), null, reverse)
+import Data.Array ((:), reverse)
 import Data.Foldable (foldM)
 import Control.Monad.State (State, evalState, get, put)
-import VexFlow.Types (BarSpec, MusicSpec(..))
+import VexFlow.Types (BarSpec)
+import VexFlow.Abc.Volta (completeVolta)
+import VexFlow.Abc.Utils (isEmptyMusicSpec)
 import Data.Abc (Repeat(..))
 
 type BarState = State Boolean (Array BarSpec)
@@ -27,9 +29,18 @@ shiftBarEnd  acc barSpec = do
     -- does the current bar have an end repeat ?
     currentEndBar = (barSpec.startLine.repeat == Just End) ||
                  (barSpec.startLine.repeat == Just BeginAndEnd)
+    -- complete the volta if we detect that we've arrived at a bar
+    -- marker that ends a volta section
+    newVolta =
+      if lastEndBar then
+        completeVolta barSpec.volta
+      else
+        barSpec.volta
     -- carry over the bar repeat marker from the last bar to this
-    newBarSpec = barSpec { endLineRepeat = lastEndBar }
-    -- save the end bar repeat of the current bar to state 
+    newBarSpec = barSpec { endLineRepeat = lastEndBar
+                         , volta = newVolta
+                         }
+    -- save the end bar repeat of the current bar to state
   _ <- put currentEndBar
   -- if we come across a bar empty of music (always the case in the final bar
   -- of the stave) then we can now ignore it.
@@ -45,10 +56,7 @@ shiftBarEnds =
 -- | in the stave (which will hold a time signature etc.)
 redundantBar :: BarSpec -> Boolean
 redundantBar barSpec =
-  let
-    (MusicSpec contents) = barSpec.musicSpec
-  in
-    (null contents.noteSpecs) && (barSpec.barNumber /= 0)
+  (isEmptyMusicSpec barSpec.musicSpec) && (barSpec.barNumber /= 0)
 
 -- | reposition all bar end repeats in a stave to the previous bar
 -- | as we're only allowed a foldl we need to reverse both at the end

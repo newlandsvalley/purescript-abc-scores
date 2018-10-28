@@ -8,7 +8,8 @@ module VexFlow.Abc.Utils
   , noteTicks
   , initialAbcContext
   , updateAbcContext
-  , nextStaveNo) where
+  , nextStaveNo
+  , isEmptyMusicSpec) where
 
 import Prelude (($), (*), (+), (-))
 import Data.Int (round)
@@ -17,6 +18,7 @@ import Data.Tuple (Tuple(..))
 import Data.Either (Either(..))
 import Data.Foldable (foldl)
 import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Array (null)
 import Data.Abc (AbcTune, AbcNote, Broken(..), MeterSignature, NoteDuration)
 import Data.Abc.Metadata (dotFactor, getMeter, getUnitNoteLength)
 import VexFlow.Types (AbcContext, MusicSpec(..), TimeSignature, staveIndentation)
@@ -131,6 +133,7 @@ initialAbcContext tune =
     , beatsPerBeam : beatsPerBeam meterSignature
     , staveNo : Nothing
     , accumulatedStaveWidth : staveIndentation  -- just the initial margin
+    , isMidVolta : false
     }
 
 
@@ -162,3 +165,8 @@ applyContextChanges abcContext eSpec  =
 nextStaveNo :: Maybe Int -> Maybe Int
 nextStaveNo Nothing = Just 0
 nextStaveNo (Just x) = Just (x + 1)
+
+-- | return true if the MusicSpec is empty
+isEmptyMusicSpec :: MusicSpec -> Boolean
+isEmptyMusicSpec (MusicSpec contents) =
+  null contents.noteSpecs

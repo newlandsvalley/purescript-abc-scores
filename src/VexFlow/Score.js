@@ -41,6 +41,14 @@ var wrapper = function() {
       }
     },
 
+    displayVolta : function (stave) {
+      return function (volta) {
+        return function () {
+          return wrapper.drawVolta(stave, volta);
+        }
+      }
+    },
+
     displayStave : function (stave) {
       return function () {
         return wrapper.drawStave(stave);
@@ -136,6 +144,30 @@ var wrapper = function() {
       var meter = timeSignature.numerator + "/" + timeSignature.denominator;
       stave.setTimeSignature(meter);
     },
+
+    drawVolta: function (stave, volta) {
+      console.log("volta:")
+      console.log(volta);
+      var voltaType;
+      switch(volta.voltaType) {
+        case 2:
+          voltaType = VF.Volta.type.BEGIN;
+          break;
+        case 3:
+          voltaType = VF.Volta.type.MID;
+          break;
+        case 4:
+          voltaType = VF.Volta.type.END;
+          break;
+        case 5:
+          voltaType = VF.Volta.type.BEGIN_END;
+          break;
+        default:
+          voltaType = VF.Volta.type.NONE;
+      }
+      stave.setVoltaType(voltaType, volta.iteration, 30);
+    },
+
 
     drawKeySignature: function (stave, keySignature, withClef) {
       if (withClef) {
@@ -268,5 +300,6 @@ exports.displayBarBothRepeat = wrapper.displayBarBothRepeat;
 exports.displayNotesImpl = wrapper.displayNotesImpl;
 exports.displayAutoBeamedNotesImpl = wrapper.displayAutoBeamedNotesImpl;
 exports.displayTupletedNotesImpl = wrapper.displayTupletedNotesImpl;
+exports.displayVolta = wrapper.displayVolta;
 exports.timeSignatureImpl = wrapper.timeSignatureImpl;
 exports.keySignatureImpl = wrapper.keySignatureImpl;

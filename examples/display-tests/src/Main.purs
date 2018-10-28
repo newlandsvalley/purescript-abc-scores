@@ -29,6 +29,7 @@ abcContext (Tuple x y) staveNo =
   , beatsPerBeam : beatsPerBeam (Tuple x y)
   , staveNo : Just staveNo
   , accumulatedStaveWidth : staveIndentation
+  , isMidVolta : false
   }
 
 -- | simple 6/8
@@ -311,6 +312,77 @@ example10 =
   in
     displayFullStave context bodyPart
 
+-- | volta
+example11 :: Effect Unit
+example11 =
+  let
+    staveNo = 11
+    context = abcContext (Tuple 4 4) staveNo
+    -- normal A part
+    barType0 =
+      { thickness : Thin
+      , repeat : Just Begin
+      , iteration : Nothing
+      }
+    bar0 =
+      { startLine : barType0
+      , music :  fromFoldable   [c 4, f 4, g 4, g 4 ]
+    }
+    -- 1st repeat
+    barType1 =
+      { thickness : Thin
+      , repeat : Nothing
+      , iteration : Just 1
+      }
+    bar1 =
+      { startLine : barType1
+      , music : fromFoldable [g 8, c 8]
+      }
+    -- continution of first repeat
+    barType2 =
+      { thickness : Thin
+      , repeat : Nothing
+      , iteration : Nothing
+      }
+    bar2 =
+      { startLine : barType2
+      , music : fromFoldable [f 8, f 8]
+      }
+    -- end first repeat and start second repeat
+    barType3 =
+      { thickness : Thin
+      , repeat : Just End
+      , iteration : Just 2
+      }
+    bar3 =
+      { startLine : barType3
+      , music : fromFoldable [c 8, c 8]
+      }
+    -- mark end of second repeat with thick bar line
+    -- and start B part of tune
+    barType4 =
+      { thickness : ThinThick
+      , repeat : Nothing
+      , iteration : Nothing
+      }
+    bar4 =
+      { startLine : barType4
+      , music : fromFoldable [f 8, f 8]
+      }
+    -- normal redundant bar marking stave end
+    barType5 =
+      { thickness : Thin
+      , repeat : Nothing
+      , iteration : Nothing
+      }
+    bar5 =
+      { startLine : barType5
+      , music : fromFoldable []
+      }
+    bodyPart = Score $ toUnfoldable [bar0, bar1, bar2, bar3, bar4]
+  in
+    displayFullStave context bodyPart
+
 main :: Effect Unit
 main = do
   _ <- initialise config
@@ -325,12 +397,13 @@ main = do
   _ <- example7
   _ <- example8
   _ <- example9
-  example10
+  _ <- example10
+  example11
 
 
-{-}
+{-
 main :: Effect Unit
 main = do
   _ <- initialise config
-  example10
+  example11
 -}

@@ -22,6 +22,7 @@ import VexFlow.Types (AbcContext, BarSpec, Config, MusicSpec(..)
          , MusicSpecContents, NoteSpec, StaveConfig, StaveSpec, TimeSignature
          , staveWidth)
 import VexFlow.Abc.ContextChange (ContextChange(..))
+import VexFlow.Abc.Volta (Volta)
 import VexFlow.Abc.Utils (initialAbcContext)
 
 
@@ -174,6 +175,7 @@ displayBarSpec staveNo barSpec =
 
       _ <- processBarBeginRepeat staveBar barSpec.startLine.repeat
       _ <- processBarEndRepeat staveBar barSpec.endLineRepeat
+      _ <- processVolta staveBar barSpec.volta
 
       if (null musicSpec.tuplets)
         then
@@ -204,6 +206,15 @@ processBarEndRepeat staveBar isRepeat =
     displayBarEndRepeat staveBar
   else
     pure unit
+
+
+processVolta :: Stave -> Maybe Volta -> Effect Unit
+processVolta staveBar mVolta =
+  case mVolta of
+    Just volta ->
+      displayVolta staveBar volta
+    _ ->
+      pure unit
 
 
 {- Just for debug
@@ -286,5 +297,6 @@ foreign import displayStave :: Stave -> Effect Unit
 foreign import displayBarBeginRepeat :: Stave -> Effect Unit
 foreign import displayBarEndRepeat :: Stave -> Effect Unit
 foreign import displayBarBothRepeat :: Stave -> Effect Unit
+foreign import displayVolta :: Stave -> Volta -> Effect Unit
 foreign import timeSignatureImpl :: Stave -> TimeSignature -> Effect Unit
 foreign import keySignatureImpl :: Stave -> String -> Effect Unit

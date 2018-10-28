@@ -44,3 +44,18 @@ ewa =
   <> "| D2E D3 B3- | B2A B2c BAB | cB2 (2:3AG FEF | G3 G6 :| \r\n"
   <> "|: dBd g2f (2:3ed | cB2 (2:3AG F2G | (2:3AB cAc BGB | AF2  D6 |\r\n"
   <> "| dBd g2f (2:3ed |  cB2 (2:3AG F2G | (2:3AB cAc BGB | AF2  G6 :|\r\n"
+
+cig :: String
+cig =
+  "X: 1\r\n"
+  <> "T: C i G, Grind Hans Jässpôdspolska\r\n"
+  <> "Z: Christine Dyer\r\n"
+  <> "R: Polska\r\n"
+  <> "O: Rättvik, Dalarna\r\n"
+  <> "M: 3/4\r\n"
+  <> "L: 1/8\r\n"
+  <> "K:Gmaj\r\n"
+  <> "|: D2 G2 A>B | (3c2B2G2 E2- | E2 c>B A>G | F/2G/2A- AF D2- |\r\n"
+  <> "D2 G2 A>B | (3c2B2G2 E2- | E2 c>B AG |1 (3FDF G4 :|2  (3FDF G3 D |\r\n"
+  <> "|: G>B dc B>A | G<c ed c>B | A>B c/2d/2c/2A/2 B>G |F/2G/2A- AF D>D |\r\n"
+  <> "G>B dc B>A | G<c ed c>B | A>B c/2d/2c/2A/2 B>G |1 FD/2F/2 G3 D :|2 FD/2F/2 G4 |\r\n"
