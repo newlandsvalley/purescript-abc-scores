@@ -1,9 +1,9 @@
 module Examples.FullTune.Main where
 
-import Prelude (Unit, bind, pure, unit)
+import Prelude (bind, pure)
 import Effect (Effect)
 import Data.Either (Either(..))
-import VexFlow.Score (displayTune, initialise)
+import VexFlow.Score (renderTune, initialise)
 import VexFlow.Types (Config)
 import VexFlow.Abc.Utils (canvasHeight)
 import Data.Abc.Parser (parse)
@@ -21,7 +21,7 @@ config tune =
   , scale : 0.8
   }
 
-main :: Effect Unit
+main :: Effect Boolean
 main =
   let
     eAbcTune = parse cig
@@ -29,6 +29,6 @@ main =
     case eAbcTune of
       Right abcTune -> do
         _ <- initialise (config abcTune)
-        displayTune abcTune canvasWidth
+        renderTune abcTune canvasWidth
       _ ->
-        pure unit
+        pure false

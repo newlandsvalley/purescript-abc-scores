@@ -1,8 +1,8 @@
 module VexFlow.Score
   ( Stave
   , addTimeSignature
-  , displayTune
-  , displayFullStave
+  , renderTune
+  , renderFullStave
   , initialise
   , newStave) where
 
@@ -55,26 +55,27 @@ newStave staveCnfg ks =
   newStaveImpl staveCnfg (Translate.keySignature ks)
 
 
-displayTune :: AbcTune -> Int -> Effect Unit
-displayTune abcTune canvasWidth =
+renderTune :: AbcTune -> Int -> Effect Boolean
+renderTune abcTune canvasWidth =
   let
     abcContext = initialAbcContext abcTune canvasWidth
     eStaveSpecs :: Either String (Array (Maybe StaveSpec))
     eStaveSpecs = runTuneBody abcContext abcTune.body
   in
     case eStaveSpecs of
-      Right staveSpecs ->
-        traverse_ (displayStaveSpec abcContext.keySignature) staveSpecs
+      Right staveSpecs -> do
+        _ <- traverse_ (displayStaveSpec abcContext.keySignature) staveSpecs
+        pure true
       Left err -> do
         _ <- log ("error in translating tune  " <> err)
-        pure unit
+        pure false
 
 
 -- | display a full stave of music
 -- | (in cases where the stave consists of actual music)
 -- | Only used in single line display tests
-displayFullStave :: AbcContext -> BodyPart -> Effect Unit
-displayFullStave abcContext bodyPart =
+renderFullStave :: AbcContext -> BodyPart -> Effect Unit
+renderFullStave abcContext bodyPart =
   let
     emStaveSpec :: Either String (Maybe StaveSpec)
     emStaveSpec =

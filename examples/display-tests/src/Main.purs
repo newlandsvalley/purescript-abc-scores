@@ -7,7 +7,7 @@ import Data.Rational ((%))
 import Data.Maybe (Maybe(..))
 import Data.List (List(..), fromFoldable)
 import Data.Array (toUnfoldable)
-import VexFlow.Score (initialise, displayFullStave)
+import VexFlow.Score (initialise, renderFullStave)
 import VexFlow.Abc.Utils (beatsPerBeam, cMajor)
 import VexFlow.Types (Config, AbcContext, staveIndentation)
 import Data.Abc (BodyPart(..), MeterSignature, Repeat(..), Thickness(..))
@@ -62,7 +62,7 @@ exampleNothing =
       }
     bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
-    displayFullStave context bodyPart
+    renderFullStave context bodyPart
 
 -- | simple 4/4
 example0 :: Effect Unit
@@ -89,7 +89,7 @@ example0 =
       }
     bodyPart = Score $ toUnfoldable [bar0, bar1, bar2]
   in
-    displayFullStave context bodyPart
+    renderFullStave context bodyPart
 
 -- | simple 2/4
 example1 :: Effect Unit
@@ -112,7 +112,7 @@ example1 =
       }
     bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
-    displayFullStave context bodyPart
+    renderFullStave context bodyPart
 
 -- | simple 3/4
 example2 :: Effect Unit
@@ -135,7 +135,7 @@ example2 =
       }
     bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
-    displayFullStave context bodyPart
+    renderFullStave context bodyPart
 
 -- | chords in 4/4
 example3 :: Effect Unit
@@ -158,7 +158,7 @@ example3 =
       }
     bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
-    displayFullStave context bodyPart
+    renderFullStave context bodyPart
 
 
 -- | broken rhythm pair in 4/4
@@ -178,7 +178,7 @@ example4 =
       }
     bodyPart = Score $ toUnfoldable [bar]
   in
-    displayFullStave context bodyPart
+    renderFullStave context bodyPart
 
 -- | basic triplet in 3/4
 example5 :: Effect Unit
@@ -197,7 +197,7 @@ example5 =
       }
     bodyPart = Score $ toUnfoldable [bar]
   in
-    displayFullStave context bodyPart
+    renderFullStave context bodyPart
 
 -- | basic quadruplet in 6/8 and also illustrates bar repeat markers
 example6 :: Effect Unit
@@ -225,7 +225,7 @@ example6 =
         }
     bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
-    displayFullStave context bodyPart
+    renderFullStave context bodyPart
 
 -- | change meter from 4/4 to 6/8 to 3/4
 example7 :: Effect Unit
@@ -252,7 +252,7 @@ example7 =
       }
     bodyPart = Score $ toUnfoldable [bar0, bar1, bar2]
   in
-    displayFullStave context bodyPart
+    renderFullStave context bodyPart
 
 -- | change key to Gm
 example8 :: Effect Unit
@@ -275,7 +275,7 @@ example8 =
       }
     bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
-    displayFullStave context bodyPart
+    renderFullStave context bodyPart
 
 -- | double dot
 example9 :: Effect Unit
@@ -294,7 +294,7 @@ example9 =
       }
     bodyPart = Score $ toUnfoldable [bar]
   in
-    displayFullStave context bodyPart
+    renderFullStave context bodyPart
 
 -- | simple tie
 example10 :: Effect Unit
@@ -317,7 +317,7 @@ example10 =
       }
     bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
-    displayFullStave context bodyPart
+    renderFullStave context bodyPart
 
 -- | volta
 example11 :: Effect Unit
@@ -388,7 +388,7 @@ example11 =
       }
     bodyPart = Score $ toUnfoldable [bar0, bar1, bar2, bar3, bar4]
   in
-    displayFullStave context bodyPart
+    renderFullStave context bodyPart
 
 main :: Effect Unit
 main = do
