@@ -10,10 +10,6 @@ import VexFlow.Abc.Volta (Volta)
 staveIndentation :: Int
 staveIndentation = 10
 
--- | just temporary while we have fixed width bars
-staveWidth :: Int
-staveWidth = 250
-
 -- | the configuration of the VexFlow Canvas
 type Config =
     { canvasDivId :: String

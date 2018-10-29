@@ -1,4 +1,7 @@
-module VexFlow.Abc.TranslateStateful  where
+module VexFlow.Abc.TranslateStateful
+  ( runBodyPart
+  , runTuneBody
+  , execBodyPart)  where
 
 -- The stateful part of translation
 -- The translation wrapped in a State Monad which is inside ExceptT
@@ -6,7 +9,7 @@ module VexFlow.Abc.TranslateStateful  where
 -- Any change in headers for time signature, key signature or unit note length
 -- will alter the state.
 
-import Prelude (($), (<>), (+), bind, mempty, pure, show)
+import Prelude (($), (<>), (+), (==), bind, mempty, pure, show)
 import Control.Monad.Except.Trans
 import Control.Monad.State (State, evalStateT, execStateT, get, put)
 import VexFlow.Abc.Translate (headerChange, music) as Trans
@@ -23,20 +26,13 @@ import Data.Abc (Bar, BodyPart(..), Music)
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext
                          ,isEmptyMusicSpec)
 import VexFlow.Types (AbcContext, BarSpec, MusicSpec(..), StaveSpec
-      ,staveIndentation, staveWidth)
-import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..))
+      ,staveIndentation)
+import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarWidth)
 import VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine)
 import VexFlow.Abc.Volta (startVolta, isMidVolta)
 
 type Translation a = ExceptT String (State AbcContext) a
 
-runBar :: AbcContext -> Int -> Bar -> Either String BarSpec
-runBar abcContext barNumber abcBar =
-  unwrap $ evalStateT (runExceptT $ bar barNumber abcBar) abcContext
-
-runBars :: AbcContext -> List Bar -> Either String (Array BarSpec)
-runBars abcContext bs =
-  unwrap $ evalStateT (runExceptT $ bars bs) abcContext
 
 runBodyPart :: AbcContext -> BodyPart -> Either String (Maybe StaveSpec)
 runBodyPart abcContext bp =
@@ -45,10 +41,6 @@ runBodyPart abcContext bp =
 runTuneBody :: AbcContext -> List BodyPart -> Either String (Array (Maybe StaveSpec))
 runTuneBody abcContext bps =
   unwrap $ evalStateT (runExceptT $ tuneBody bps) abcContext
-
-execBars :: AbcContext -> List Bar -> AbcContext
-execBars abcContext bs =
-  unwrap $ execStateT (runExceptT $ bars bs) abcContext
 
 execBodyPart :: AbcContext -> BodyPart -> AbcContext
 execBodyPart abcContext bp =
@@ -80,7 +72,7 @@ bodyPart bp =
         _ <- put (abcContext { staveNo = mStaveNo
                              , accumulatedStaveWidth = staveIndentation})
         -- then translate the bars
-        staveBars <- bars bs
+        staveBars <- bars staveNo bs
         let
           normalisedStaveBars = fillStaveLine abcContext.maxWidth $ repositionBarEndRepeats staveBars
         -- return the stave specification
@@ -95,26 +87,27 @@ bodyPart bp =
         _ <- put newAbcContext
         pure Nothing
 
-bars :: List Bar -> Translation (Array BarSpec)
-bars bs =
+bars :: Int -> List Bar -> Translation (Array BarSpec)
+bars staveNumber bs =
   let
     tupleArray = zipBars bs
   in
-    traverse (\(Tuple index b) -> bar index b) tupleArray
+    traverse (\(Tuple index b) -> bar staveNumber index b) tupleArray
 
-bar :: Int -> Bar -> Translation BarSpec
-bar barNumber abcBar =
+bar :: Int -> Int -> Bar -> Translation BarSpec
+bar staveNumber barNumber abcBar =
   do
     musicSpec <- foldOverMusics $ toUnfoldable abcBar.music
     let
       isEmptyBar = isEmptyMusicSpec musicSpec
+      width = estimateBarWidth (barNumber == 0) (staveNumber == 0) abcBar
     -- we must get the context AFTER iterating through the music
     abcContext <- get
     let
       barSpec :: BarSpec
       barSpec =
         { barNumber : barNumber
-        , width : staveWidth
+        , width : width
         , xOffset : abcContext.accumulatedStaveWidth
         , startLine : abcBar.startLine
         , endLineRepeat : false

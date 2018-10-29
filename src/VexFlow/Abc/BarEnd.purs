@@ -1,6 +1,6 @@
 module VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine) where
 
--- | Routine to handle the disparity between the manner in which ABC descibes
+-- | Routines to handle the disparity between the manner in which ABC descibes
 -- | bars and the manner in which VexFlow does so.  In the former, bars hold a
 -- | start barline but no end barline.  The very final bar of a stave is empty
 -- | but will hold the final barline.  In the latter, there can be both a start

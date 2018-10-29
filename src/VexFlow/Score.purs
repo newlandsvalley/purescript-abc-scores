@@ -14,12 +14,11 @@ import Data.Tuple (Tuple(..))
 import Data.Traversable (traverse_)
 import Effect (Effect)
 import Effect.Console (log)
-import Prelude ((<>), (+), (*), (==), (&&), Unit, bind, discard, pure, unit)
+import Prelude ((<>), (*), (==), (&&), Unit, bind, discard, pure, unit)
 import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runBodyPart, runTuneBody)
 import VexFlow.Types (AbcContext, BarSpec, Config, MusicSpec(..)
-         , MusicSpecContents, NoteSpec, StaveConfig, StaveSpec, TimeSignature
-         , staveWidth)
+         , MusicSpecContents, NoteSpec, StaveConfig, StaveSpec, TimeSignature)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Volta (Volta)
 import VexFlow.Abc.Utils (initialAbcContext)
@@ -42,16 +41,6 @@ addKeySignature :: Stave -> KeySignature -> Effect Unit
 addKeySignature stave ks =
   keySignatureImpl stave (Translate.keySignature ks)
 
-{-}
-staveConfig :: Int -> Int -> StaveConfig
-staveConfig staveNo barNo =
-  { x : 10 + (staveWidth * barNo)
-  , y : 10 + (staveSeparation * staveNo)
-  , width : staveWidth
-  , barNo : barNo
-  }
--}
-
 staveConfig :: Int -> Int -> Int -> Int -> StaveConfig
 staveConfig staveNo barNo xOffset width =
   { x : xOffset
@@ -60,16 +49,15 @@ staveConfig staveNo barNo xOffset width =
   , barNo : barNo
   }
 
-
 newStave :: StaveConfig -> KeySignature -> Effect Stave
 newStave staveCnfg ks =
   newStaveImpl staveCnfg (Translate.keySignature ks)
 
 
 displayTune :: AbcTune -> Int -> Effect Unit
-displayTune abcTune maxWidth =
+displayTune abcTune canvasWidth =
   let
-    abcContext = initialAbcContext abcTune maxWidth
+    abcContext = initialAbcContext abcTune canvasWidth
     eStaveSpecs :: Either String (Array (Maybe StaveSpec))
     eStaveSpecs = runTuneBody abcContext abcTune.body
   in

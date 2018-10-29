@@ -10,16 +10,16 @@ import Data.Array (toUnfoldable)
 import VexFlow.Score (initialise, displayFullStave)
 import VexFlow.Abc.Utils (beatsPerBeam, cMajor)
 import VexFlow.Types (Config, AbcContext, staveIndentation)
-import Data.Abc
+import Data.Abc (BodyPart(..), MeterSignature, Repeat(..), Thickness(..))
 import Examples.DisplayTests.Samples
 
-maxWidth :: Int
-maxWidth = 1200
+canvasWidth :: Int
+canvasWidth = 1200
 
 config :: Config
 config =
   { canvasDivId : "canvas"
-  , canvasWidth : maxWidth
+  , canvasWidth : canvasWidth
   , canvasHeight : 1600
   , scale : 0.8
   }
@@ -33,7 +33,7 @@ abcContext (Tuple x y) staveNo =
   , staveNo : Just staveNo
   , accumulatedStaveWidth : staveIndentation
   , isMidVolta : false
-  , maxWidth : maxWidth
+  , maxWidth : canvasWidth
   }
 
 -- | we give each test it's own stave.  The downside is that subsequent staves

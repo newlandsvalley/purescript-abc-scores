@@ -6,11 +6,15 @@ module VexFlow.Abc.TickableContext where
 -- | the start position amongst the tickables of any tuplet)
 
 import Prelude (class Semigroup, class Monoid, (+), (*), mempty)
-import Data.Abc (Music(..), NoteDuration, RestOrNote)
+import Data.Abc (Bar, Music(..), NoteDuration, RestOrNote)
 import Data.Rational ((%), fromInt)
 import Data.Either (Either(..))
-import Data.Foldable (foldl)
+import Data.Foldable (foldl, foldMap)
 import Data.List.NonEmpty (head, toUnfoldable) as Nel
+
+-- | the number of pixels we designate a tickable item on a stave
+pixelsPerItem :: Int
+pixelsPerItem = 35
 
 type NoteCount = Int
 
@@ -41,7 +45,7 @@ getTickableContext m =
         TickableContext 1 duration
 
     BrokenRhythmPair abcNote1 broken abcNote2 ->
-      TickableContext 1 (abcNote1.duration + abcNote2.duration)
+      TickableContext 2 (abcNote1.duration + abcNote2.duration)
 
     Tuplet signature rOrNs ->
       let
@@ -63,3 +67,15 @@ getRorNsDuration rOrNs =
         Right note -> note.duration + acc
   in
     foldl f (fromInt 0) rOrNs
+
+-- | heuristic to estomate the width of a bar
+estimateBarWidth :: Boolean -> Boolean -> Bar -> Int
+estimateBarWidth hasClef hasTimeSig abcBar =
+  let
+    (TickableContext noteCount duration) = foldMap getTickableContext abcBar.music
+    clefCount =
+      if hasClef then 2 else 0
+    timeSigCount =
+        if hasTimeSig then 1 else 0
+  in
+    (clefCount + timeSigCount + noteCount) * pixelsPerItem
