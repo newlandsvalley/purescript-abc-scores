@@ -4,7 +4,8 @@ module VexFlow.Score
   , renderTune
   , renderFullStave
   , initialise
-  , newStave) where
+  , newStave
+  , clearCanvas) where
 
 import Data.Abc (AbcTune, BodyPart, KeySignature, Repeat(..))
 import Data.Array (null)
@@ -268,6 +269,7 @@ displayContextChange staveBar contextChange =
 
 
 foreign import initialise :: Config -> Effect Unit
+foreign import clearCanvas :: Effect Unit
 foreign import newStaveImpl :: StaveConfig -> String -> Effect Stave
 foreign import getStaveWidth :: Stave -> Effect Int
 foreign import displayNotesImpl :: Stave -> Array NoteSpec -> Effect Unit

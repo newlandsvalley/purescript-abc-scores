@@ -7,7 +7,7 @@ import Data.Rational ((%))
 import Data.Maybe (Maybe(..))
 import Data.List (List(..), fromFoldable)
 import Data.Array (toUnfoldable)
-import VexFlow.Score (initialise, renderFullStave)
+import VexFlow.Score (clearCanvas, initialise, renderFullStave)
 import VexFlow.Abc.Utils (beatsPerBeam, cMajor)
 import VexFlow.Types (Config, AbcContext, staveIndentation)
 import Data.Abc (BodyPart(..), MeterSignature, Repeat(..), Thickness(..))
@@ -412,5 +412,6 @@ main = do
 main :: Effect Unit
 main = do
   _ <- initialise config
-  example11
+  _ <- example11
+  clearCanvas
 -}

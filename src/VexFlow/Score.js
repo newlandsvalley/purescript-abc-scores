@@ -14,6 +14,10 @@ var wrapper = function() {
       }
     },
 
+    clearCanvas : function () {
+      context.clear();
+    },
+
     newStaveImpl : function (staveConfig) {
       return function (keySignature) {
         return function () {
@@ -294,6 +298,7 @@ var wrapper = function() {
 
 
 exports.initialise = wrapper.initialise;
+exports.clearCanvas = wrapper.clearCanvas;
 exports.newStaveImpl = wrapper.newStaveImpl;
 exports.displayStave = wrapper.displayStave;
 exports.getStaveWidth = wrapper.getStaveWidth;
