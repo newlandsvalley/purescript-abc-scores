@@ -125,13 +125,16 @@ var wrapper = function() {
 
     makeStave: function (staveConfig, keySignature) {
 
+      var staveOptions = new Object();
+      staveOptions.right_bar = staveConfig.hasEndLine;
+
       // Create a stave at position 10, 40 of width 400 on the canvas.
-      var stave = new VF.Stave(staveConfig.x, staveConfig.y, staveConfig.width);
+      var stave = new VF.Stave(staveConfig.x, staveConfig.y, staveConfig.width, staveOptions);
 
       // Add a clef and key signature if it's the first bar in the stave
       if (staveConfig.barNo == 0) {
         wrapper.drawKeySignature (stave, keySignature, true);
-      }      
+      }
 
       return stave;
     },

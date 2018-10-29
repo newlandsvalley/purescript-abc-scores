@@ -110,6 +110,7 @@ bar staveNumber barNumber abcBar =
         , width : width
         , xOffset : abcContext.accumulatedStaveWidth
         , startLine : abcBar.startLine
+        , hasEndLine : true
         , endLineRepeat : false
         , volta : startVolta abcBar.startLine isEmptyBar abcContext.isMidVolta
         , timeSignature : abcContext.timeSignature

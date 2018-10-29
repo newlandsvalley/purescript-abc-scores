@@ -79,6 +79,7 @@ fillStaveLine maxWidth bs =
                               , width = (maxWidth - currentWidth)
                               , xOffset = currentWidth
                               , startLine = simpleBarType
+                              , hasEndLine = false
                               , endLineRepeat = false
                               , volta = Nothing
                               , musicSpec = mempty :: MusicSpec

@@ -41,12 +41,13 @@ addKeySignature :: Stave -> KeySignature -> Effect Unit
 addKeySignature stave ks =
   keySignatureImpl stave (Translate.keySignature ks)
 
-staveConfig :: Int -> Int -> Int -> Int -> StaveConfig
-staveConfig staveNo barNo xOffset width =
-  { x : xOffset
+staveConfig :: Int -> BarSpec -> StaveConfig
+staveConfig staveNo barSpec=
+  { x : barSpec.xOffset
   , y : staveSeparation * staveNo
-  , width : width
-  , barNo : barNo
+  , width : barSpec.width
+  , barNo : barSpec.barNumber
+  , hasEndLine : barSpec.hasEndLine
   }
 
 newStave :: StaveConfig -> KeySignature -> Effect Stave
@@ -138,14 +139,9 @@ displayBarSpec :: Int -> KeySignature -> BarSpec -> Effect Unit
 displayBarSpec staveNo keySignature barSpec =
   let
     (MusicSpec musicSpec) = barSpec.musicSpec
-    -- xOffset hard coded at the moment - fixed width bars
-    -- xOffset = 10 + (staveWidth * barSpec.barNumber)
-    -- now tracked in the BarSpec
-    xOffset = barSpec.xOffset
-    width = barSpec.width
   in
     do
-      staveBar <- newStave (staveConfig staveNo barSpec.barNumber xOffset width) keySignature
+      staveBar <- newStave (staveConfig staveNo barSpec) keySignature
 
       -- add any meter or key change markers
       traverse_ (displayContextChange staveBar) musicSpec.contextChanges

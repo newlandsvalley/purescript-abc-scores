@@ -24,6 +24,7 @@ type StaveConfig =
     , y :: Int
     , width :: Int
     , barNo :: Int
+    , hasEndLine :: Boolean
     }
 
 -- | the time signature
@@ -105,8 +106,9 @@ type BarSpec =
   { barNumber :: Int
   , width  :: Int
   , xOffset :: Int
-  , startLine :: BarType
-  , endLineRepeat :: Boolean   -- important for end repeat markers
+  , startLine :: BarType       -- the Left bar line (always present)
+  , hasEndLine :: Boolean      -- does it have a right bar line (default true)?
+  , endLineRepeat :: Boolean   -- does it have an end repeat? important for end repeat markers
   , volta :: Maybe Volta
   , timeSignature :: TimeSignature
   , beatsPerBeam :: Int
