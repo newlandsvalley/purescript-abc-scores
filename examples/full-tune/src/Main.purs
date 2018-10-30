@@ -13,8 +13,8 @@ import Examples.FullTune.Texts (augustsson, cig, ewa, fastan)
 canvasWidth :: Int
 canvasWidth = 1500
 
-config :: AbcTune -> Config
-config tune =
+configure :: AbcTune -> Config
+configure tune =
   { canvasDivId : "canvas"
   , canvasWidth : canvasWidth
   , canvasHeight : canvasHeight tune
@@ -28,7 +28,9 @@ main =
   in
     case eAbcTune of
       Right abcTune -> do
-        _ <- initialise (config abcTune)
-        renderTune abcTune canvasWidth
+        let
+          config = configure abcTune
+        _ <- initialise config
+        renderTune abcTune config
       _ ->
         pure false

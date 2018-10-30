@@ -1,13 +1,14 @@
 module Examples.DisplayTests.Main where
 
-import Prelude (Unit, bind, ($))
+import Prelude (Unit, bind, ($), (/))
 import Effect (Effect)
 import Data.Tuple (Tuple(..))
 import Data.Rational ((%))
 import Data.Maybe (Maybe(..))
 import Data.List (List(..), fromFoldable)
 import Data.Array (toUnfoldable)
-import VexFlow.Score (clearCanvas, initialise, renderFullStave)
+import Data.Int (round, toNumber)
+import VexFlow.Score (initialise, renderFullStave)
 import VexFlow.Abc.Utils (beatsPerBeam, cMajor)
 import VexFlow.Types (Config, AbcContext, staveIndentation)
 import Data.Abc (BodyPart(..), MeterSignature, Repeat(..), Thickness(..))
@@ -16,12 +17,15 @@ import Examples.DisplayTests.Samples
 canvasWidth :: Int
 canvasWidth = 1200
 
+scale :: Number
+scale = 0.8
+
 config :: Config
 config =
   { canvasDivId : "canvas"
   , canvasWidth : canvasWidth
   , canvasHeight : 1600
-  , scale : 0.8
+  , scale : scale
   }
 
 abcContext :: MeterSignature -> Int -> AbcContext
@@ -33,7 +37,7 @@ abcContext (Tuple x y) staveNo =
   , staveNo : Just staveNo
   , accumulatedStaveWidth : staveIndentation
   , isMidVolta : false
-  , maxWidth : canvasWidth
+  , maxWidth : round $ (toNumber canvasWidth / scale)
   }
 
 -- | we give each test it's own stave.  The downside is that subsequent staves
@@ -390,6 +394,25 @@ example11 =
   in
     renderFullStave context bodyPart
 
+-- | long line
+example12 :: Effect Unit
+example12 =
+  let
+    staveNo = 12
+    context = abcContext (Tuple 4 4) staveNo
+    barType =
+      { thickness : Thin
+      , repeat : Nothing
+      , iteration : Nothing
+      }
+    bar =
+      { startLine : barType
+      , music :  fromFoldable   [c 2, f 2, g 2, g 2, f 2, enat 1, b 1, f 2, g 2]
+      }
+    bodyPart = Score $ toUnfoldable [bar, bar, bar, bar, bar, bar, bar, bar]
+  in
+    renderFullStave context bodyPart
+
 main :: Effect Unit
 main = do
   _ <- initialise config
@@ -405,7 +428,8 @@ main = do
   _ <- example8
   _ <- example9
   _ <- example10
-  example11
+  _ <- example11
+  example12
 
 
 {-

@@ -12,8 +12,8 @@ module VexFlow.Abc.Utils
   , cMajor
   , canvasHeight) where
 
-import Prelude (($), (*), (+), (-), map)
-import Data.Int (round)
+import Prelude (($), (*), (+), (-), (/), map)
+import Data.Int (round, toNumber) as Int
 import Data.Rational (fromInt, toNumber, (%))
 import Data.Tuple (Tuple(..))
 import Data.Either (Either(..))
@@ -24,7 +24,7 @@ import Data.List (length)
 import Data.Abc (AbcTune, AbcNote, Broken(..), MeterSignature, KeySignature,
                  Accidental(..), Mode(..), NoteDuration, PitchClass(..))
 import Data.Abc.Metadata (dotFactor, getMeter, getKeySig, getUnitNoteLength)
-import VexFlow.Types (AbcContext, MusicSpec(..), staveIndentation)
+import VexFlow.Types (AbcContext, Config, MusicSpec(..), staveIndentation)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 
 -- | set the default grouping of notes that are beamed together
@@ -76,7 +76,7 @@ noteDotCount ctx abcNote =
 -- | note duration in ticks - 1 beat split into 128 possible unit ticks
 noteTicks :: AbcContext -> NoteDuration -> Int
 noteTicks ctx d =
-  round $ toNumber $
+  Int.round $ toNumber $
      ctx.unitNoteLength * d * (fromInt 128)
 
 -- | apply the specified broken rhythm to each note in the note pair (presented individually)
@@ -111,8 +111,8 @@ normaliseBroken broken n1 n2 =
         in
           (Tuple left right )
 
-initialAbcContext :: AbcTune -> Int -> AbcContext
-initialAbcContext tune canvasWidth =
+initialAbcContext :: AbcTune -> Config -> AbcContext
+initialAbcContext tune config =
   let
     meterSignature =
       fromMaybe (Tuple 4 4) $ getMeter tune
@@ -129,7 +129,8 @@ initialAbcContext tune canvasWidth =
     , staveNo : Nothing
     , accumulatedStaveWidth : staveIndentation  -- just the initial margin
     , isMidVolta : false
-    , maxWidth : canvasWidth - staveIndentation
+    , maxWidth : Int.round $
+        (Int.toNumber (config.canvasWidth - staveIndentation)) / config.scale
     }
 
 

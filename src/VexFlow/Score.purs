@@ -56,10 +56,10 @@ newStave staveCnfg ks =
   newStaveImpl staveCnfg (Translate.keySignature ks)
 
 
-renderTune :: AbcTune -> Int -> Effect Boolean
-renderTune abcTune canvasWidth =
+renderTune :: AbcTune -> Config -> Effect Boolean
+renderTune abcTune config =
   let
-    abcContext = initialAbcContext abcTune canvasWidth
+    abcContext = initialAbcContext abcTune config
     eStaveSpecs :: Either String (Array (Maybe StaveSpec))
     eStaveSpecs = runTuneBody abcContext abcTune.body
   in
