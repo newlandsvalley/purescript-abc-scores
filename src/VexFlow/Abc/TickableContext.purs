@@ -84,7 +84,7 @@ estimateBarWidth hasClef hasTimeSig maybeKeySig abcBar =
     keySigCount =
       maybe 0.0 keySignatureWidth maybeKeySig
   in
-    round $ (clefCount + timeSigCount + keySigCount + (toNumber noteCount)) * pixelsPerItem
+    round $ (clefCount + timeSigCount + keySigCount + (tickableCountWidth noteCount)) * pixelsPerItem
 
 -- heuristic to decide how much width to dedicate to a key signature
 -- by counting the number of sharps and flats
@@ -99,3 +99,10 @@ keySignatureWidth keySignature =
       1.0
     _ ->
       1.5
+
+-- | heuristic to allocate width to 'tickables'
+tickableCountWidth :: Int -> Number
+tickableCountWidth n =
+  case n of
+    1 -> 1.5   -- just 1.0 is too small
+    _ -> toNumber n

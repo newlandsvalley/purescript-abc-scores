@@ -119,7 +119,11 @@ example1 =
       { startLine : barType
       , music : fromFoldable [c 2, f 2, f 1, c 1, g 1, g 1]
       }
-    bodyPart = Score $ toUnfoldable [bar0, bar1]
+    bar2 =
+      { startLine : barType
+      , music : fromFoldable [c 8]
+      }
+    bodyPart = Score $ toUnfoldable [bar0, bar1, bar2]
   in
     renderFullStave context bodyPart
 
