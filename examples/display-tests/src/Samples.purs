@@ -19,12 +19,25 @@ dMajor =
   ,  mode : Major
   }
 
-
 eMinor :: KeySignature
 eMinor =
   {  pitchClass : E
   ,  accidental : Natural
   ,  mode : Minor
+  }
+
+eMajor :: KeySignature
+eMajor =
+  {  pitchClass : E
+  ,  accidental : Natural
+  ,  mode : Major
+  }
+
+aFlatMajor :: KeySignature
+aFlatMajor =
+  {  pitchClass : A
+  ,  accidental : Flat
+  ,  mode : Major
   }
 
 cs :: AbcNote

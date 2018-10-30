@@ -101,12 +101,17 @@ bar :: Int -> Int -> Bar -> Translation BarSpec
 bar staveNumber barNumber abcBar =
   do
     musicSpec <- foldOverMusics $ toUnfoldable abcBar.music
-    let
-      isEmptyBar = isEmptyMusicSpec musicSpec
-      width = estimateBarWidth (barNumber == 0) (staveNumber == 0) abcBar
     -- we must get the context AFTER iterating through the music
     abcContext <- get
     let
+      isEmptyBar = isEmptyMusicSpec musicSpec
+      displayedKeySig =
+        if (barNumber == 0) then
+          Just abcContext.keySignature
+        else
+          Nothing
+      width =
+        estimateBarWidth (barNumber == 0) (staveNumber == 0) displayedKeySig abcBar
       barSpec :: BarSpec
       barSpec =
         { barNumber : barNumber

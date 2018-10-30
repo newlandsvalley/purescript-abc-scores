@@ -5,16 +5,20 @@ module VexFlow.Abc.TickableContext where
 -- | We need to take account of these in each bar ( for instance, to determine
 -- | the start position amongst the tickables of any tuplet)
 
-import Prelude (class Semigroup, class Monoid, (+), (*), mempty)
-import Data.Abc (Bar, Music(..), NoteDuration, RestOrNote)
-import Data.Rational ((%), fromInt)
+import Data.Abc (Bar, Music(..), KeySignature, NoteDuration, RestOrNote)
+import Data.Abc.KeySignature (keySet)
 import Data.Either (Either(..))
 import Data.Foldable (foldl, foldMap)
+import Data.List (length)
 import Data.List.NonEmpty (head, toUnfoldable) as Nel
+import Data.Maybe (Maybe, maybe)
+import Data.Int (round, toNumber)
+import Data.Rational ((%), fromInt)
+import Prelude (class Monoid, class Semigroup, mempty, (*), (+), ($))
 
--- | the number of pixels we designate a tickable item on a stave
-pixelsPerItem :: Int
-pixelsPerItem = 35
+-- | the number of pixels we designate to a tickable item on a stave
+pixelsPerItem :: Number
+pixelsPerItem = 35.0
 
 type NoteCount = Int
 
@@ -68,14 +72,30 @@ getRorNsDuration rOrNs =
   in
     foldl f (fromInt 0) rOrNs
 
--- | heuristic to estomate the width of a bar
-estimateBarWidth :: Boolean -> Boolean -> Bar -> Int
-estimateBarWidth hasClef hasTimeSig abcBar =
+-- | heuristic to estimate the width of a bar
+estimateBarWidth :: Boolean -> Boolean -> Maybe KeySignature -> Bar -> Int
+estimateBarWidth hasClef hasTimeSig maybeKeySig abcBar =
   let
     (TickableContext noteCount duration) = foldMap getTickableContext abcBar.music
     clefCount =
-      if hasClef then 2 else 0
+      if hasClef then 1.0 else 0.0
     timeSigCount =
-        if hasTimeSig then 1 else 0
+        if hasTimeSig then 1.0 else 0.0
+    keySigCount =
+      maybe 0.0 keySignatureWidth maybeKeySig
   in
-    (clefCount + timeSigCount + noteCount) * pixelsPerItem
+    round $ (clefCount + timeSigCount + keySigCount + (toNumber noteCount)) * pixelsPerItem
+
+-- heuristic to decide how much width to dedicate to a key signature
+-- by counting the number of sharps and flats
+keySignatureWidth :: KeySignature -> Number
+keySignatureWidth keySignature =
+  case (length $ keySet keySignature) of
+    0 ->
+      0.0
+    1 ->
+      1.0
+    2 ->
+      1.0
+    _ ->
+      1.5

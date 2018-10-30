@@ -11,7 +11,8 @@ import Data.Int (round, toNumber)
 import VexFlow.Score (initialise, renderFullStave)
 import VexFlow.Abc.Utils (beatsPerBeam, cMajor)
 import VexFlow.Types (Config, AbcContext, staveIndentation)
-import Data.Abc (BodyPart(..), MeterSignature, Repeat(..), Thickness(..))
+import Data.Abc (BodyPart(..), KeySignature, MeterSignature,
+                 Repeat(..), Thickness(..))
 import Examples.DisplayTests.Samples
 
 canvasWidth :: Int
@@ -28,10 +29,10 @@ config =
   , scale : scale
   }
 
-abcContext :: MeterSignature -> Int -> AbcContext
-abcContext (Tuple x y) staveNo =
+abcContext :: MeterSignature -> KeySignature -> Int -> AbcContext
+abcContext (Tuple x y) keySignature staveNo =
   { timeSignature : { numerator: x, denominator: y }
-  , keySignature : cMajor
+  , keySignature : keySignature
   , unitNoteLength : ( 1 % 16)
   , beatsPerBeam : beatsPerBeam (Tuple x y)
   , staveNo : Just staveNo
@@ -49,7 +50,7 @@ exampleNothing :: Effect Unit
 exampleNothing =
   let
     staveNo = 0
-    context0 = abcContext (Tuple 6 8) staveNo
+    context0 = abcContext (Tuple 6 8) eMajor staveNo
     context = context0 { staveNo = Nothing }
     barType =
       { thickness : Thin
@@ -58,13 +59,17 @@ exampleNothing =
       }
     bar0 =
       { startLine : barType
+      , music : fromFoldable []
+      }
+    bar1 =
+      { startLine : barType
       , music : fromFoldable [c 2, f 2, g 2, g 2, f 2, enat 1, b 1]
     }
-    bar1 =
+    bar2 =
       { startLine : barType
       , music : fromFoldable [c 2, f 2, g 2, g 2, f 2, c 2]
       }
-    bodyPart = Score $ toUnfoldable [bar0, bar1]
+    bodyPart = Score $ toUnfoldable [bar0, bar1, bar2]
   in
     renderFullStave context bodyPart
 
@@ -73,7 +78,7 @@ example0 :: Effect Unit
 example0 =
   let
     staveNo = 0
-    context = abcContext (Tuple 4 4) staveNo
+    context = abcContext (Tuple 4 4) dMajor staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -100,7 +105,7 @@ example1 :: Effect Unit
 example1 =
   let
     staveNo = 1
-    context = abcContext (Tuple 2 4) staveNo
+    context = abcContext (Tuple 2 4) eMinor staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -123,7 +128,7 @@ example2 :: Effect Unit
 example2 =
   let
     staveNo = 2
-    context = abcContext (Tuple 3 4) staveNo
+    context = abcContext (Tuple 3 4) cMajor staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -146,7 +151,7 @@ example3 :: Effect Unit
 example3 =
   let
     staveNo = 3
-    context = abcContext (Tuple 4 4) staveNo
+    context = abcContext (Tuple 4 4) cMajor staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -170,7 +175,7 @@ example4 :: Effect Unit
 example4 =
   let
     staveNo = 4
-    context = abcContext (Tuple 4 4) staveNo
+    context = abcContext (Tuple 4 4) cMajor staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -189,17 +194,21 @@ example5 :: Effect Unit
 example5 =
   let
     staveNo = 5
-    context = abcContext (Tuple 3 4) staveNo
+    context = abcContext (Tuple 3 4) aFlatMajor staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
       , iteration : Nothing
       }
-    bar =
+    bar0 =
       { startLine : barType
       , music :fromFoldable [c 2, f 2, triplet 2, c 4]
       }
-    bodyPart = Score $ toUnfoldable [bar]
+    bar1 =
+      { startLine : barType
+      , music : fromFoldable []
+      }
+    bodyPart = Score $ toUnfoldable [bar0, bar1]
   in
     renderFullStave context bodyPart
 
@@ -208,7 +217,7 @@ example6 :: Effect Unit
 example6 =
   let
     staveNo = 6
-    context = abcContext (Tuple 6 8) staveNo
+    context = abcContext (Tuple 6 8) eMajor staveNo
     barType0 =
       { thickness : Thin
       , repeat : Just Begin
@@ -236,7 +245,7 @@ example7 :: Effect Unit
 example7 =
   let
     staveNo = 7
-    context = abcContext (Tuple 4 4) staveNo
+    context = abcContext (Tuple 4 4) cMajor staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -263,7 +272,7 @@ example8 :: Effect Unit
 example8 =
   let
     staveNo = 8
-    context = abcContext (Tuple 3 4) staveNo
+    context = abcContext (Tuple 3 4) cMajor staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -286,7 +295,7 @@ example9 :: Effect Unit
 example9 =
   let
     staveNo = 9
-    context = abcContext (Tuple 3 4) staveNo
+    context = abcContext (Tuple 3 4) cMajor staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -305,7 +314,7 @@ example10 :: Effect Unit
 example10 =
   let
     staveNo = 10
-    context = abcContext (Tuple 4 4) staveNo
+    context = abcContext (Tuple 4 4) cMajor staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
@@ -328,7 +337,7 @@ example11 :: Effect Unit
 example11 =
   let
     staveNo = 11
-    context = abcContext (Tuple 4 4) staveNo
+    context = abcContext (Tuple 4 4) cMajor staveNo
     -- normal A part
     barType0 =
       { thickness : Thin
@@ -399,7 +408,7 @@ example12 :: Effect Unit
 example12 =
   let
     staveNo = 12
-    context = abcContext (Tuple 4 4) staveNo
+    context = abcContext (Tuple 4 4) cMajor staveNo
     barType =
       { thickness : Thin
       , repeat : Nothing
