@@ -23,6 +23,7 @@ import Data.Array ((..), zip)
 import Data.Array (length) as Array
 import Data.Traversable (traverse)
 import Data.Abc (Bar, BodyPart(..), Music)
+import Data.Abc.Metadata (isEmptyStave)
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext
                          ,isEmptyMusicSpec)
 import VexFlow.Types (AbcContext, BarSpec, MusicSpec(..), StaveSpec
@@ -62,7 +63,9 @@ bodyPart :: BodyPart -> Translation (Maybe StaveSpec)
 bodyPart bp =
   case bp of
     Score bs ->
-      do
+      if (isEmptyStave bs) then
+        pure Nothing
+      else do
         -- increment the stave number and save to state
         abcContext <- get
         let
