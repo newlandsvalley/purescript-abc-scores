@@ -8,6 +8,7 @@ import Test.Unit.Main (runTest)
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
 import Control.Monad.Free (Free)
+import Data.Abc (PitchClass(..))
 import Test.Samples
 
 main :: Effect Unit
@@ -18,7 +19,7 @@ main = runTest do
 configThreadingSuite :: Free TestF Unit
 configThreadingSuite =
   suite "config threading" do
-    test "key change (4/4 to 3/4)" do
+    test "meter change (4/4 to 3/4)" do
        let
          initialContext = startAbcContext (Tuple 4 4)
          abcContext = meterChangeTo34 initialContext
@@ -27,10 +28,16 @@ configThreadingSuite =
        Assert.equal 1 abcContext.beatsPerBeam
        -- score item sets the first stave number to 0
        Assert.equal (Just 0) abcContext.staveNo
+    test "key change (C to G)" do
+        let
+          initialContext = startAbcContext (Tuple 4 4)
+          abcContext = keyChangeToG initialContext
+        -- key change alters the time signature and beats per beam
+        Assert.equal G abcContext.keySignature.pitchClass
     -- this now depends on varianle bar widths
     test "4 bars width" do
       let
         initialContext = startAbcContext (Tuple 4 4)
         abcContext = accumulateBarWidths initialContext
         -- key change alters the time signature and beats per beam
-      Assert.equal 640 abcContext.accumulatedStaveWidth
+      Assert.equal 605 abcContext.accumulatedStaveWidth

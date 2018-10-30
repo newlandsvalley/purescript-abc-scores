@@ -60,3 +60,19 @@ cig =
   <> "|: G>B dc B>A | G<c ed c>B | A>B c/2d/2c/2A/2 B>G |F/2G/2A- AF D>D |\r\n"
   <> "G>B dc B>A | G<c ed c>B | A>B c/2d/2c/2A/2 B>G |1 FD/2F/2 G3 D :|2 FD/2F/2 G4 |\r\n"
   <> "|  |\r\n"
+
+smalandPolska :: String
+smalandPolska =
+  "X:1\r\n"
+  <> "T:Polska från Småland\r\n"
+  <> "M:3/4\r\n"
+  <> "L:1/16\r\n"
+  <> "K:Bmin\r\n"
+  <> "R:polska\r\n"
+  <> "|: B4 A4 (B4 | d2)f2 e2dc c2(d2 |B2)B2 A2A2 B2B2 |d2f2 e2dc d4 |\r\n"
+  <> "F2GA B2AB c2Bc |d2cd (ed)cB A2(F2 | F2)GA B2AB c2Bc |d2cd (ed)cB A2(F2 |\r\n"
+  <> "F2)GA (B2c2) d3B |(B2A2) B8 :|\r\n"
+  <> "K:Amaj\r\n"
+  <> "|: f4 e4 (f4 |g2)a2 b2ag g2(a2 |f2)f2 e2e2 f2f2 |g2a2 b2ag a4 |\r\n"
+  <> "c2de f2ef g2fg |a2ga (ba)gf e2c2 | c2de f2ef g2fg |a2ga (ba)gf e2c2 |\r\n"
+  <> "c2de f2g2 a3f |f2e2 f8 :|\r\n"

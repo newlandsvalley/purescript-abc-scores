@@ -146,7 +146,7 @@ updateAbcContext abcContext change =
                    , beatsPerBeam = beatsPerBeam meterSignature
                    }
     KeyChange modifiedKeySignature ->
-      abcContext
+      abcContext { keySignature = modifiedKeySignature.keySignature }
     UnitNoteChange length ->
       abcContext { unitNoteLength = length }
 
