@@ -65,7 +65,7 @@ renderTune abcTune config =
   in
     case eStaveSpecs of
       Right staveSpecs -> do
-        _ <- traverse_ (displayStaveSpec abcContext.keySignature) staveSpecs
+        _ <- traverse_ displayStaveSpec staveSpecs
         pure true
       Left err -> do
         _ <- log ("error in translating tune  " <> err)
@@ -93,11 +93,11 @@ renderFullStave abcContext bodyPart =
         pure unit
 
 
-displayStaveSpec :: KeySignature -> Maybe StaveSpec -> Effect Unit
-displayStaveSpec keySignature mStaveSpec =
+displayStaveSpec :: Maybe StaveSpec -> Effect Unit
+displayStaveSpec mStaveSpec =
   case mStaveSpec of
     (Just staveSpec) ->
-      traverse_ (displayBarSpec staveSpec.staveNo keySignature) staveSpec.barSpecs
+      traverse_ (displayBarSpec staveSpec.staveNo staveSpec.keySignature) staveSpec.barSpecs
     _ ->
       -- the body part is merely a header - no display needed
       pure unit

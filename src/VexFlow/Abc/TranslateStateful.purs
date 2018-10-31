@@ -79,7 +79,9 @@ bodyPart bp =
         let
           normalisedStaveBars = fillStaveLine abcContext.maxWidth $ repositionBarEndRepeats staveBars
         -- return the stave specification
-        pure $ Just { staveNo : staveNo, barSpecs : normalisedStaveBars}
+        pure $ Just { staveNo : staveNo
+                    , keySignature : abcContext.keySignature
+                    , barSpecs : normalisedStaveBars}
     BodyInfo header ->
       do
         -- save the new Abc context to state governed by any header change

@@ -117,5 +117,6 @@ type BarSpec =
 
 type StaveSpec =
   { staveNo :: Int
+  , keySignature :: KeySignature
   , barSpecs :: Array BarSpec
   }

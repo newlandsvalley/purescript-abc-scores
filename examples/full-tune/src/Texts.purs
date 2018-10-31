@@ -2,7 +2,6 @@ module Examples.FullTune.Texts where
 
 import Prelude ((<>))
 
-
 augustsson :: String
 augustsson =
   "X:1\r\n"
@@ -76,3 +75,18 @@ smalandPolska =
   <> "|: f4 e4 (f4 |g2)a2 b2ag g2(a2 |f2)f2 e2e2 f2f2 |g2a2 b2ag a4 |\r\n"
   <> "c2de f2ef g2fg |a2ga (ba)gf e2c2 | c2de f2ef g2fg |a2ga (ba)gf e2c2 |\r\n"
   <> "c2de f2g2 a3f |f2e2 f8 :|\r\n"
+
+keyChangeSample :: String
+keyChangeSample =
+  "K: D\r\n"
+  <> "M: 4/4\r\n"
+  <> "| A B c |[K: A] F |\r\n"
+  <> "| f g a |\r\n"
+
+meterChangeSample :: String
+meterChangeSample =
+  "K: D\r\n"
+  <> "M: 4/4\r\n"
+  <> "| A B c |\r\n"
+  <> "M: 3/4\r\n"
+  <> "| f g a |\r\n"
