@@ -42,6 +42,7 @@ type AbcContext =
   , staveNo :: Maybe Int
   , accumulatedStaveWidth :: Int
   , isMidVolta :: Boolean          -- we've started but not finished a volta
+  , isNewTimeSignature :: Boolean  -- we need to display a changed time signature
   , maxWidth :: Int
   }
 
@@ -91,7 +92,6 @@ instance musicSpecMonoid:: Monoid MusicSpec where
     , contextChanges : mempty
     }
 
-
 -- | we define MusicSpecComntents separately from MusicSpec
 -- | because we need to pass it to JavaScript
 type MusicSpecContents =
@@ -118,5 +118,6 @@ type BarSpec =
 type StaveSpec =
   { staveNo :: Int
   , keySignature :: KeySignature
+  , isNewTimeSignature :: Boolean   -- do we need to display a time signature?
   , barSpecs :: Array BarSpec
   }

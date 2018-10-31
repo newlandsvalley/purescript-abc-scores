@@ -84,7 +84,7 @@ renderFullStave abcContext bodyPart =
   in
     case emStaveSpec of
       Right (Just staveSpec) ->
-        traverse_ (displayBarSpec staveSpec.staveNo abcContext.keySignature) staveSpec.barSpecs
+        traverse_ (displayBarSpec staveSpec) staveSpec.barSpecs
       Right _ ->
         -- the body part is merely a header - no display needed
         pure unit
@@ -97,58 +97,27 @@ displayStaveSpec :: Maybe StaveSpec -> Effect Unit
 displayStaveSpec mStaveSpec =
   case mStaveSpec of
     (Just staveSpec) ->
-      traverse_ (displayBarSpec staveSpec.staveNo staveSpec.keySignature) staveSpec.barSpecs
+      traverse_ (displayBarSpec staveSpec) staveSpec.barSpecs
     _ ->
       -- the body part is merely a header - no display needed
       pure unit
 
-{- Just for debug
--- | display all the bars in a stave of music
-displayBarsStateless :: AbcContext -> Int -> List Bar -> Effect Unit
-displayBarsStateless abcContext staveNo bars =
-  let
-    eBarSpecs :: Either String (Array BarSpec)
-    eBarSpecs =
-      sequence $ mapWithIndex (Translate.bar abcContext) (fromFoldable bars)
-  in
-    case eBarSpecs of
-      Right barSpecs ->
-        traverse_ (displayBarSpec staveNo) barSpecs
-      Left err -> do
-        _ <- log ("error in translating stave  " <> err)
-        pure unit
-
-
-
-displayBars :: AbcContext -> Int -> List Bar -> Effect Unit
-displayBars abcContext staveNo bars =
-  let
-    eBarSpecs :: Either String (Array BarSpec)
-    eBarSpecs =
-      runBars abcContext bars
-  in
-    case eBarSpecs of
-      Right barSpecs ->
-        traverse_ (displayBarSpec abcContext staveNo) barSpecs
-      Left err -> do
-        _ <- log ("error in translating stave  " <> err)
-        pure unit
--}
-
-
 -- | display a single bar from the (translated) BarSpec
-displayBarSpec :: Int -> KeySignature -> BarSpec -> Effect Unit
-displayBarSpec staveNo keySignature barSpec =
+displayBarSpec :: StaveSpec -> BarSpec -> Effect Unit
+displayBarSpec staveSpec barSpec =
   let
     (MusicSpec musicSpec) = barSpec.musicSpec
   in
     do
-      staveBar <- newStave (staveConfig staveNo barSpec) keySignature
+      staveBar <- newStave (staveConfig staveSpec.staveNo barSpec) staveSpec.keySignature
 
-      -- add any meter or key change markers
+      -- add any inline meter or key change markers
       traverse_ (displayContextChange staveBar) musicSpec.contextChanges
 
-      if (barSpec.barNumber == 0) && (staveNo == 0)
+      -- add a time signature to the first bar stave.  This only happensif it's
+      -- stave 0 or if a BodyPart time sig header change has just occurred
+      if (barSpec.barNumber == 0) && (staveSpec.isNewTimeSignature)
+      --      if (barSpec.barNumber == 0) && (staveSpec.staveNo == 0)
         then
           addTimeSignature staveBar barSpec.timeSignature
         else
@@ -197,63 +166,6 @@ processVolta staveBar mVolta =
     _ ->
       pure unit
 
-
-{- Just for debug
--- | display a single bar of music
-displayBarStateless :: AbcContext -> Int -> Int -> Bar -> Effect Unit
-displayBarStateless abcContext staveNo barNo abcBar =
-  let
-    eBarSpec :: Either String BarSpec
-    eBarSpec = Translate.bar abcContext barNo abcBar
-  in
-    case eBarSpec of
-      Right barSpec ->
-        displayBarSpec abcContext staveNo barSpec
-      Left err ->
-        do
-          _ <- log ("error in translating bar " <> err)
-          pure unit
--}
-
-{- not really needed now}
--- | ditto with state threading
-displayBar :: AbcContext -> Int -> Int -> Bar -> Effect Unit
-displayBar abcContext staveNo barNo abcBar =
-  let
-    eBarSpec :: Either String BarSpec
-    eBarSpec = runBar abcContext barNo abcBar
-  in
-    case eBarSpec of
-      Right barSpec ->
-        displayBarSpec abcContext staveNo barSpec
-      Left err ->
-        do
-          _ <- log ("error in translating stateful bar " <> err)
-          pure unit
--}
-
-{- not really used now
-displayMusics :: AbcContext -> Stave -> Array Music -> Effect Unit
-displayMusics abcContext stave abcMusics =
-  let
-    eMusicSpec = Translate.musics abcContext abcMusics
-    isAutoBeam = true
-  in
-    case eMusicSpec of
-      Right (MusicSpec musicSpec) ->
-        if (isAutoBeam) then
-          if (null musicSpec.tuplets) then
-            displayAutoBeamedNotesImpl abcContext stave musicSpec.noteSpecs
-          else
-            displayTupletedNotesImpl abcContext stave musicSpec
-        else
-          displayNotesImpl stave musicSpec.noteSpecs
-      Left err ->
-        do
-          _ <- log ("error in translating musics: " <> err)
-          pure unit
--}
-
 displayContextChange :: Stave -> ContextChange -> Effect Unit
 displayContextChange staveBar contextChange =
   case contextChange of
@@ -265,8 +177,6 @@ displayContextChange staveBar contextChange =
     UnitNoteChange _ ->
       -- this has no immediate effect on the displayed stave
       pure unit
-
-
 
 foreign import initialise :: Config -> Effect Unit
 foreign import clearCanvas :: Effect Unit

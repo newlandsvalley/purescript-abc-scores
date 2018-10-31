@@ -38,6 +38,7 @@ abcContext (Tuple x y) keySignature staveNo =
   , staveNo : Just staveNo
   , accumulatedStaveWidth : staveIndentation
   , isMidVolta : false
+  , isNewTimeSignature : false
   , maxWidth : round $ (toNumber canvasWidth / scale)
   }
 

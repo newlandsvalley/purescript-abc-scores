@@ -20,6 +20,7 @@ startAbcContext (Tuple x y) =
   , staveNo : Nothing
   , accumulatedStaveWidth : staveIndentation
   , isMidVolta : false
+  , isNewTimeSignature : false
   , maxWidth : 1200
   }
 

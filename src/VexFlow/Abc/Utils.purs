@@ -129,6 +129,7 @@ initialAbcContext tune config =
     , staveNo : Nothing
     , accumulatedStaveWidth : staveIndentation  -- just the initial margin
     , isMidVolta : false
+    , isNewTimeSignature : false
     , maxWidth : Int.round $
         (Int.toNumber (config.canvasWidth - staveIndentation)) / config.scale
     }
@@ -144,11 +145,16 @@ updateAbcContext abcContext change =
       in
         abcContext { timeSignature = timeSignature
                    , beatsPerBeam = beatsPerBeam meterSignature
+                   , isNewTimeSignature = true
                    }
     KeyChange modifiedKeySignature ->
-      abcContext { keySignature = modifiedKeySignature.keySignature }
+      abcContext { keySignature = modifiedKeySignature.keySignature
+                 , isNewTimeSignature = false
+                 }
     UnitNoteChange length ->
-      abcContext { unitNoteLength = length }
+      abcContext { unitNoteLength = length
+                 , isNewTimeSignature = false
+                 }
 
 applyContextChanges :: AbcContext -> Either String MusicSpec ->  AbcContext
 applyContextChanges abcContext eSpec  =

@@ -9,7 +9,7 @@ module VexFlow.Abc.TranslateStateful
 -- Any change in headers for time signature, key signature or unit note length
 -- will alter the state.
 
-import Prelude (($), (<>), (+), (==), bind, mempty, pure, show)
+import Prelude (($), (<>), (+), (==), (||), bind, mempty, pure, show)
 import Control.Monad.Except.Trans
 import Control.Monad.State (State, evalStateT, execStateT, get, put)
 import VexFlow.Abc.Translate (headerChange, music) as Trans
@@ -71,9 +71,13 @@ bodyPart bp =
         let
           mStaveNo = nextStaveNo abcContext.staveNo
           staveNo = fromMaybe 0 mStaveNo
+          -- work out if we need a new time signature displayed on this stave
+          isNewTimeSignature = (staveNo == 0) || abcContext.isNewTimeSignature
           -- reset the stave offset to be just the margin
+          -- and reset the flag for any new time signature
         _ <- put (abcContext { staveNo = mStaveNo
-                             , accumulatedStaveWidth = staveIndentation})
+                             , accumulatedStaveWidth = staveIndentation
+                             })
         -- then translate the bars
         staveBars <- bars staveNo bs
         let
@@ -81,6 +85,7 @@ bodyPart bp =
         -- return the stave specification
         pure $ Just { staveNo : staveNo
                     , keySignature : abcContext.keySignature
+                    , isNewTimeSignature : isNewTimeSignature
                     , barSpecs : normalisedStaveBars}
     BodyInfo header ->
       do
@@ -107,13 +112,15 @@ bar staveNumber barNumber abcBar =
     abcContext <- get
     let
       isEmptyBar = isEmptyMusicSpec musicSpec
+      isNewTimeSignature = (abcContext.isNewTimeSignature) ||  (staveNumber == 0)
       displayedKeySig =
         if (barNumber == 0) then
           Just abcContext.keySignature
         else
           Nothing
       width =
-        estimateBarWidth (barNumber == 0) (staveNumber == 0) displayedKeySig abcBar
+        estimateBarWidth (barNumber == 0) isNewTimeSignature displayedKeySig abcBar
+        --  estimateBarWidth (barNumber == 0) (staveNumber == 0) displayedKeySig abcBar
       barSpec :: BarSpec
       barSpec =
         { barNumber : barNumber
@@ -131,9 +138,11 @@ bar staveNumber barNumber abcBar =
       newIsMidVolta = isMidVolta abcBar.startLine isEmptyBar abcContext.isMidVolta
       -- accumulate the bar width
       newWidth = abcContext.accumulatedStaveWidth + barSpec.width
-      -- set the new state
+      -- set the new state.  We must reset isNewTimeSignature here which is only 
+      -- set after a BodyPart new time signature header
       newAbcContext = abcContext { accumulatedStaveWidth = newWidth
                                  , isMidVolta = newIsMidVolta
+                                 , isNewTimeSignature = false
                                  }
     _ <- put newAbcContext
     withExceptT (\err -> err <> ": bar " <> show barNumber) $ pure barSpec
