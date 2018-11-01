@@ -16,7 +16,6 @@ startAbcContext (Tuple x y) =
   { timeSignature : { numerator: x, denominator: y }
   , keySignature : cMajor
   , unitNoteLength : ( 1 % 16)
-  , beatsPerBeam : beatsPerBeam (Tuple x y)
   , staveNo : Nothing
   , accumulatedStaveWidth : staveIndentation
   , isMidVolta : false

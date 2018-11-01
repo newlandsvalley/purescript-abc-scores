@@ -12,29 +12,34 @@ module VexFlow.Abc.Utils
   , cMajor
   , canvasHeight) where
 
-import Prelude (($), (*), (+), (-), (/), map)
-import Data.Int (round, toNumber) as Int
-import Data.Rational (fromInt, toNumber, (%))
-import Data.Tuple (Tuple(..))
+import Data.Abc (AbcTune, AbcNote, Broken(..), KeySignature, Accidental(..), Mode(..), NoteDuration, PitchClass(..))
+import Data.Abc.Metadata (dotFactor, getMeter, getKeySig, getUnitNoteLength)
+import Data.Array (null)
 import Data.Either (Either(..))
 import Data.Foldable (foldl)
-import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Array (null)
+import Data.Int (round, toNumber) as Int
 import Data.List (length)
-import Data.Abc (AbcTune, AbcNote, Broken(..), MeterSignature, KeySignature,
-                 Accidental(..), Mode(..), NoteDuration, PitchClass(..))
-import Data.Abc.Metadata (dotFactor, getMeter, getKeySig, getUnitNoteLength)
-import VexFlow.Types (AbcContext, Config, MusicSpec(..), staveIndentation)
+import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Rational (fromInt, toNumber, (%))
+import Data.Tuple (Tuple(..))
+import Prelude (map, ($), (*), (+), (-), (/))
 import VexFlow.Abc.ContextChange (ContextChange(..))
+import VexFlow.Types (AbcContext, Config, MusicSpec(..), TimeSignature,
+       staveIndentation)
 
 -- | set the default grouping of notes that are beamed together
--- | according to the meter signature
--- | not sure which of these two we'll use
-beatsPerBeam :: MeterSignature -> Int
-beatsPerBeam (Tuple n d) =
-  case n of
+-- | according to the meter signature and MusicSpec contents
+beatsPerBeam :: TimeSignature -> MusicSpec -> Int
+beatsPerBeam timeSignature (MusicSpec spec) =
+  case timeSignature.numerator of
     3 -> 1
-    4 -> 2
+    4 ->
+      -- we'll use 2 to encourage grouping across 2 beats in reele, hornpipes etc
+      -- but use 1 if the bar contains tuplets which shouldn't be joined
+      if (null spec.tuplets) then
+        2
+      else
+        1
     6 -> 3
     9 -> 3
     12 -> 3
@@ -125,7 +130,6 @@ initialAbcContext tune config =
     { timeSignature : { numerator, denominator }
     , keySignature : keySignature
     , unitNoteLength : unitNote
-    , beatsPerBeam : beatsPerBeam meterSignature
     , staveNo : Nothing
     , accumulatedStaveWidth : staveIndentation  -- just the initial margin
     , isMidVolta : false
@@ -144,7 +148,6 @@ updateAbcContext abcContext change =
         timeSignature = { numerator, denominator }
       in
         abcContext { timeSignature = timeSignature
-                   , beatsPerBeam = beatsPerBeam meterSignature
                    , isNewTimeSignature = true
                    }
     KeyChange modifiedKeySignature ->

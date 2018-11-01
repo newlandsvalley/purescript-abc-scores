@@ -105,4 +105,5 @@ tickableCountWidth :: Int -> Number
 tickableCountWidth n =
   case n of
     1 -> 1.5   -- just 1.0 is too small
+    2 -> 2.5   -- just 2.0 is too small
     _ -> toNumber n

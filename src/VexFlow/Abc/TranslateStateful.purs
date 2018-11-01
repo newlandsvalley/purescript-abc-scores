@@ -25,7 +25,7 @@ import Data.Traversable (traverse)
 import Data.Abc (Bar, BodyPart(..), Music)
 import Data.Abc.Metadata (isEmptyStave)
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext
-                         ,isEmptyMusicSpec)
+                         ,beatsPerBeam, isEmptyMusicSpec)
 import VexFlow.Types (AbcContext, BarSpec, MusicSpec(..), StaveSpec
       ,staveIndentation)
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarWidth)
@@ -131,14 +131,14 @@ bar staveNumber barNumber abcBar =
         , endLineRepeat : false
         , volta : startVolta abcBar.startLine isEmptyBar abcContext.isMidVolta
         , timeSignature : abcContext.timeSignature
-        , beatsPerBeam : abcContext.beatsPerBeam
+        , beatsPerBeam : beatsPerBeam abcContext.timeSignature musicSpec
         , musicSpec : musicSpec
         }
       -- check if we're in the midst of a volta
       newIsMidVolta = isMidVolta abcBar.startLine isEmptyBar abcContext.isMidVolta
       -- accumulate the bar width
       newWidth = abcContext.accumulatedStaveWidth + barSpec.width
-      -- set the new state.  We must reset isNewTimeSignature here which is only 
+      -- set the new state.  We must reset isNewTimeSignature here which is only
       -- set after a BodyPart new time signature header
       newAbcContext = abcContext { accumulatedStaveWidth = newWidth
                                  , isMidVolta = newIsMidVolta

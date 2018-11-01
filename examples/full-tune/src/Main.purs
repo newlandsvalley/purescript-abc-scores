@@ -25,7 +25,7 @@ configure tune =
 main :: Effect Boolean
 main =
   let
-    eAbcTune = parse meterChangeSample
+    eAbcTune = parse ewa
   in
     case eAbcTune of
       Right abcTune -> do

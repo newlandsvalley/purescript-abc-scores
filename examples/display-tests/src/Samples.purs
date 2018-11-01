@@ -131,7 +131,7 @@ triplet :: Int -> Music
 triplet d =
   let
     signature = ({ p : 3, q : 2, r : 3})
-    notes = NonEmptyList ((Right $ gn 2) :| ( (Right $ cn d) : (Right $ fnatn d) : Nil))
+    notes = NonEmptyList ((Right $ gn d) :| ( (Right $ cn d) : (Right $ fnatn d) : Nil))
   in
     Tuplet signature notes
 

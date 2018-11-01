@@ -25,7 +25,6 @@ configThreadingSuite =
          abcContext = meterChangeTo34 initialContext
        -- key change alters the time signature and beats per beam
        Assert.equal 3 abcContext.timeSignature.numerator
-       Assert.equal 1 abcContext.beatsPerBeam
        -- score item sets the first stave number to 0
        Assert.equal (Just 0) abcContext.staveNo
     test "key change (C to G)" do

@@ -9,7 +9,7 @@ import Data.List (List(..), fromFoldable)
 import Data.Array (toUnfoldable)
 import Data.Int (round, toNumber)
 import VexFlow.Score (initialise, renderFullStave)
-import VexFlow.Abc.Utils (beatsPerBeam, cMajor)
+import VexFlow.Abc.Utils (cMajor)
 import VexFlow.Types (Config, AbcContext, staveIndentation)
 import Data.Abc (BodyPart(..), KeySignature, MeterSignature,
                  Repeat(..), Thickness(..))
@@ -34,7 +34,6 @@ abcContext (Tuple x y) keySignature staveNo =
   { timeSignature : { numerator: x, denominator: y }
   , keySignature : keySignature
   , unitNoteLength : ( 1 % 16)
-  , beatsPerBeam : beatsPerBeam (Tuple x y)
   , staveNo : Just staveNo
   , accumulatedStaveWidth : staveIndentation
   , isMidVolta : false
@@ -217,11 +216,34 @@ example5 =
   in
     renderFullStave context bodyPart
 
--- | basic quadruplet in 6/8 and also illustrates bar repeat markers
+-- | basic triplet in 4/4
 example6 :: Effect Unit
 example6 =
   let
     staveNo = 6
+    context = abcContext (Tuple 4 4) aFlatMajor staveNo
+    barType =
+      { thickness : Thin
+      , repeat : Nothing
+      , iteration : Nothing
+      }
+    bar0 =
+      { startLine : barType
+      , music :fromFoldable [c 2, f 2, triplet 2, g 2, f 2, c 4]
+      }
+    bar1 =
+      { startLine : barType
+      , music : fromFoldable []
+      }
+    bodyPart = Score $ toUnfoldable [bar0, bar1]
+  in
+    renderFullStave context bodyPart
+
+-- | basic quadruplet in 6/8 and also illustrates bar repeat markers
+example7 :: Effect Unit
+example7 =
+  let
+    staveNo = 7
     context = abcContext (Tuple 6 8) eMajor staveNo
     barType0 =
       { thickness : Thin
@@ -246,10 +268,10 @@ example6 =
     renderFullStave context bodyPart
 
 -- | change meter from 4/4 to 6/8 to 3/4
-example7 :: Effect Unit
-example7 =
+example8 :: Effect Unit
+example8 =
   let
-    staveNo = 7
+    staveNo = 8
     context = abcContext (Tuple 4 4) cMajor staveNo
     barType =
       { thickness : Thin
@@ -273,10 +295,10 @@ example7 =
     renderFullStave context bodyPart
 
 -- | change key to Gm
-example8 :: Effect Unit
-example8 =
+example9 :: Effect Unit
+example9 =
   let
-    staveNo = 8
+    staveNo = 9
     context = abcContext (Tuple 3 4) cMajor staveNo
     barType =
       { thickness : Thin
@@ -296,10 +318,10 @@ example8 =
     renderFullStave context bodyPart
 
 -- | double dot
-example9 :: Effect Unit
-example9 =
+example10 :: Effect Unit
+example10 =
   let
-    staveNo = 9
+    staveNo = 10
     context = abcContext (Tuple 3 4) cMajor staveNo
     barType =
       { thickness : Thin
@@ -315,10 +337,10 @@ example9 =
     renderFullStave context bodyPart
 
 -- | simple tie
-example10 :: Effect Unit
-example10 =
+example11 :: Effect Unit
+example11 =
   let
-    staveNo = 10
+    staveNo = 11
     context = abcContext (Tuple 4 4) cMajor staveNo
     barType =
       { thickness : Thin
@@ -338,10 +360,10 @@ example10 =
     renderFullStave context bodyPart
 
 -- | volta
-example11 :: Effect Unit
-example11 =
+example12 :: Effect Unit
+example12 =
   let
-    staveNo = 11
+    staveNo = 12
     context = abcContext (Tuple 4 4) cMajor staveNo
     -- normal A part
     barType0 =
@@ -409,10 +431,10 @@ example11 =
     renderFullStave context bodyPart
 
 -- | long line
-example12 :: Effect Unit
-example12 =
+example13 :: Effect Unit
+example13 =
   let
-    staveNo = 12
+    staveNo = 13
     context = abcContext (Tuple 4 4) cMajor staveNo
     barType =
       { thickness : Thin
@@ -443,7 +465,8 @@ main = do
   _ <- example9
   _ <- example10
   _ <- example11
-  example12
+  _ <- example12
+  example13
 
 
 {-
