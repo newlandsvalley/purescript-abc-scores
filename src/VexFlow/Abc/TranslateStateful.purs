@@ -9,20 +9,21 @@ module VexFlow.Abc.TranslateStateful
 -- Any change in headers for time signature, key signature or unit note length
 -- will alter the state.
 
-import Prelude (($), (<>), (+), (==), (||), bind, mempty, pure, show)
+import Prelude (($), (<>), (+), (==), (||), bind, map,  mempty, pure, show)
 import Control.Monad.Except.Trans
 import Control.Monad.State (State, evalStateT, execStateT, get, put)
-import VexFlow.Abc.Translate (headerChange, music) as Trans
+import VexFlow.Abc.Translate (headerChange, music, notePitch) as Trans
 import Data.Either (Either, either)
 import Data.Foldable (foldM, foldl)
 import Data.List (List, toUnfoldable, length)
+import Data.List.NonEmpty (toUnfoldable) as Nel
 import Data.Tuple (Tuple(..))
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Newtype (unwrap)
 import Data.Array ((..), zip)
 import Data.Array (length) as Array
 import Data.Traversable (traverse)
-import Data.Abc (Bar, BodyPart(..), Music)
+import Data.Abc (Bar, BodyPart(..), Music(..))
 import Data.Abc.Metadata (isEmptyStave)
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext
                          ,beatsPerBeam, isEmptyMusicSpec)
@@ -147,15 +148,6 @@ bar staveNumber barNumber abcBar =
     _ <- put newAbcContext
     withExceptT (\err -> err <> ": bar " <> show barNumber) $ pure barSpec
 
-music :: NoteCount -> Int -> Music -> Translation MusicSpec
-music tickablePosition noteIndex m = do
-  -- thread the context state through the translation
-  abcContext <- get
-  let
-    spec = Trans.music abcContext tickablePosition noteIndex m
-    newContext = applyContextChanges abcContext spec
-  _ <- put newContext
-  either throwError pure spec
 
 foldOverMusics :: Array Music -> Translation MusicSpec
 foldOverMusics =
@@ -176,3 +168,30 @@ foldMusicsFunction eacc m = do
     noteIndex = Array.length acc.noteSpecs
   (MusicSpec enext) <- music position noteIndex m
   pure $ MusicSpec (acc <> enext)
+
+music :: NoteCount -> Int -> Music -> Translation MusicSpec
+music tickablePosition noteIndex m =
+  case m of
+    -- grace notes just affect state
+    GraceNote accType abcNotes ->
+      -- save grace notes to state in order to append to the next real note
+      -- they are only supported against an upcoming individual note
+      -- (i.e. not against chords, tuplets or broken rhythm pairs)
+      let
+        graceKeys :: Array String
+        graceKeys = map Trans.notePitch (Nel.toUnfoldable abcNotes)
+      in
+        do
+          abcContext <- get
+          _ <- put abcContext {pendingGraceKeys = graceKeys}
+          pure $ mempty
+    _ ->
+      -- all other Music items generate MusicSpec
+      do
+        -- thread the context state through the translation
+        abcContext <- get
+        let
+          spec = Trans.music abcContext tickablePosition noteIndex m
+          newContext = applyContextChanges abcContext spec
+        _ <- put newContext {pendingGraceKeys = []}
+        either throwError pure spec

@@ -238,7 +238,18 @@ var wrapper = function() {
       var sn = new VF.StaveNote(noteSpec.vexNote);
       wrapper.addAccidentals (sn, noteSpec.accidentals);
       wrapper.addDots (sn, noteSpec.dots);
+
+      if (noteSpec.graceKeys.length > 0) {
+        var graceNotes = noteSpec.graceKeys.map(wrapper.makeGraceNote);
+        var graceNoteGroup =  new VF.GraceNoteGroup(graceNotes, true);
+        sn.addModifier(0, graceNoteGroup.beamNotes());
+      }
       return sn;
+    },
+
+    makeGraceNote: function (graceKey) {
+      var note = { keys: [graceKey], duration: '8' };
+      return new Vex.Flow.GraceNote (note);
     },
 
     // make a tuplet layout

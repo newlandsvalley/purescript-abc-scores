@@ -1,7 +1,7 @@
 module Test.Samples where
 
 import Prelude (($))
-import VexFlow.Abc.Utils (beatsPerBeam, cMajor)
+import VexFlow.Abc.Utils (cMajor)
 import VexFlow.Types (AbcContext, staveIndentation)
 import Data.Abc
 import Data.Tuple (Tuple(..))
@@ -21,6 +21,7 @@ startAbcContext (Tuple x y) =
   , isMidVolta : false
   , isNewTimeSignature : false
   , maxWidth : 1200
+  , pendingGraceKeys : []
   }
 
 c :: Int -> Music

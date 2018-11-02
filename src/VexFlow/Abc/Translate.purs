@@ -1,6 +1,7 @@
 module VexFlow.Abc.Translate
   ( keySignature
   , headerChange
+  , notePitch
   , music) where
 
 -- | Translate between low-level leaves of the Abc data structure  and VexFlow types
@@ -134,6 +135,7 @@ note context abcNote =
           { vexNote : vexNote
           , accidentals : [accidental abcNote.accidental]
           , dots : [noteDotCount context abcNote]
+          , graceKeys : context.pendingGraceKeys
           }
       Left x -> Left x
 
@@ -158,6 +160,7 @@ rest context abcRest =
           { vexNote : vexNote
           , accidentals : []
           , dots : [dotCount context abcRest.duration]
+          , graceKeys : []
           }
       Left x -> Left x
 
@@ -190,6 +193,7 @@ chord context abcChord =
           { vexNote : vexNote
           , accidentals : accidentals
           , dots : dotCounts
+          , graceKeys : []
           }
       Left x -> Left x
 
@@ -277,7 +281,6 @@ chordalNoteDur ctx chordDur abcNote  =
 noteDur :: AbcContext -> AbcNote -> Either String String
 noteDur ctx abcNote =
   duration ctx abcNote.duration
-
 
 -- | translate a duration (from a note or rest), wrapping in a Result which indicates an
 -- | unsupported duration.  This rounds values of 'short enough' note durations

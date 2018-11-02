@@ -4,6 +4,7 @@ import Prelude (($))
 import Data.NonEmpty ((:|))
 import Data.List.Types ((:), NonEmptyList(..))
 import Data.List (List(..))
+import Data.List.NonEmpty (singleton)
 import Data.Rational (fromInt)
 import Data.Tuple (Tuple(..))
 import Data.Either (Either(..))
@@ -134,6 +135,13 @@ triplet d =
     notes = NonEmptyList ((Right $ gn d) :| ( (Right $ cn d) : (Right $ fnatn d) : Nil))
   in
     Tuplet signature notes
+
+grace :: PitchClass -> Music
+grace pc =
+  let
+    note = { pitchClass: pc, accidental: Implicit, octave: 5, duration: (fromInt 1), tied: false }
+  in
+    GraceNote true $ singleton note
 
 -- | hacky convenience function to tie a note (which is represented as Music)
 tie :: Music -> Music

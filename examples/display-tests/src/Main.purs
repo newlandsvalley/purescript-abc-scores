@@ -12,7 +12,7 @@ import VexFlow.Score (initialise, renderFullStave)
 import VexFlow.Abc.Utils (cMajor)
 import VexFlow.Types (Config, AbcContext, staveIndentation)
 import Data.Abc (BodyPart(..), KeySignature, MeterSignature,
-                 Repeat(..), Thickness(..))
+                 PitchClass(..), Repeat(..), Thickness(..))
 import Examples.DisplayTests.Samples
 
 canvasWidth :: Int
@@ -39,6 +39,7 @@ abcContext (Tuple x y) keySignature staveNo =
   , isMidVolta : false
   , isNewTimeSignature : false
   , maxWidth : round $ (toNumber canvasWidth / scale)
+  , pendingGraceKeys : []
   }
 
 -- | we give each test it's own stave.  The downside is that subsequent staves
@@ -430,11 +431,31 @@ example12 =
   in
     renderFullStave context bodyPart
 
--- | long line
+-- | grace notes
 example13 :: Effect Unit
 example13 =
   let
     staveNo = 13
+    context = abcContext (Tuple 4 4) dMajor staveNo
+    barType =
+      { thickness : Thin
+      , repeat : Nothing
+      , iteration : Nothing
+      }
+    bar =
+      { startLine : barType
+      , music :  fromFoldable  [g 2, grace F, g 4, f 2, c 4, grace E, f 2, g 2]
+    }
+    bodyPart = Score $ toUnfoldable [bar]
+  in
+    renderFullStave context bodyPart
+
+
+-- | long line
+example14 :: Effect Unit
+example14 =
+  let
+    staveNo = 14
     context = abcContext (Tuple 4 4) cMajor staveNo
     barType =
       { thickness : Thin
@@ -448,6 +469,7 @@ example13 =
     bodyPart = Score $ toUnfoldable [bar, bar, bar, bar, bar, bar, bar, bar]
   in
     renderFullStave context bodyPart
+
 
 main :: Effect Unit
 main = do
@@ -466,13 +488,13 @@ main = do
   _ <- example10
   _ <- example11
   _ <- example12
-  example13
+  _ <- example13
+  example14
 
 
-{-
+{-}
 main :: Effect Unit
 main = do
   _ <- initialise config
-  _ <- example11
-  clearCanvas
+  example13
 -}

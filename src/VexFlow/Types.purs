@@ -2,7 +2,7 @@ module VexFlow.Types where
 
 import Prelude (class Semigroup, class Monoid, (<>), mempty)
 import Data.Maybe (Maybe)
-import Data.Abc (BarType, NoteDuration, KeySignature, MeterSignature)
+import Data.Abc (BarType, NoteDuration, KeySignature)
 import VexFlow.Abc.TickableContext (TickableContext)
 import VexFlow.Abc.ContextChange (ContextChange)
 import VexFlow.Abc.Volta (Volta)
@@ -40,15 +40,17 @@ type AbcContext =
   , unitNoteLength :: NoteDuration
   , staveNo :: Maybe Int
   , accumulatedStaveWidth :: Int
-  , isMidVolta :: Boolean          -- we've started but not finished a volta
-  , isNewTimeSignature :: Boolean  -- we need to display a changed time signature
+  , isMidVolta :: Boolean            -- we've started but not finished a volta
+  , isNewTimeSignature :: Boolean    -- we need to display a changed time signature
   , maxWidth :: Int
+  , pendingGraceKeys :: Array String -- grace notes to be apended to next note
   }
 
 type NoteSpec =
   { vexNote :: VexNote
   , accidentals :: Array String
   , dots :: Array Int
+  , graceKeys :: Array String
   }
 
 -- | A raw note that VexFlow understands
