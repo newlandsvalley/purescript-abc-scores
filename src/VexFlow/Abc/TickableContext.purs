@@ -9,7 +9,7 @@ import Data.Abc (Bar, Music(..), KeySignature, NoteDuration, RestOrNote)
 import Data.Abc.KeySignature (keySet)
 import Data.Either (Either(..))
 import Data.Foldable (foldl, foldMap)
-import Data.List (length)
+import Data.List (List, length)
 import Data.List.NonEmpty (head, toUnfoldable) as Nel
 import Data.Maybe (Maybe, maybe)
 import Data.Int (round, toNumber)
@@ -32,6 +32,7 @@ instance tickableMonoidCtx :: Monoid TickableContext where
   mempty = TickableContext 0 (fromInt 0)
 
 -- | get the tickable content of any Music item
+-- | Grace notes don't count here for the VexFlow API
 getTickableContext :: Music -> TickableContext
 getTickableContext m =
   case m of
@@ -61,7 +62,6 @@ getTickableContext m =
     _ ->
       mempty
 
-
 getRorNsDuration :: Array RestOrNote -> NoteDuration
 getRorNsDuration rOrNs =
   let
@@ -76,15 +76,21 @@ getRorNsDuration rOrNs =
 estimateBarWidth :: Boolean -> Boolean -> Maybe KeySignature -> Bar -> Int
 estimateBarWidth hasClef hasTimeSig maybeKeySig abcBar =
   let
-    (TickableContext noteCount duration) = foldMap getTickableContext abcBar.music
+    (TickableContext noteCount duration) =
+      foldMap getTickableContext abcBar.music
     clefCount =
       if hasClef then 1.0 else 0.0
     timeSigCount =
         if hasTimeSig then 1.0 else 0.0
     keySigCount =
       maybe 0.0 keySignatureWidth maybeKeySig
+    graceCount = countGraceNoteGroups abcBar.music
   in
-    round $ (clefCount + timeSigCount + keySigCount + (tickableCountWidth noteCount)) * pixelsPerItem
+    round $ ( clefCount
+            + timeSigCount
+            + keySigCount
+            + (tickableCountWidth noteCount)
+            + (0.5 * graceCount)) * pixelsPerItem
 
 -- heuristic to decide how much width to dedicate to a key signature
 -- by counting the number of sharps and flats
@@ -107,3 +113,16 @@ tickableCountWidth n =
     1 -> 1.5   -- just 1.0 is too small
     2 -> 2.5   -- just 2.0 is too small
     _ -> toNumber n
+
+-- count the grace note groups, allocating a unit to each
+countGraceNoteGroups :: List Music -> Number
+countGraceNoteGroups ms =
+  let
+    sumGrace acc m =
+      case m of
+        GraceNote _ _ ->
+          acc + 1.0
+        _ ->
+          acc
+  in
+    foldl sumGrace 0.0 ms
