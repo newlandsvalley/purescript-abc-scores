@@ -155,8 +155,8 @@ var wrapper = function() {
     },
 
     drawVolta: function (stave, volta) {
-      console.log("volta:")
-      console.log(volta);
+      // console.log("volta:")
+      // console.log(volta);
       var voltaType;
       switch(volta.voltaType) {
         case 2:
@@ -186,15 +186,14 @@ var wrapper = function() {
     },
 
     drawAutoBeamedNotes: function (stave, timeSignature, beatsPerBeam, musicSpec) {
-      console.log("drawAutoBeamedNotes")
-      console.log(musicSpec);
-      console.log("numerator: ", timeSignature.numerator);
+      // console.log("drawAutoBeamedNotes")
+      // console.log(musicSpec);
+      // console.log("numerator: ", timeSignature.numerator);
       var notes = musicSpec.noteSpecs.map(wrapper.makeStaveNote);
       // notes.unshift (new VF.BarNote({ type: 'single' }));  Doesn't work
-      console.log(notes);
 
       var ties = musicSpec.ties.map(wrapper.makeTie (notes));
-      console.log(ties);
+      // console.log(ties);
 
       var beams = VF.Beam.generateBeams(notes, wrapper.beamGroup(timeSignature, beatsPerBeam) );
       Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
@@ -203,8 +202,8 @@ var wrapper = function() {
     },
 
     drawTupletedNotes: function (stave, timeSignature, beatsPerBeam, musicSpec) {
-      console.log("drawTupletedNotes")
-      console.log(musicSpec);
+      // console.log("drawTupletedNotes")
+      // console.log(musicSpec);
       var notes = musicSpec.noteSpecs.map(wrapper.makeStaveNote);
       var tuplets = musicSpec.tuplets.map(wrapper.makeTupletLayout (notes));
       var ties = musicSpec.ties.map(wrapper.makeTie (notes));

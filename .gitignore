@@ -5,6 +5,7 @@
 /deprecated/
 /examples/display-tests/dist/display-tests.js
 /examples/full-tune/dist/full-tune.js
+/examples/align-staves/dist/align-staves.js
 /.psc*
 /.psa*
 /.purs*
