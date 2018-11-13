@@ -1,4 +1,7 @@
-module VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine) where
+module VexFlow.Abc.BarEnd
+  ( repositionBarEndRepeats
+  , fillStaveLine
+  , staveWidth) where
 
 -- | Routines to handle the disparity between the manner in which ABC descibes
 -- | bars and the manner in which VexFlow does so.  In the former, bars hold a
@@ -90,6 +93,15 @@ fillStaveLine maxWidth bs =
         bs
     Nothing ->
       bs
+
+-- | the current width of the stave's Stave Bars
+staveWidth :: Array BarSpec -> Int
+staveWidth bs =
+  case (last bs) of
+    Just b ->
+      b.xOffset + b.width
+    Nothing ->
+      0
 
 simpleBarType :: BarType
 simpleBarType =

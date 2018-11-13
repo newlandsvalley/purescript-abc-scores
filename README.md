@@ -16,10 +16,15 @@ To build the small display examples
      bower install
      npm run display-tests
 
-To build the full tune examples
------------------------------------
+To build the full tune example
+------------------------------
      bower install
      npm run full-tune
+
+To build the example showing right-alignment of staves
+------------------------------------------------------
+     bower install
+     npm run align-staves
 
 Limitations
 -----------

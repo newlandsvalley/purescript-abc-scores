@@ -8,7 +8,7 @@ var wrapper = function() {
 
   return {
 
-    initialise : function (config) {
+    initialiseCanvas : function (config) {
       return function () {
         return wrapper.init(config);
       }
@@ -81,6 +81,7 @@ var wrapper = function() {
       }
     },
 
+    /*
     displayNotesImpl : function (stave) {
       return function (notes) {
         return function () {
@@ -88,6 +89,7 @@ var wrapper = function() {
         }
       }
     },
+    */
 
     displayAutoBeamedNotesImpl : function (stave) {
       return function (timeSignature) {
@@ -132,7 +134,7 @@ var wrapper = function() {
       var staveOptions = new Object();
       staveOptions.right_bar = staveConfig.hasEndLine;
 
-      // Create a stave at position 10, 40 of width 400 on the canvas.
+      // Create a stave at the required position on the canvas.
       var stave = new VF.Stave(staveConfig.x, staveConfig.y, staveConfig.width, staveOptions);
 
       // Add a clef and key signature if it's the first bar in the stave
@@ -216,7 +218,7 @@ var wrapper = function() {
       });
     },
 
-    // not complete and maybe not useful
+    /* too simple to be useful
     drawNotes: function (stave, noteSpec) {
       console.log(noteSpec);
       // var notes = notesSpec.map(new VF.StaveNote);
@@ -232,6 +234,7 @@ var wrapper = function() {
       // Render voice
       voice.draw(context, stave);
     },
+    */
 
     // make a stave note (n.b. this can represent a single note or a chord)
     makeStaveNote: function (noteSpec) {
@@ -308,7 +311,7 @@ var wrapper = function() {
 
 
 
-exports.initialise = wrapper.initialise;
+exports.initialiseCanvas = wrapper.initialiseCanvas;
 exports.clearCanvas = wrapper.clearCanvas;
 exports.newStaveImpl = wrapper.newStaveImpl;
 exports.displayStave = wrapper.displayStave;
@@ -316,7 +319,6 @@ exports.getStaveWidth = wrapper.getStaveWidth;
 exports.displayBarBeginRepeat = wrapper.displayBarBeginRepeat;
 exports.displayBarEndRepeat = wrapper.displayBarEndRepeat;
 exports.displayBarBothRepeat = wrapper.displayBarBothRepeat;
-exports.displayNotesImpl = wrapper.displayNotesImpl;
 exports.displayAutoBeamedNotesImpl = wrapper.displayAutoBeamedNotesImpl;
 exports.displayTupletedNotesImpl = wrapper.displayTupletedNotesImpl;
 exports.displayVolta = wrapper.displayVolta;

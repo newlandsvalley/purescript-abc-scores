@@ -1,9 +1,11 @@
 module VexFlow.Score
   ( Stave
   , addTimeSignature
+  , createScore
+  , renderScore
   , renderTune
   , renderFullStave
-  , initialise
+  , initialiseCanvas
   , newStave
   , clearCanvas) where
 
@@ -15,13 +17,15 @@ import Data.Tuple (Tuple(..))
 import Data.Traversable (traverse_)
 import Effect (Effect)
 import Effect.Console (log)
-import Prelude ((<>), (*), (==), (&&), Unit, bind, discard, pure, unit)
+import Prelude ((<>), (*), (==), (&&), ($), Unit, bind, discard, pure, unit)
 import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runBodyPart, runTuneBody)
 import VexFlow.Types (AbcContext, BarSpec, Config, MusicSpec(..)
-         , MusicSpecContents, NoteSpec, StaveConfig, StaveSpec, TimeSignature)
+         , MusicSpecContents, StaveConfig, StaveSpec, TimeSignature
+         , VexScore)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Volta (Volta)
+import VexFlow.Abc.Alignment (alignStaves)
 import VexFlow.Abc.Utils (initialAbcContext)
 
 
@@ -55,22 +59,36 @@ newStave :: StaveConfig -> KeySignature -> Effect Stave
 newStave staveCnfg ks =
   newStaveImpl staveCnfg (Translate.keySignature ks)
 
+-- | render the ABC tune with no right-alignment
+renderTune :: Config -> AbcTune -> Effect Boolean
+renderTune config abcTune =
+  renderScore config false $ createScore config abcTune
 
-renderTune :: AbcTune -> Config -> Effect Boolean
-renderTune abcTune config =
+-- | create a Vex Score from the ABC tune
+createScore :: Config -> AbcTune -> VexScore
+createScore config abcTune  =
   let
     abcContext = initialAbcContext abcTune config
-    eStaveSpecs :: Either String (Array (Maybe StaveSpec))
-    eStaveSpecs = runTuneBody abcContext abcTune.body
   in
-    case eStaveSpecs of
-      Right staveSpecs -> do
-        _ <- traverse_ displayStaveSpec staveSpecs
-        pure true
-      Left err -> do
-        _ <- log ("error in translating tune  " <> err)
-        pure false
+    runTuneBody abcContext abcTune.body
 
+-- | render the Vex Score to the HTML page
+-- | aligning on the RHS if required
+renderScore :: Config -> Boolean -> VexScore -> Effect Boolean
+renderScore config rightAlign eStaveSpecs  =
+  case eStaveSpecs of
+    Right staveSpecs -> do
+      let
+        alignedScore =
+          if rightAlign then
+            alignStaves config staveSpecs
+          else
+            staveSpecs
+      _ <- traverse_ displayStaveSpec alignedScore
+      pure true
+    Left err -> do
+      _ <- log ("error in translating tune  " <> err)
+      pure false
 
 -- | display a full stave of music
 -- | (in cases where the stave consists of actual music)
@@ -178,17 +196,29 @@ displayContextChange staveBar contextChange =
       -- this has no immediate effect on the displayed stave
       pure unit
 
-foreign import initialise :: Config -> Effect Unit
+-- | initialise VexFlow against the canvas where it renders
+foreign import initialiseCanvas :: Config -> Effect Unit
+-- | clear the score from the canvas
 foreign import clearCanvas :: Effect Unit
+-- | create a new stave bar
 foreign import newStaveImpl :: StaveConfig -> String -> Effect Stave
+-- | get the width of a stave
 foreign import getStaveWidth :: Stave -> Effect Int
-foreign import displayNotesImpl :: Stave -> Array NoteSpec -> Effect Unit
+-- | display the notes in a stave bar using auto-beaming
 foreign import displayAutoBeamedNotesImpl :: Stave -> TimeSignature -> Int -> MusicSpecContents -> Effect Unit
+-- | display the notes in a stave bar where tuplets exist in the bar
 foreign import displayTupletedNotesImpl :: Stave -> TimeSignature -> Int -> MusicSpecContents -> Effect Unit
+-- | display the (filled) bar
 foreign import displayStave :: Stave -> Effect Unit
+-- | dispay a bar begin repeat
 foreign import displayBarBeginRepeat :: Stave -> Effect Unit
+-- | dispay a bar begin repeat
 foreign import displayBarEndRepeat :: Stave -> Effect Unit
+-- | dispay a bar begin-and-end repeat
 foreign import displayBarBothRepeat :: Stave -> Effect Unit
+-- | display a Volta
 foreign import displayVolta :: Stave -> Volta -> Effect Unit
+-- | add the time signature
 foreign import timeSignatureImpl :: Stave -> TimeSignature -> Effect Unit
+-- | add the key signature
 foreign import keySignatureImpl :: Stave -> String -> Effect Unit

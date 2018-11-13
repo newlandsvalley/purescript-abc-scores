@@ -30,7 +30,7 @@ import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext
 import VexFlow.Types (AbcContext, BarSpec, MusicSpec(..), StaveSpec
       ,staveIndentation)
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarWidth)
-import VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine)
+import VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine, staveWidth)
 import VexFlow.Abc.Volta (startVolta, isMidVolta)
 
 type Translation a = ExceptT String (State AbcContext) a
@@ -82,12 +82,22 @@ bodyPart bp =
         -- then translate the bars
         staveBars <- bars staveNo bs
         let
-          normalisedStaveBars = fillStaveLine abcContext.maxWidth $ repositionBarEndRepeats staveBars
+          {-}
+          -- find the overall width
+          accumulatedStaveWidth = staveWidth staveBars
+          -- fill the stave to the end with an empty staveline
+          filledStaveLine = fillStaveLine abcContext.maxWidth $ repositionBarEndRepeats staveBars
+          -}
+          normalisedStaveBars = repositionBarEndRepeats staveBars
+          accumulatedStaveWidth = staveWidth normalisedStaveBars
+          filledStaveLine = fillStaveLine abcContext.maxWidth normalisedStaveBars
         -- return the stave specification
         pure $ Just { staveNo : staveNo
+                    , staveWidth : accumulatedStaveWidth
                     , keySignature : abcContext.keySignature
                     , isNewTimeSignature : isNewTimeSignature
-                    , barSpecs : normalisedStaveBars}
+                    , barSpecs : filledStaveLine
+                    }
     BodyInfo header ->
       do
         -- save the new Abc context to state governed by any header change

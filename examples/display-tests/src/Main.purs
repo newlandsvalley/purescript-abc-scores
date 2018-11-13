@@ -8,7 +8,7 @@ import Data.Maybe (Maybe(..))
 import Data.List (List(..), fromFoldable)
 import Data.Array (toUnfoldable)
 import Data.Int (round, toNumber)
-import VexFlow.Score (initialise, renderFullStave)
+import VexFlow.Score (initialiseCanvas, renderFullStave)
 import VexFlow.Abc.Utils (cMajor)
 import VexFlow.Types (Config, AbcContext, staveIndentation)
 import Data.Abc (BodyPart(..), KeySignature, MeterSignature,
@@ -473,7 +473,7 @@ example14 =
 
 main :: Effect Unit
 main = do
-  _ <- initialise config
+  _ <- initialiseCanvas config
   _ <- exampleNothing
   _ <- example0
   _ <- example1

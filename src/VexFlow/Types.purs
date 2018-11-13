@@ -3,12 +3,15 @@ module VexFlow.Types where
 import Prelude (class Semigroup, class Monoid, (<>), mempty)
 import Data.Maybe (Maybe)
 import Data.Abc (BarType, NoteDuration, KeySignature)
+import Data.Either (Either)
 import VexFlow.Abc.TickableContext (TickableContext)
 import VexFlow.Abc.ContextChange (ContextChange)
 import VexFlow.Abc.Volta (Volta)
 
 staveIndentation :: Int
 staveIndentation = 10
+
+type VexScore = Either String (Array (Maybe StaveSpec))
 
 -- | the configuration of the VexFlow Canvas
 type Config =
@@ -118,6 +121,7 @@ type BarSpec =
 
 type StaveSpec =
   { staveNo :: Int
+  , staveWidth :: Int               -- the cumulated width of the stave bars
   , keySignature :: KeySignature
   , isNewTimeSignature :: Boolean   -- do we need to display a time signature?
   , barSpecs :: Array BarSpec
