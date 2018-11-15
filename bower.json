@@ -8,7 +8,7 @@
   ],
   "dependencies": {
     "purescript-prelude": "^4.1.0",
-    "purescript-console": "^4.1.0",
+    "purescript-console": "^4.2.0",
     "purescript-effect": "^2.0.0",
     "purescript-abc-parser": "https://github.com/newlandsvalley/purescript-abc-parser.git#1.4.0"
   },
