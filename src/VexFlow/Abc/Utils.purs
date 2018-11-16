@@ -137,6 +137,7 @@ initialAbcContext tune config =
     , maxWidth : Int.round $
         (Int.toNumber (config.canvasWidth - staveIndentation)) / config.scale
     , pendingGraceKeys : []
+    , pendingRepeatBegin : false
     }
 
 

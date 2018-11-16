@@ -46,7 +46,8 @@ type AbcContext =
   , isMidVolta :: Boolean            -- we've started but not finished a volta
   , isNewTimeSignature :: Boolean    -- we need to display a changed time signature
   , maxWidth :: Int
-  , pendingGraceKeys :: Array String -- grace notes to be apended to next note
+  , pendingGraceKeys :: Array String -- grace notes to be appended to next note
+  , pendingRepeatBegin :: Boolean    -- begin repeat to be appended to next stave
   }
 
 type NoteSpec =

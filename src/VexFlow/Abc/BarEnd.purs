@@ -1,6 +1,7 @@
 module VexFlow.Abc.BarEnd
   ( repositionBarEndRepeats
   , fillStaveLine
+  , staveEndsWithRepeatBegin
   , staveWidth) where
 
 -- | Routines to handle the disparity between the manner in which ABC descibes
@@ -11,7 +12,7 @@ module VexFlow.Abc.BarEnd
 -- | (only attached to the end barline).
 
 import Prelude
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), maybe)
 import Data.Array ((:), last, reverse, snoc)
 import Data.Foldable (foldM)
 import Control.Monad.State (State, evalState, get, put)
@@ -25,6 +26,7 @@ type BarState = State Boolean (Array BarSpec)
 -- | move any bar end repeat marker to the previous bar
 -- | i.e. a bar end should belong to the bar it ends not the next one
 -- | that it introduces.
+-- | remember we're processing the bars backwards
 shiftBarEnd :: Array BarSpec -> BarSpec -> BarState
 shiftBarEnd  acc barSpec = do
   lastEndBar <- get
@@ -94,14 +96,21 @@ fillStaveLine maxWidth bs =
     Nothing ->
       bs
 
+-- | does the stave end with a begin repeat marker?
+-- | (to be carried over to the next stave).
+staveEndsWithRepeatBegin :: Array BarSpec -> Boolean
+staveEndsWithRepeatBegin bs =
+  let
+    isBeginVolta b =
+       ((b.startLine.repeat == Just Begin) ||
+        (b.startLine.repeat == Just BeginAndEnd))
+  in
+    maybe false isBeginVolta (last bs)
+
 -- | the current width of the stave's Stave Bars
 staveWidth :: Array BarSpec -> Int
 staveWidth bs =
-  case (last bs) of
-    Just b ->
-      b.xOffset + b.width
-    Nothing ->
-      0
+  maybe 0 (\b -> b.xOffset + b.width) (last bs)
 
 simpleBarType :: BarType
 simpleBarType =

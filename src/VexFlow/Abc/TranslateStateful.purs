@@ -23,14 +23,15 @@ import Data.Newtype (unwrap)
 import Data.Array ((..), zip)
 import Data.Array (length) as Array
 import Data.Traversable (traverse)
-import Data.Abc (Bar, BodyPart(..), Music(..))
+import Data.Abc (Bar, BarType, BodyPart(..), Music(..), Repeat(..))
 import Data.Abc.Metadata (isEmptyStave)
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext
                          ,beatsPerBeam, isEmptyMusicSpec)
 import VexFlow.Types (AbcContext, BarSpec, MusicSpec(..), StaveSpec
       ,staveIndentation)
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarWidth)
-import VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine, staveWidth)
+import VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine, staveWidth,
+         staveEndsWithRepeatBegin)
 import VexFlow.Abc.Volta (startVolta, isMidVolta)
 
 type Translation a = ExceptT String (State AbcContext) a
@@ -81,16 +82,15 @@ bodyPart bp =
                              })
         -- then translate the bars
         staveBars <- bars staveNo bs
+        -- reget the state after processing the bars
+        abcContext' <- get
         let
-          {-}
-          -- find the overall width
-          accumulatedStaveWidth = staveWidth staveBars
-          -- fill the stave to the end with an empty staveline
-          filledStaveLine = fillStaveLine abcContext.maxWidth $ repositionBarEndRepeats staveBars
-          -}
+          pendingRepeatBegin = staveEndsWithRepeatBegin staveBars
           normalisedStaveBars = repositionBarEndRepeats staveBars
           accumulatedStaveWidth = staveWidth normalisedStaveBars
           filledStaveLine = fillStaveLine abcContext.maxWidth normalisedStaveBars
+        -- save to state whether we need to carry over a Begin Volta from the last stave
+        _ <- put (abcContext' { pendingRepeatBegin = pendingRepeatBegin })
         -- return the stave specification
         pure $ Just { staveNo : staveNo
                     , staveWidth : accumulatedStaveWidth
@@ -137,7 +137,7 @@ bar staveNumber barNumber abcBar =
         { barNumber : barNumber
         , width : width
         , xOffset : abcContext.accumulatedStaveWidth
-        , startLine : abcBar.startLine
+        , startLine : modifiedStartLine abcContext.pendingRepeatBegin abcBar.startLine
         , hasEndLine : true
         , endLineRepeat : false
         , volta : startVolta abcBar.startLine isEmptyBar abcContext.isMidVolta
@@ -154,6 +154,7 @@ bar staveNumber barNumber abcBar =
       newAbcContext = abcContext { accumulatedStaveWidth = newWidth
                                  , isMidVolta = newIsMidVolta
                                  , isNewTimeSignature = false
+                                 , pendingRepeatBegin = false
                                  }
     _ <- put newAbcContext
     withExceptT (\err -> err <> ": bar " <> show barNumber) $ pure barSpec
@@ -205,3 +206,12 @@ music tickablePosition noteIndex m =
           newContext = applyContextChanges abcContext spec
         _ <- put newContext {pendingGraceKeys = []}
         either throwError pure spec
+
+-- | carry over any pending Repeat Begin marker that may have ended the last stave
+modifiedStartLine :: Boolean -> BarType -> BarType
+modifiedStartLine isPendingRepeatbegin barType =
+  if isPendingRepeatbegin
+    then
+      barType { repeat = Just Begin }
+    else
+      barType

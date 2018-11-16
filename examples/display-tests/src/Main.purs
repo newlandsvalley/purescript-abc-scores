@@ -40,6 +40,7 @@ abcContext (Tuple x y) keySignature staveNo =
   , isNewTimeSignature : false
   , maxWidth : round $ (toNumber canvasWidth / scale)
   , pendingGraceKeys : []
+  , pendingRepeatBegin: false
   }
 
 -- | we give each test it's own stave.  The downside is that subsequent staves

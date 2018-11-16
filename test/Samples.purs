@@ -22,6 +22,7 @@ startAbcContext (Tuple x y) =
   , isNewTimeSignature : false
   , maxWidth : 1200
   , pendingGraceKeys : []
+  , pendingRepeatBegin: false
   }
 
 c :: Int -> Music
