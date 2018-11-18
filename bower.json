@@ -1,5 +1,5 @@
 {
-  "name": "purescript-vexflow",
+  "name": "purescript-abc-scores",
   "ignore": [
     "**/.*",
     "node_modules",

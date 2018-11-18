@@ -1,5 +1,5 @@
-purescript-vexflow
-==================
+purescript-abc-scores
+=====================
 
 This is a purescript wrapper for [VexFlow](http://www.vexflow.com/) which is designed to cover just enough of the API in order to allow the engraving of music scores produced by the [ABC parser](https://github.com/newlandsvalley/purescript-abc-parser).
 
