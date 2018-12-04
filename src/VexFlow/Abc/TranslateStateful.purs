@@ -186,8 +186,8 @@ music tickablePosition noteIndex m =
     -- grace notes just affect state
     GraceNote accType abcNotes ->
       -- save grace notes to state in order to append to the next real note
-      -- they are only supported against an upcoming individual note
-      -- (i.e. not against chords, tuplets or broken rhythm pairs)
+      -- they are only supported against an upcoming individual note or the
+      -- leading note in a tuplet or borken-rhythm pair but not against chords.
       let
         graceKeys :: Array String
         graceKeys = map Trans.notePitch (Nel.toUnfoldable abcNotes)

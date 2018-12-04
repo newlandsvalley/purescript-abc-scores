@@ -11,7 +11,7 @@ import Data.Abc
 
 import Data.Abc.Canonical (keySignatureAccidental)
 import Data.Abc.KeySignature (normaliseModalKey)
-import Data.Array (length)
+import Data.Array (length, mapWithIndex)
 import Data.Either (Either(..))
 import Data.List.NonEmpty (head, toUnfoldable) as Nel
 import Data.Rational (numerator, denominator)
@@ -19,7 +19,7 @@ import Data.String.Common (toLower)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import Data.Maybe (Maybe(..))
-import Prelude ((<>), ($), (*), (+), (-), map, mempty, show)
+import Prelude ((<>), ($), (*), (+), (-), (==), map, mempty, show)
 import VexFlow.Abc.Utils (dotCount, normaliseBroken, noteDotCount, noteTicks)
 import VexFlow.Types (AbcContext, NoteSpec, TupletSpec, MusicSpec(..))
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), getTickableContext)
@@ -76,7 +76,7 @@ music context tickablePosition noteIndex m =
   in
     case m of
       Note abcNote ->
-        buildMusicSpecFromN tickableContext noteIndex abcNote.tied $ note context abcNote
+        buildMusicSpecFromN tickableContext noteIndex abcNote.tied $ note context 0 abcNote
 
       Rest dur ->
         -- rests are never tied
@@ -110,18 +110,29 @@ music context tickablePosition noteIndex m =
       _ ->
         buildMusicSpecFromNs tickableContext (Right [])
 
+{- not used any more
 -- | translate an array of ABC notes to VexFlow notes
 notes :: AbcContext -> Array AbcNote -> Either String (Array NoteSpec)
 notes context abcNotes =
   sequence $ map (note context) abcNotes
+-}
 
--- | translate an ABC note to a VexFlow note
+-- | Translate an ABC note to a VexFlow note
 -- | failing if the duration cannot be tarnslated
-note :: AbcContext -> AbcNote -> Either String NoteSpec
-note context abcNote =
+-- | noteIndex is the index of the note within any bigger structure such as
+-- | a tuplet or broken rhythm pair and is 0 for a note on its own
+-- | Pending grace notes are only supported if the index is 0.
+note :: AbcContext -> Int -> AbcNote -> Either String NoteSpec
+note context noteIndex abcNote =
   let
     edur = noteDur context abcNote
     key = notePitch abcNote
+    graceKeys =
+      if (noteIndex == 0)
+        then
+          context.pendingGraceKeys
+        else
+          []
   in
     case edur of
       Right dur ->
@@ -135,7 +146,7 @@ note context abcNote =
           { vexNote : vexNote
           , accidentals : [accidental abcNote.accidental]
           , dots : [noteDotCount context abcNote]
-          , graceKeys : context.pendingGraceKeys
+          , graceKeys : graceKeys
           }
       Left x -> Left x
 
@@ -204,8 +215,8 @@ brokenRhythm :: AbcContext -> AbcNote -> Broken -> AbcNote -> Either String (Arr
 brokenRhythm context abcNote1 broken abcNote2 =
   let
     (Tuple n1 n2) = normaliseBroken broken abcNote1 abcNote2
-    enote1 = note context n1
-    enote2 = note context n2
+    enote1 = note context 0 n1
+    enote2 = note context 1 n2
   in
     case (Tuple enote1 enote2) of
       (Tuple (Right note1) (Right note2)) ->
@@ -221,7 +232,7 @@ brokenRhythm context abcNote1 broken abcNote2 =
 tuplet :: AbcContext -> Int -> TupletSignature -> Array RestOrNote -> Either String TupletSpec
 tuplet context startOffset signature rns =
   let
-    enoteSpecs = sequence $ map (restOrNote context) rns
+    enoteSpecs = sequence $ mapWithIndex (restOrNote context) rns
     vexTuplet =
       { p : signature.p
       , q : signature.q
@@ -239,13 +250,13 @@ tuplet context startOffset signature rns =
         Left x
 
 
-restOrNote :: AbcContext -> RestOrNote -> Either String NoteSpec
-restOrNote context rOrn =
+restOrNote :: AbcContext -> Int -> RestOrNote -> Either String NoteSpec
+restOrNote context noteIndex rOrn =
   case rOrn of
     Left abcRest ->
       rest context abcRest
     Right abcNote ->
-      note context abcNote
+      note context noteIndex abcNote
 
 -- | cater for an inline header (within a stave)
 -- |   we need to cater for changes in key signature, meter or unit note length

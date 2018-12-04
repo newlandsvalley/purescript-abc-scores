@@ -471,6 +471,25 @@ example14 =
   in
     renderFullStave context bodyPart
 
+-- | grace note with tuplet
+example15 :: Effect Unit
+example15 =
+  let
+    staveNo = 15
+    context = abcContext (Tuple 4 4) cMajor staveNo
+    barType =
+      { thickness : Thin
+      , repeat : Nothing
+      , iteration : Nothing
+      }
+    bar =
+      { startLine : barType
+      , music :  fromFoldable   [grace F, triplet 2, grace F, brokenRight 2 1]
+      }
+    bodyPart = Score $ toUnfoldable [bar]
+  in
+    renderFullStave context bodyPart
+
 
 main :: Effect Unit
 main = do
@@ -490,7 +509,8 @@ main = do
   _ <- example11
   _ <- example12
   _ <- example13
-  example14
+  _ <- example14
+  example15
 
 
 {-}
