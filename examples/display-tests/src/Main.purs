@@ -490,6 +490,25 @@ example15 =
   in
     renderFullStave context bodyPart
 
+-- | continuation
+example16 :: Effect Unit
+example16 =
+  let
+    staveNo = 16
+    context = abcContext (Tuple 4 4) cMajor staveNo
+    barType =
+      { thickness : Thin
+      , repeat : Nothing
+      , iteration : Nothing
+      }
+    bar =
+      { startLine : barType
+      , music :  fromFoldable [c 2, f 2, g 2, continuation, g 2, f 2, enat 1, b 1]
+      }
+    bodyPart = Score $ toUnfoldable [bar]
+  in
+    renderFullStave context bodyPart
+
 
 main :: Effect Unit
 main = do
@@ -510,7 +529,8 @@ main = do
   _ <- example12
   _ <- example13
   _ <- example14
-  example15
+  _ <- example15
+  example16
 
 
 {-}

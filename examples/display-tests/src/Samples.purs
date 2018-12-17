@@ -184,3 +184,7 @@ keyChange =
     Inline $ Key $ { keySignature : gMinor
                    , modifications : Nil
                    }
+
+continuation :: Music
+continuation =
+  Continuation "continuation comment"
