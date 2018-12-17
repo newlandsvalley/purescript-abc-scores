@@ -76,6 +76,7 @@ smalandPolska =
   <> "c2de f2ef g2fg |a2ga (ba)gf e2c2 | c2de f2ef g2fg |a2ga (ba)gf e2c2 |\r\n"
   <> "c2de f2g2 a3f |f2e2 f8 :|\r\n"
 
+-- this sample shows a continuation character
 blomgren :: String
 blomgren =
   "X:11\r\n"
@@ -84,7 +85,8 @@ blomgren =
   <> "M:3/4\r\n"
   <> "L:1/16\r\n"
   <> "K:Gm\r\n"
-  <> "GFGA B4 A4 | G2g2 bagf g2d2 | edcB dcBA cBAG | F2G2 A2d2 D4 | \r\n"
+  <> "GFGA B4 A4 | G2g2 bagf g2d2 | \\\r\n"
+  <> "edcB dcBA cBAG | F2G2 A2d2 D4 | \r\n"
   <> "GFGA B4 A4 | G2g2 bagf g2d2 | edcB dcBA cBAG | FAdF G4 G,4 :: \r\n"
   <> "BdBG BdBG BdBG | c2cd e2d2 c2B2 | AcAF AcAF AcAF | BABc d2B2 A2F2 | \r\n"
   <> "GFGA B4 A4 | G2g2 bagf g2d2 | edcB dcBA cBAG | FAdF G4 G,4 :|\r\n"

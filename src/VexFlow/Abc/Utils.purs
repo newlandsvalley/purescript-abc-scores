@@ -133,7 +133,7 @@ initialAbcContext tune config =
     , staveNo : Nothing
     , accumulatedStaveWidth : staveIndentation  -- just the initial margin
     , isMidVolta : false
-    , isNewTimeSignature : false
+    , isNewTimeSignature : true  -- when we start off
     , maxWidth : Int.round $
         (Int.toNumber (config.canvasWidth - staveIndentation)) / config.scale
     , pendingGraceKeys : []

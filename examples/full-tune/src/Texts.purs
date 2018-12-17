@@ -90,3 +90,11 @@ meterChangeSample =
   <> "| A B c |\r\n"
   <> "M: 3/4\r\n"
   <> "| f g a |\r\n"
+
+continuationSample :: String
+continuationSample =
+  "| ABc |\\\r\n| def |\r\n"
+
+emptyBarSample :: String
+emptyBarSample =
+  "| ABc | | def |\r\n"

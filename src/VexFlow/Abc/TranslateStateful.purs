@@ -9,7 +9,7 @@ module VexFlow.Abc.TranslateStateful
 -- Any change in headers for time signature, key signature or unit note length
 -- will alter the state.
 
-import Prelude (($), (<>), (+), (==), (||), bind, map,  mempty, pure, show)
+import Prelude (($), (<>), (+), (==), bind, map,  mempty, pure, show)
 import Control.Monad.Except.Trans
 import Control.Monad.State (State, evalStateT, execStateT, get, put)
 import VexFlow.Abc.Translate (headerChange, music, notePitch) as Trans
@@ -74,7 +74,9 @@ bodyPart bp =
           mStaveNo = nextStaveNo abcContext.staveNo
           staveNo = fromMaybe 0 mStaveNo
           -- work out if we need a new time signature displayed on this stave
-          isNewTimeSignature = (staveNo == 0) || abcContext.isNewTimeSignature
+          -- this is set true in the context at the start of the module
+          -- and get this before we process the bars
+          isNewTimeSignature = abcContext.isNewTimeSignature
           -- reset the stave offset to be just the margin
           -- and reset the flag for any new time signature
         _ <- put (abcContext { staveNo = mStaveNo
@@ -123,14 +125,14 @@ bar staveNumber barNumber abcBar =
     abcContext <- get
     let
       isEmptyBar = isEmptyMusicSpec musicSpec
-      isNewTimeSignature = (abcContext.isNewTimeSignature) ||  (staveNumber == 0)
       displayedKeySig =
         if (barNumber == 0) then
           Just abcContext.keySignature
         else
           Nothing
       width =
-        estimateBarWidth (barNumber == 0) isNewTimeSignature displayedKeySig abcBar
+        estimateBarWidth (barNumber == 0)
+           abcContext.isNewTimeSignature displayedKeySig abcBar
         --  estimateBarWidth (barNumber == 0) (staveNumber == 0) displayedKeySig abcBar
       barSpec :: BarSpec
       barSpec =

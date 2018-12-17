@@ -50,7 +50,8 @@ shiftBarEnd  acc barSpec = do
   -- if we come across a bar empty of music (always the case in the final bar
   -- of the stave) then we can now ignore it.
   if (redundantBar barSpec)
-    then pure acc
+    then
+      pure acc
     else pure $ newBarSpec : acc
 
 shiftBarEnds :: Array BarSpec -> BarState
