@@ -39,4 +39,4 @@ configThreadingSuite =
         initialContext = startAbcContext (Tuple 4 4)
         abcContext = accumulateBarWidths initialContext
         -- key change alters the time signature and beats per beam
-      Assert.equal 605 abcContext.accumulatedStaveWidth
+      Assert.equal 465 abcContext.accumulatedStaveWidth
