@@ -78,6 +78,14 @@ type TupletSpec =
   , noteSpecs :: Array NoteSpec
   }
 
+-- | a beam group
+type BeamGroup =
+  { noteCount :: Int -- how many notes of the kind inhabit the group
+  , noteKind  :: Int -- the kind of note is the denominator of the time signature
+  }
+
+type BeamGroups = Array BeamGroup
+
 -- | the specification of a music item or a bar of same
 -- | we may just have note specs in either or we may have
 -- | one tuple spec (in the case of a single tupinstance
@@ -116,7 +124,7 @@ type BarSpec =
   , endLineRepeat :: Boolean   -- does it have an end repeat? important for end repeat markers
   , volta :: Maybe Volta
   , timeSignature :: TimeSignature
-  , beatsPerBeam :: Int
+  , beamGroups :: Array BeamGroup
   , musicSpec :: MusicSpec
   }
 

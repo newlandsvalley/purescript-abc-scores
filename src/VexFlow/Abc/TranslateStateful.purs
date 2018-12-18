@@ -26,13 +26,14 @@ import Data.Traversable (traverse)
 import Data.Abc (Bar, BarType, BodyPart(..), Music(..), Repeat(..))
 import Data.Abc.Metadata (isEmptyStave)
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext
-                         ,beatsPerBeam, isEmptyMusicSpec)
+                         ,isEmptyMusicSpec)
 import VexFlow.Types (AbcContext, BarSpec, MusicSpec(..), StaveSpec
       ,staveIndentation)
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarWidth)
 import VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine, staveWidth,
          staveEndsWithRepeatBegin)
 import VexFlow.Abc.Volta (startVolta, isMidVolta)
+import VexFlow.Abc.Beam (defaultBeamGroups)
 
 type Translation a = ExceptT String (State AbcContext) a
 
@@ -144,7 +145,8 @@ bar staveNumber barNumber abcBar =
         , endLineRepeat : false
         , volta : startVolta abcBar.startLine isEmptyBar abcContext.isMidVolta
         , timeSignature : abcContext.timeSignature
-        , beatsPerBeam : beatsPerBeam abcContext.timeSignature musicSpec
+        -- , beatsPerBeam : beatsPerBeam abcContext.timeSignature musicSpec
+        , beamGroups : defaultBeamGroups abcContext.timeSignature musicSpec
         , musicSpec : musicSpec
         }
       -- check if we're in the midst of a volta

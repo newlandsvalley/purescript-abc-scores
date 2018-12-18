@@ -20,9 +20,9 @@ import Effect.Console (log)
 import Prelude ((<>), (*), (==), (&&), ($), Unit, bind, discard, pure, unit)
 import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runBodyPart, runTuneBody)
-import VexFlow.Types (AbcContext, BarSpec, Config, MusicSpec(..)
-         , MusicSpecContents, StaveConfig, StaveSpec, TimeSignature
-         , VexScore)
+import VexFlow.Types (AbcContext, BarSpec, BeamGroups, Config
+         , MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec
+         , TimeSignature, VexScore)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Volta (Volta)
 import VexFlow.Abc.Alignment (alignStaves)
@@ -147,9 +147,9 @@ displayBarSpec staveSpec barSpec =
 
       if (null musicSpec.tuplets)
         then
-          displayAutoBeamedNotesImpl staveBar barSpec.timeSignature barSpec.beatsPerBeam musicSpec
+          displayAutoBeamedNotesImpl staveBar barSpec.beamGroups musicSpec
         else
-          displayTupletedNotesImpl staveBar barSpec.timeSignature barSpec.beatsPerBeam musicSpec
+          displayTupletedNotesImpl staveBar barSpec.beamGroups musicSpec
       displayStave staveBar
 
 -- | display bar begin repeat markers
@@ -205,9 +205,9 @@ foreign import newStaveImpl :: StaveConfig -> String -> Effect Stave
 -- | get the width of a stave
 foreign import getStaveWidth :: Stave -> Effect Int
 -- | display the notes in a stave bar using auto-beaming
-foreign import displayAutoBeamedNotesImpl :: Stave -> TimeSignature -> Int -> MusicSpecContents -> Effect Unit
+foreign import displayAutoBeamedNotesImpl :: Stave -> BeamGroups -> MusicSpecContents -> Effect Unit
 -- | display the notes in a stave bar where tuplets exist in the bar
-foreign import displayTupletedNotesImpl :: Stave -> TimeSignature -> Int -> MusicSpecContents -> Effect Unit
+foreign import displayTupletedNotesImpl :: Stave -> BeamGroups -> MusicSpecContents -> Effect Unit
 -- | display the (filled) bar
 foreign import displayStave :: Stave -> Effect Unit
 -- | dispay a bar begin repeat
