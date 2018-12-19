@@ -103,7 +103,7 @@ initialAbcContext tune config =
       fromMaybe (Tuple 4 4) $ getMeter tune
     (Tuple numerator denominator) = meterSignature
     unitNote =
-      fromMaybe (1 % 16) $ getUnitNoteLength tune
+      fromMaybe (1 % 8) $ getUnitNoteLength tune
     keySignature =
       fromMaybe cMajor $ map (\mks -> mks.keySignature) (getKeySig tune)
   in
