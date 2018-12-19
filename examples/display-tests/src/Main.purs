@@ -503,7 +503,7 @@ example16 =
       }
     bar =
       { startLine : barType
-      , music :  fromFoldable [c 2, f 2, g 2, continuation, g 2, f 2, enat 1, b 1]
+      , music :  fromFoldable [c 2, f 2, g 2, continuation, g 2, f 6, enat 2 ]
       }
     bodyPart = Score $ toUnfoldable [bar]
   in
@@ -535,7 +535,6 @@ example17 =
     bodyPart = Score $ toUnfoldable [bar0, bar1, bar2]
   in
     renderFullStave context bodyPart
-
 
 main :: Effect Unit
 main = do
