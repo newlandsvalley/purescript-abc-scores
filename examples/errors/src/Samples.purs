@@ -136,6 +136,15 @@ triplet d =
   in
     Tuplet signature notes
 
+
+badTriplet :: Int -> Music
+badTriplet d =
+  let
+    signature = ({ p : 3, q : 2, r : 3})
+    notes = NonEmptyList ((Right $ gn d) :| Nil)
+  in
+    Tuplet signature notes
+
 grace :: PitchClass -> Music
 grace pc =
   let

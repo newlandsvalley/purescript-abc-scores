@@ -4,10 +4,18 @@ module VexFlow.Abc.TranslateStateful
   , execBodyPart)  where
 
 -- The stateful part of translation
--- The translation wrapped in a State Monad which is inside ExceptT
+-- The translation wrapped in a State Monad which is inside ExceptT.
+--
 -- We need to thread the AbcContext throughout the translation because
 -- Any change in headers for time signature, key signature or unit note length
 -- will alter the state.
+--
+-- We require ExceptT because the computation can fail in two ways:
+--  \) We have a modified key signature (e.g. some Klezmer tunes) which is
+--     currently not supported.
+--  2) We have an unsupportable note duration (given the unit note length
+--     and meter) because we can't represent it using the score's 'dotted'
+--     conventions.
 
 import Prelude (($), (<>), (+), (==), bind, map,  mempty, pure, show)
 import Control.Monad.Except.Trans
@@ -75,7 +83,7 @@ bodyPart bp =
           mStaveNo = nextStaveNo abcContext.staveNo
           staveNo = fromMaybe 0 mStaveNo
           -- work out if we need a new time signature displayed on this stave
-          -- this is set true in the context at the start of the module
+          -- (this is set true in the context at the start of the module)
           -- and get this before we process the bars
           isNewTimeSignature = abcContext.isNewTimeSignature
           -- reset the stave offset to be just the margin
@@ -134,7 +142,6 @@ bar staveNumber barNumber abcBar =
       width =
         estimateBarWidth (barNumber == 0)
            abcContext.isNewTimeSignature displayedKeySig abcBar
-        --  estimateBarWidth (barNumber == 0) (staveNumber == 0) displayedKeySig abcBar
       barSpec :: BarSpec
       barSpec =
         { barNumber : barNumber

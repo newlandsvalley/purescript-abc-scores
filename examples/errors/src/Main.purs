@@ -5,14 +5,14 @@ import Effect (Effect)
 import Data.Tuple (Tuple(..))
 import Data.Rational ((%))
 import Data.Maybe (Maybe(..))
-import Data.List (List(..), fromFoldable)
+import Data.List (fromFoldable)
 import Data.Array (toUnfoldable)
 import Data.Int (round, toNumber)
 import VexFlow.Score (initialiseCanvas, renderFullStave)
 import VexFlow.Abc.Utils (cMajor)
 import VexFlow.Types (Config, AbcContext, staveIndentation)
 import Data.Abc (BodyPart(..), KeySignature, MeterSignature,
-                 Thickness(..))
+                 PitchClass(..), Thickness(..))
 import Examples.Errors.Samples
 
 canvasWidth :: Int
@@ -69,11 +69,37 @@ exampleNothing =
   in
     renderFullStave context bodyPart
 
+-- | a grace note in a tuplet causes immense confusion
+-- | this is predominantly an error with the ABC parser
+example0 :: Effect Unit
+example0 =
+  let
+    staveNo = 0
+    context = abcContext (Tuple 3 4) aFlatMajor staveNo
+    barType =
+      { thickness : Thin
+      , repeat : Nothing
+      , iteration : Nothing
+      }
+    bar0 =
+      { startLine : barType
+      , music :fromFoldable [c 2, f 2, triplet 2, c 4]
+      }
+    bar1 =
+      { startLine : barType
+      , music :fromFoldable [c 2, f 2, badTriplet 2, grace F, c 2, f 2, c 4]
+      }
+    bodyPart = Score $ toUnfoldable [bar0, bar1]
+  in
+    renderFullStave context bodyPart
+
+
 
 main :: Effect Unit
 main = do
   _ <- initialiseCanvas config
-  exampleNothing
+  _ <- exampleNothing
+  example0
 
 {-}
 main :: Effect Unit

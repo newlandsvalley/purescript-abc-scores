@@ -46,8 +46,8 @@ type AbcContext =
   , isMidVolta :: Boolean            -- we've started but not finished a volta
   , isNewTimeSignature :: Boolean    -- we need to display a changed time signature
   , maxWidth :: Int
-  , pendingGraceKeys :: Array String -- grace notes to be appended to next note
-  , pendingRepeatBegin :: Boolean    -- begin repeat to be appended to next stave
+  , pendingGraceKeys :: Array String -- grace notes to be prepended to next note
+  , pendingRepeatBegin :: Boolean    -- begin repeat to be prepended to next stave
   }
 
 type NoteSpec =
@@ -105,7 +105,7 @@ instance musicSpecMonoid:: Monoid MusicSpec where
     , contextChanges : mempty
     }
 
--- | we define MusicSpecComntents separately from MusicSpec
+-- | we define MusicSpecContents separately from MusicSpec
 -- | because we need to pass it to JavaScript
 type MusicSpecContents =
   { noteSpecs :: Array NoteSpec
@@ -130,7 +130,7 @@ type BarSpec =
 
 type StaveSpec =
   { staveNo :: Int
-  , staveWidth :: Int               -- the cumulated width of the stave bars
+  , staveWidth :: Int               -- the cumulative width of the stave bars
   , keySignature :: KeySignature
   , isNewTimeSignature :: Boolean   -- do we need to display a time signature?
   , barSpecs :: Array BarSpec
