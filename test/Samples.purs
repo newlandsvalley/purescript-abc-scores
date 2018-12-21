@@ -21,28 +21,39 @@ startAbcContext (Tuple x y) =
   , isMidVolta : false
   , isNewTimeSignature : false
   , maxWidth : 1200
-  , pendingGraceKeys : []
   , pendingRepeatBegin: false
   }
 
 c :: Int -> Music
-c d = Note (cn d)
+c d =
+  Note (cn d)
 
-cn :: Int -> AbcNote
+cn :: Int -> GraceableNote
 cn d =
-  { pitchClass: C, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
+  let
+    abcNote =
+      { pitchClass: C, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
+  in
+    { maybeGrace : Nothing, abcNote }
 
 f :: Int -> Music
 f d =
-  Note { pitchClass: F, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
+  let
+    abcNote = { pitchClass: F, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
+  in
+    Note { maybeGrace : Nothing, abcNote }
 
 
 g :: Int ->  Music
 g d = Note (gn d)
 
-gn :: Int -> AbcNote
+gn :: Int -> GraceableNote
 gn d =
-  { pitchClass: G, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
+  let
+    abcNote =
+      { pitchClass: G, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
+  in
+    { maybeGrace : Nothing, abcNote }
 
 -- key signatures
 gMajor :: KeySignature

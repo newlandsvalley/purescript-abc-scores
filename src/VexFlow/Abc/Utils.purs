@@ -11,7 +11,8 @@ module VexFlow.Abc.Utils
   , cMajor
   , canvasHeight) where
 
-import Data.Abc (AbcTune, AbcNote, Broken(..), KeySignature, Accidental(..), Mode(..), NoteDuration, PitchClass(..))
+import Data.Abc (AbcTune, AbcNote, Broken(..), GraceableNote, KeySignature,
+  Accidental(..), Mode(..), NoteDuration, PitchClass(..))
 import Data.Abc.Metadata (dotFactor, getMeter, getKeySig, getUnitNoteLength)
 import Data.Array (null)
 import Data.Either (Either(..))
@@ -66,8 +67,8 @@ noteTicks ctx d =
 
 -- | apply the specified broken rhythm to each note in the note pair (presented individually)
 -- | and return the broken note pair presented conventionally
-normaliseBroken :: Broken -> AbcNote -> AbcNote -> (Tuple AbcNote AbcNote )
-normaliseBroken broken n1 n2 =
+normaliseBroken :: Broken -> GraceableNote -> GraceableNote -> (Tuple GraceableNote GraceableNote )
+normaliseBroken broken gn1 gn2 =
   let
     down i =
       (fromInt 1) - (dotFactor i)
@@ -78,23 +79,23 @@ normaliseBroken broken n1 n2 =
     case broken of
       LeftArrow i ->
         let
-          left =
-            n1 { duration = n1.duration * (down i) }
+          lefta =
+            gn1.abcNote { duration = gn1.abcNote.duration * (down i) }
 
-          right =
-            n2 { duration = n2.duration * (up i) }
+          righta =
+            gn2.abcNote { duration = gn2.abcNote.duration * (up i) }
         in
-          (Tuple left right )
+          (Tuple (gn1 {abcNote = lefta}) (gn2 {abcNote = righta}) )
 
       RightArrow i ->
         let
-          left =
-            n1 { duration = n1.duration * (up i) }
+          lefta =
+            gn1.abcNote { duration = gn1.abcNote.duration * (up i) }
 
-          right =
-            n2 { duration = n2.duration * (down i) }
+          righta =
+            gn2.abcNote { duration = gn2.abcNote.duration * (down i) }
         in
-          (Tuple left right )
+          (Tuple (gn1 {abcNote = lefta}) (gn2 {abcNote = righta}) )
 
 initialAbcContext :: AbcTune -> Config -> AbcContext
 initialAbcContext tune config =
@@ -116,7 +117,6 @@ initialAbcContext tune config =
     , isNewTimeSignature : true  -- when we start off
     , maxWidth : Int.round $
         (Int.toNumber (config.canvasWidth - staveIndentation)) / config.scale
-    , pendingGraceKeys : []
     , pendingRepeatBegin : false
     }
 

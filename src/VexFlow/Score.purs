@@ -4,12 +4,12 @@ module VexFlow.Score
   , createScore
   , renderScore
   , renderTune
-  , renderFullStave
+  , renderTuneAtStave
   , initialiseCanvas
   , newStave
   , clearCanvas) where
 
-import Data.Abc (AbcTune, BodyPart, KeySignature, Repeat(..))
+import Data.Abc (AbcTune, KeySignature, Repeat(..))
 import Data.Array (null)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
@@ -19,8 +19,8 @@ import Effect (Effect)
 import Effect.Console (log)
 import Prelude ((<>), (*), (==), (&&), ($), Unit, bind, discard, pure, unit)
 import VexFlow.Abc.Translate (keySignature) as Translate
-import VexFlow.Abc.TranslateStateful (runBodyPart, runTuneBody)
-import VexFlow.Types (AbcContext, BarSpec, BeamGroups, Config
+import VexFlow.Abc.TranslateStateful (runTuneBody)
+import VexFlow.Types (BarSpec, BeamGroups, Config
          , MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec
          , TimeSignature, VexScore)
 import VexFlow.Abc.ContextChange (ContextChange(..))
@@ -64,6 +64,12 @@ renderTune :: Config -> AbcTune -> Effect Boolean
 renderTune config abcTune =
   renderScore config false $ createScore config abcTune
 
+-- | render the tune but at the required stave number
+-- | useful for examples
+renderTuneAtStave :: Int -> Config -> AbcTune -> Effect Boolean
+renderTuneAtStave staveNo config abcTune =
+  renderScore config false $ createScoreAtStave staveNo config abcTune
+
 -- | create a Vex Score from the ABC tune
 createScore :: Config -> AbcTune -> VexScore
 createScore config abcTune  =
@@ -71,6 +77,15 @@ createScore config abcTune  =
     abcContext = initialAbcContext abcTune config
   in
     runTuneBody abcContext abcTune.body
+
+-- | create a Vex Score from the ABC tune but output at the required
+-- | stave number.  Useful for examples.
+createScoreAtStave :: Int -> Config -> AbcTune -> VexScore
+createScoreAtStave staveNo config abcTune  =
+  let
+    abcContext = initialAbcContext abcTune config
+  in
+    runTuneBody (abcContext { staveNo = Just staveNo }) abcTune.body
 
 -- | render the Vex Score to the HTML page
 -- | aligning on the RHS if required
@@ -89,27 +104,6 @@ renderScore config rightAlign eStaveSpecs  =
     Left err -> do
       _ <- log ("error in translating tune  " <> err)
       pure false
-
--- | display a full stave of music
--- | (in cases where the stave consists of actual music)
--- | Only used in single line display tests
-renderFullStave :: AbcContext -> BodyPart -> Effect Unit
-renderFullStave abcContext bodyPart =
-  let
-    emStaveSpec :: Either String (Maybe StaveSpec)
-    emStaveSpec =
-      runBodyPart abcContext bodyPart
-  in
-    case emStaveSpec of
-      Right (Just staveSpec) ->
-        traverse_ (displayBarSpec staveSpec) staveSpec.barSpecs
-      Right _ ->
-        -- the body part is merely a header - no display needed
-        pure unit
-      Left err -> do
-        _ <- log ("error in translating stave  " <> err)
-        pure unit
-
 
 displayStaveSpec :: Maybe StaveSpec -> Effect Unit
 displayStaveSpec mStaveSpec =
