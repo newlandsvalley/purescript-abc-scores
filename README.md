@@ -37,5 +37,5 @@ These are mostly caused by the inadequacy of auto-beaming.
 Limitations
 -----------
 
-*  Beaming of notes in 4/4 is not quite right.  Some tunes require a separate beam for each beat in the bar whereas, for examples, reels and hornpipes tend to beam over two beats. Currently we are biased towards the latter.
+*  Beaming of notes in 4/4 is not quite right.  Some tunes require a separate beam for each beat in the bar whereas, for example, reels and hornpipes tend to beam over two beats. Currently we are biased towards the latter.
 *  ABC's modified key signature (for defining non-classical modes as found in, for example, some klezmer scores) is not supported.
