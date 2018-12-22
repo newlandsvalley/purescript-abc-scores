@@ -110,7 +110,7 @@ renderScore config rightAlign eStaveSpecs  =
       _ <- traverse_ displayStaveSpec alignedScore
       pure true
     Left err -> do
-      _ <- log ("error in translating tune  " <> err)
+      _ <- log ("error in producing score: " <> err)
       pure false
 
 displayStaveSpec :: Maybe StaveSpec -> Effect Unit
