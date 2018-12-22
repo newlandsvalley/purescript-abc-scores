@@ -8,21 +8,20 @@ module VexFlow.Abc.Utils
   , updateAbcContext
   , nextStaveNo
   , isEmptyMusicSpec
-  , cMajor
   , canvasHeight) where
 
 import Data.Abc (AbcTune, AbcNote, Broken(..), GraceableNote, KeySignature,
-  Accidental(..), Mode(..), NoteDuration, PitchClass(..))
+  ModifiedKeySignature, Accidental(..), Mode(..), NoteDuration, PitchClass(..))
 import Data.Abc.Metadata (dotFactor, getMeter, getKeySig, getUnitNoteLength)
-import Data.Array (null)
+import Data.Array (null) as Array
 import Data.Either (Either(..))
 import Data.Foldable (foldl)
 import Data.Int (round, toNumber) as Int
-import Data.List (length)
+import Data.List (List(..), length, null)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Rational (fromInt, toNumber, (%))
 import Data.Tuple (Tuple(..))
-import Prelude (map, ($), (*), (+), (-), (/))
+import Prelude (map, ($), (*), (+), (-), (/), identity)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Types (AbcContext, Config, MusicSpec(..), staveIndentation)
 
@@ -65,6 +64,7 @@ noteTicks ctx d =
   Int.round $ toNumber $
      ctx.unitNoteLength * d * (fromInt 128)
 
+
 -- | apply the specified broken rhythm to each note in the note pair (presented individually)
 -- | and return the broken note pair presented conventionally
 normaliseBroken :: Broken -> GraceableNote -> GraceableNote -> (Tuple GraceableNote GraceableNote )
@@ -97,7 +97,7 @@ normaliseBroken broken gn1 gn2 =
         in
           (Tuple (gn1 {abcNote = lefta}) (gn2 {abcNote = righta}) )
 
-initialAbcContext :: AbcTune -> Config -> AbcContext
+initialAbcContext :: AbcTune -> Config -> Either String AbcContext
 initialAbcContext tune config =
   let
     meterSignature =
@@ -105,20 +105,25 @@ initialAbcContext tune config =
     (Tuple numerator denominator) = meterSignature
     unitNote =
       fromMaybe (1 % 8) $ getUnitNoteLength tune
-    keySignature =
-      fromMaybe cMajor $ map (\mks -> mks.keySignature) (getKeySig tune)
+    modifiedKeySignature =
+      fromMaybe cMajor $ map identity (getKeySig tune)
+      -- fromMaybe cMajor $ map (\mks -> mks.keySignature) (getKeySig tune)
   in
-    { timeSignature : { numerator, denominator }
-    , keySignature : keySignature
-    , unitNoteLength : unitNote
-    , staveNo : Nothing
-    , accumulatedStaveWidth : staveIndentation  -- just the initial margin
-    , isMidVolta : false
-    , isNewTimeSignature : true  -- when we start off
-    , maxWidth : Int.round $
-        (Int.toNumber (config.canvasWidth - staveIndentation)) / config.scale
-    , pendingRepeatBegin : false
-    }
+    if (null modifiedKeySignature.modifications) then
+      Right
+        { timeSignature : { numerator, denominator }
+        , keySignature : modifiedKeySignature.keySignature
+        , unitNoteLength : unitNote
+        , staveNo : Nothing
+        , accumulatedStaveWidth : staveIndentation  -- just the initial margin
+        , isMidVolta : false
+        , isNewTimeSignature : true  -- when we start off
+        , maxWidth : Int.round $
+            (Int.toNumber (config.canvasWidth - staveIndentation)) / config.scale
+        , pendingRepeatBegin : false
+        }
+    else
+      Left "modifications to standard key signatures are not supported"
 
 
 updateAbcContext :: AbcContext -> ContextChange ->  AbcContext
@@ -157,14 +162,22 @@ nextStaveNo (Just x) = Just (x + 1)
 -- | return true if the MusicSpec is empty
 isEmptyMusicSpec :: MusicSpec -> Boolean
 isEmptyMusicSpec (MusicSpec contents) =
-  null contents.noteSpecs
+  Array.null contents.noteSpecs
 
-cMajor :: KeySignature
+cMajor :: ModifiedKeySignature
 cMajor =
-  {  pitchClass : C
-  ,  accidental : Natural
-  ,  mode : Major
-  }
+  let
+    ks :: KeySignature
+    ks =
+      {  pitchClass : C
+      ,  accidental : Natural
+      ,  mode : Major
+      }
+  in
+    { keySignature  : ks
+    , modifications : Nil
+    }
+
 
 -- | Heuristic to measure the canvas height needed to display a tune
 canvasHeight :: AbcTune -> Int

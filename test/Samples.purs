@@ -1,7 +1,6 @@
 module Test.Samples where
 
 import Prelude (($))
-import VexFlow.Abc.Utils (cMajor)
 import VexFlow.Types (AbcContext, staveIndentation)
 import Data.Abc
 import Data.Tuple (Tuple(..))
@@ -10,6 +9,14 @@ import Data.Maybe (Maybe(..))
 import Data.List (List(..), fromFoldable)
 import Data.Array (toUnfoldable)
 import VexFlow.Abc.TranslateStateful (execBodyPart)
+
+
+cMajor :: KeySignature
+cMajor =
+    {  pitchClass : C
+    ,  accidental : Natural
+    ,  mode : Major
+    }
 
 startAbcContext :: MeterSignature -> AbcContext
 startAbcContext (Tuple x y) =
