@@ -4,8 +4,8 @@ module VexFlow.Abc.Beam (defaultBeamGroups) where
 -- this is not finished - at the moment we only use a default
 -- singleton beam group deternined almost completely by the time signature
 
-import Prelude (($))
-import Data.Array (null, singleton)
+import Prelude (($), (==))
+import Data.Array (length, singleton)
 import VexFlow.Types (BeamGroup, MusicSpec(..), TimeSignature)
 
 defaultBeamGroups :: TimeSignature -> MusicSpec -> Array BeamGroup
@@ -23,12 +23,15 @@ defaultBeamGroup timeSignature (MusicSpec spec) =
       case timeSignature.numerator of
         3 -> 1
         4 ->
-          -- we'll use 2 to encourage grouping across 2 beats in reels, hornpipes etc
-          -- but use 1 if the bar contains tuplets which shouldn't be joined
-          if (null spec.tuplets) then
-            2
-          else
-            1
+          case spec.midBarNoteIndex of
+            [4] ->
+              if (length spec.noteSpecs == 8) then
+              -- 8 notes evenly paced
+                2
+              else
+                1
+            _ ->
+              1
         6 -> 3
         9 -> 3
         12 -> 3

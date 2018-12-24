@@ -97,11 +97,12 @@ instance musicSpecSemigroup :: Semigroup MusicSpec  where
 
 instance musicSpecMonoid:: Monoid MusicSpec where
   mempty = MusicSpec
-    { noteSpecs : []
-    , tuplets : []
-    , ties : []
+    { noteSpecs : mempty
+    , tuplets : mempty
+    , ties : mempty
     , tickableContext : mempty
     , contextChanges : mempty
+    , midBarNoteIndex : mempty
     }
 
 -- | we define MusicSpecContents separately from MusicSpec
@@ -112,6 +113,7 @@ type MusicSpecContents =
   , ties :: Array Int
   , tickableContext :: TickableContext
   , contextChanges :: Array ContextChange
+  , midBarNoteIndex  :: Array Int  -- note index if any at the bar midpoint
   }
 
 type BarSpec =

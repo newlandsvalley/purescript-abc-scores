@@ -30,7 +30,7 @@ import Data.Newtype (unwrap)
 import Data.Array ((..), zip)
 import Data.Array (length) as Array
 import Data.Traversable (traverse)
-import Data.Abc (Bar, BarType, BodyPart(..), Music, Repeat(..))
+import Data.Abc (Bar, BarType, BodyPart(..), Music, NoteDuration, Repeat(..))
 import Data.Abc.Metadata (isEmptyStave)
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext
                          ,isEmptyMusicSpec)
@@ -185,19 +185,19 @@ foldMusicsFunction eacc m = do
   let
     (MusicSpec acc) = eacc
      -- find the position of the next note in the bar
-    (TickableContext position _ _) = acc.tickableContext
+    (TickableContext position _ phraseDuration) = acc.tickableContext
     noteIndex = Array.length acc.noteSpecs
-  (MusicSpec enext) <- music position noteIndex m
+  (MusicSpec enext) <- music position noteIndex phraseDuration m
   pure $ MusicSpec (acc <> enext)
 
 
-music :: NoteCount -> Int -> Music -> Translation MusicSpec
-music tickablePosition noteIndex m =
+music :: NoteCount -> Int -> NoteDuration -> Music -> Translation MusicSpec
+music tickablePosition noteIndex phraseDuration m =
   do
     -- thread the context state through the translation
     abcContext <- get
     let
-      spec = Trans.music abcContext tickablePosition noteIndex m
+      spec = Trans.music abcContext tickablePosition noteIndex phraseDuration m
       newContext = applyContextChanges abcContext spec
     _ <- put newContext
     either throwError pure spec

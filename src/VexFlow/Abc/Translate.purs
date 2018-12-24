@@ -14,12 +14,12 @@ import Data.Abc.KeySignature (normaliseModalKey)
 import Data.Array (length, mapWithIndex)
 import Data.Either (Either(..))
 import Data.List.NonEmpty (head, toUnfoldable) as Nel
-import Data.Rational (numerator, denominator)
+import Data.Rational ((%), numerator, denominator)
 import Data.String.Common (toLower)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import Data.Maybe (Maybe(..), maybe)
-import Prelude ((<>), ($), (*), (+), (-), map, mempty, show)
+import Prelude ((<>), ($), (*), (+), (-), (==), map, mempty, show)
 import VexFlow.Abc.Utils (dotCount, normaliseBroken, noteDotCount, noteTicks)
 import VexFlow.Types (AbcContext, NoteSpec, TupletSpec, MusicSpec(..))
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext, getTickableContext)
@@ -67,17 +67,29 @@ keySignature ks =
 -- | producing an empty array if it doesn't do so
 -- | NoteCount is the count of 'tickable' items (notes or otherwise)
 -- | that precede this music item in the bar
-music :: AbcContext -> NoteCount -> Int -> Music -> Either String MusicSpec
-music context tickablePosition noteIndex m =
+music :: AbcContext -> NoteCount -> Int -> NoteDuration -> Music -> Either String MusicSpec
+music context tickablePosition noteIndex phraseDuration m =
   let
     -- find the number and size of 'tickable' items in this music item
     tickableContext :: TickableContext
     tickableContext = getTickableContext m
+    -- find the fraction  of the bar that has already been processed
+    barFraction =
+      phraseDuration * context.unitNoteLength
   in
     case m of
       Note gn ->
-        buildMusicSpecFromN tickableContext noteIndex gn.abcNote.tied
-          $ graceableNote context 0 gn
+        let
+          eMusicSpec =
+            buildMusicSpecFromN tickableContext noteIndex gn.abcNote.tied
+             $ graceableNote context 0 gn
+        in
+          if (barFraction == (1 % 2)) then
+            -- if we're at half a bar, save the index of the incoming note
+            -- which is the start of the next half
+            setHalfBarIndex noteIndex eMusicSpec
+          else
+            eMusicSpec
 
       Rest dur ->
         -- rests are never tied
@@ -88,7 +100,16 @@ music context tickablePosition noteIndex m =
         buildMusicSpecFromN tickableContext noteIndex false $ chord context abcChord
 
       BrokenRhythmPair gn1 broken gn2 ->
-        buildMusicSpecFromNs tickableContext $ brokenRhythm context gn1 broken gn2
+        let
+          eMusicSpec =
+            buildMusicSpecFromNs tickableContext $ brokenRhythm context gn1 broken gn2
+        in
+          if (barFraction == (1 % 2)) then
+            -- if we're at half a bar, save the index of the incoming note
+            -- which is the start of the next half
+            setHalfBarIndex noteIndex eMusicSpec
+          else
+            eMusicSpec
 
       Tuplet signature rOrNs ->
         let
@@ -102,6 +123,7 @@ music context tickablePosition noteIndex m =
                 , ties : []
                 , tickableContext : tickableContext
                 , contextChanges : mempty
+                , midBarNoteIndex : []
                 }
               ) eRes
 
@@ -346,6 +368,7 @@ buildMusicSpecFromNs tCtx ens =
     , ties : []
     , tickableContext : tCtx
     , contextChanges : []
+    , midBarNoteIndex : []
     }) ens
 
 buildMusicSpecFromN :: TickableContext -> Int -> Boolean -> Either String NoteSpec -> Either String MusicSpec
@@ -358,6 +381,7 @@ buildMusicSpecFromN tCtx noteIndex isTied ens =
          if isTied then [noteIndex] else []
       , tickableContext : tCtx
       , contextChanges : []
+      , midBarNoteIndex : []
       }) ens
 
 buildMusicSpecFromContextChange :: Array ContextChange -> Either String MusicSpec
@@ -368,4 +392,11 @@ buildMusicSpecFromContextChange contextChange =
       , ties : []
       , tickableContext : mempty
       , contextChanges : contextChange
+      , midBarNoteIndex : []
       }
+
+setHalfBarIndex :: Int -> Either String MusicSpec -> Either String MusicSpec
+setHalfBarIndex noteIndex eMusicSpec =
+  map
+    (\(MusicSpec ms) -> (MusicSpec ms { midBarNoteIndex = [noteIndex] }))
+    eMusicSpec
