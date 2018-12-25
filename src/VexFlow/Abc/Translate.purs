@@ -76,40 +76,27 @@ music context tickablePosition noteIndex phraseDuration m =
     -- find the fraction  of the bar that has already been processed
     barFraction =
       phraseDuration * context.unitNoteLength
+    midBarNoteIndex =
+      if (barFraction == (1 % 2))
+        then [noteIndex]
+      else
+        []
   in
     case m of
       Note gn ->
-        let
-          eMusicSpec =
-            buildMusicSpecFromN tickableContext noteIndex gn.abcNote.tied
-             $ graceableNote context 0 gn
-        in
-          if (barFraction == (1 % 2)) then
-            -- if we're at half a bar, save the index of the incoming note
-            -- which is the start of the next half
-            setHalfBarIndex noteIndex eMusicSpec
-          else
-            eMusicSpec
+        buildMusicSpecFromN tickableContext noteIndex midBarNoteIndex gn.abcNote.tied
+          $ graceableNote context 0 gn
 
       Rest dur ->
         -- rests are never tied
-        buildMusicSpecFromN tickableContext noteIndex false $ rest context dur
+        buildMusicSpecFromN tickableContext noteIndex midBarNoteIndex false $ rest context dur
 
       Chord abcChord ->
         -- we don't support tied chords at the moment
-        buildMusicSpecFromN tickableContext noteIndex false $ chord context abcChord
+        buildMusicSpecFromN tickableContext noteIndex midBarNoteIndex false $ chord context abcChord
 
       BrokenRhythmPair gn1 broken gn2 ->
-        let
-          eMusicSpec =
-            buildMusicSpecFromNs tickableContext $ brokenRhythm context gn1 broken gn2
-        in
-          if (barFraction == (1 % 2)) then
-            -- if we're at half a bar, save the index of the incoming note
-            -- which is the start of the next half
-            setHalfBarIndex noteIndex eMusicSpec
-          else
-            eMusicSpec
+        buildMusicSpecFromNs tickableContext midBarNoteIndex $ brokenRhythm context gn1 broken gn2
 
       Tuplet signature rOrNs ->
         let
@@ -123,7 +110,7 @@ music context tickablePosition noteIndex phraseDuration m =
                 , ties : []
                 , tickableContext : tickableContext
                 , contextChanges : mempty
-                , midBarNoteIndex : []
+                , midBarNoteIndex : midBarNoteIndex
                 }
               ) eRes
 
@@ -131,7 +118,7 @@ music context tickablePosition noteIndex phraseDuration m =
         buildMusicSpecFromContextChange $ headerChange context header
 
       _ ->
-        buildMusicSpecFromNs tickableContext (Right [])
+        buildMusicSpecFromNs tickableContext [] (Right [])
 
 
 graceableNote :: AbcContext -> Int -> GraceableNote -> Either String NoteSpec
@@ -360,19 +347,19 @@ duration ctx d =
           <> "/"
           <> (show $ denominator d))
 
-buildMusicSpecFromNs :: TickableContext -> Either String (Array NoteSpec) -> Either String MusicSpec
-buildMusicSpecFromNs tCtx ens =
+buildMusicSpecFromNs :: TickableContext -> Array Int -> Either String (Array NoteSpec) -> Either String MusicSpec
+buildMusicSpecFromNs tCtx midBarNoteIndex ens =
   map (\ns -> MusicSpec
     { noteSpecs : ns
     , tuplets : []
     , ties : []
     , tickableContext : tCtx
     , contextChanges : []
-    , midBarNoteIndex : []
+    , midBarNoteIndex : midBarNoteIndex
     }) ens
 
-buildMusicSpecFromN :: TickableContext -> Int -> Boolean -> Either String NoteSpec -> Either String MusicSpec
-buildMusicSpecFromN tCtx noteIndex isTied ens =
+buildMusicSpecFromN :: TickableContext -> Int -> Array Int -> Boolean -> Either String NoteSpec -> Either String MusicSpec
+buildMusicSpecFromN tCtx noteIndex midBarNoteIndex isTied ens =
     map (\ns -> MusicSpec
       { noteSpecs : [ns]
       , tuplets : []
@@ -381,7 +368,7 @@ buildMusicSpecFromN tCtx noteIndex isTied ens =
          if isTied then [noteIndex] else []
       , tickableContext : tCtx
       , contextChanges : []
-      , midBarNoteIndex : []
+      , midBarNoteIndex : midBarNoteIndex
       }) ens
 
 buildMusicSpecFromContextChange :: Array ContextChange -> Either String MusicSpec
@@ -394,9 +381,3 @@ buildMusicSpecFromContextChange contextChange =
       , contextChanges : contextChange
       , midBarNoteIndex : []
       }
-
-setHalfBarIndex :: Int -> Either String MusicSpec -> Either String MusicSpec
-setHalfBarIndex noteIndex eMusicSpec =
-  map
-    (\(MusicSpec ms) -> (MusicSpec ms { midBarNoteIndex = [noteIndex] }))
-    eMusicSpec

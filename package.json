@@ -5,7 +5,7 @@
     "display-tests": "pulp build --main Examples.DisplayTests.Main --include examples/display-tests/src --to examples/display-tests/dist/display-tests.js",
     "full-tune": "pulp build --main Examples.FullTune.Main --include examples/full-tune/src --to examples/full-tune/dist/full-tune.js",
     "align-staves": "pulp build --main Examples.StaveAlignment.Main --include examples/align-staves/src --to examples/align-staves/dist/align-staves.js",
-    "errors": "pulp build --main Examples.Errors.Main --include examples/errors/src --to examples/errors/dist/errors.js"
+    "beaming": "pulp build --main Examples.Beaming.Main --include examples/beaming/src --to examples/beaming/dist/beaming.js"
   },
   "devDependencies": {
     "pulp": "^12.3.0",

@@ -6,7 +6,7 @@
 /examples/display-tests/dist/display-tests.js
 /examples/full-tune/dist/full-tune.js
 /examples/align-staves/dist/align-staves.js
-/examples/errors/dist/errors.js
+/examples/beaming/dist/beaming.js
 /.psc*
 /.psa*
 /.purs*

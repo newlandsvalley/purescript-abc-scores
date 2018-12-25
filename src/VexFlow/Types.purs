@@ -113,7 +113,7 @@ type MusicSpecContents =
   , ties :: Array Int
   , tickableContext :: TickableContext
   , contextChanges :: Array ContextChange
-  , midBarNoteIndex  :: Array Int  -- note index if any at the bar midpoint
+  , midBarNoteIndex  :: Array Int  -- note index (if any) at the bar midpoint
   }
 
 type BarSpec =

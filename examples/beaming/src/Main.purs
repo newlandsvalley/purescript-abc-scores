@@ -1,4 +1,4 @@
-module Examples.Errors.Main where
+module Examples.Beaming.Main where
 
 import Prelude (Unit, bind, pure, unit, ($), (/))
 import Effect (Effect)
@@ -11,7 +11,7 @@ import VexFlow.Score (initialiseCanvas, renderTuneAtStave)
 import VexFlow.Types (Config, AbcContext, staveIndentation)
 import Data.Abc (KeySignature, MeterSignature)
 import Data.Abc.Parser (parse)
-import Examples.Errors.Texts
+import Examples.Beaming.Texts
 
 canvasWidth :: Int
 canvasWidth = 1200
@@ -54,5 +54,8 @@ displayAtStave text staveNo =
 main :: Effect Unit
 main = do
   _ <- initialiseCanvas config
-  _ <- displayAtStave beaming44 0
+  _ <- displayAtStave beaming44a 0
+  _ <- displayAtStave beaming44b 1
+  _ <- displayAtStave beaming44c 2
+  _ <- displayAtStave beaming44d 3
   pure unit
