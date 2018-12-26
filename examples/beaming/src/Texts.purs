@@ -5,7 +5,7 @@ import Prelude ((<>))
 beaming44a :: String
 beaming44a =
     "X:1\r\n"
-    <> "T: Beaming in 4/4\r\n"
+    <> "T: Beaming in 4/4  - 2,1,1\r\n"
     <> "M: 4/4\r\n"
     <> "L: 1/16\r\n"
     <> "K: C\r\n"
@@ -14,7 +14,7 @@ beaming44a =
 beaming44b :: String
 beaming44b =
     "X:1\r\n"
-    <> "T: Beaming in 4/4\r\n"
+    <> "T: Beaming in 4/4 - 1,1,2\r\n"
     <> "M: 4/4\r\n"
     <> "L: 1/16\r\n"
     <> "K: C\r\n"
@@ -23,7 +23,7 @@ beaming44b =
 beaming44c :: String
 beaming44c =
     "X:1\r\n"
-    <> "T: Beaming in 4/4\r\n"
+    <> "T: Beaming in 4/4 - 1\r\n"
     <> "M: 4/4\r\n"
     <> "L: 1/16\r\n"
     <> "K: C\r\n"
@@ -32,8 +32,35 @@ beaming44c =
 beaming44d :: String
 beaming44d =
     "X:1\r\n"
-    <> "T: Beaming in 4/4\r\n"
+    <> "T: Beaming in 4/4 - 2\r\n"
     <> "M: 4/4\r\n"
     <> "L: 1/16\r\n"
     <> "K: C\r\n"
     <> "| c2f2g2g2 c2f2g2g2 |\r\n"
+
+beaming44e :: String
+beaming44e =
+    "X:1\r\n"
+    <> "T: Beaming in 4/4 - grace\r\n"
+    <> "M: 4/4\r\n"
+    <> "L: 1/16\r\n"
+    <> "K: D\r\n"
+    <> "| c2f2g2g2 c2f2{a}g2g2  |\r\n"
+
+beaming44f :: String
+beaming44f =
+    "X:1\r\n"
+    <> "T: Beaming in 4/4 - 16th notes\r\n"
+    <> "M: 4/4\r\n"
+    <> "L: 1/16\r\n"
+    <> "K: D\r\n"
+    <> "| c2f2g2g2 c2f2g2ga  |\r\n"
+
+beaming44g :: String
+beaming44g =
+    "X:1\r\n"
+    <> "T: Beaming in 4/4 - schottis\r\n"
+    <> "M: 4/4\r\n"
+    <> "L: 1/16\r\n"
+    <> "K: D\r\n"
+    <> "| A4 A2Bc F8 |\r\n"

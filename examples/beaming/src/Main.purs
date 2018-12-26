@@ -58,4 +58,7 @@ main = do
   _ <- displayAtStave beaming44b 1
   _ <- displayAtStave beaming44c 2
   _ <- displayAtStave beaming44d 3
+  _ <- displayAtStave beaming44e 4
+  _ <- displayAtStave beaming44f 5
+  _ <- displayAtStave beaming44g 6
   pure unit
