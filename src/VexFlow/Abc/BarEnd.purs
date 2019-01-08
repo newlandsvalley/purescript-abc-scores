@@ -43,14 +43,17 @@ shiftBarEnd  acc barSpec = do
     -- and its thickness
     lineThickness = barlineThickness barSpec.startLine
     -- complete the volta if we detect that we've arrived at a bar
-    -- marker that ends a volta section
+    -- marker that ends a volta section or if the current bar
+    -- starts with a double line
     newVolta =
       if lastBarEnd.isEndRepeat then
-      -- if (lastBarEnd.isEndRepeat || lastBarEnd.lineThickness == Double) then
         completeVolta barSpec.volta
+      else if (lineThickness == Double) then
+        Nothing
       else
         barSpec.volta
-    -- carry over the bar repeat marker from the last bar to this
+    -- carry over the bar repeat marker and line thickness from the last bar to
+    -- this where it now decorates the right-hand bar line of the bar.
     newBarSpec = barSpec { endLineRepeat = lastBarEnd.isEndRepeat
                          , endLineThickness = lastBarEnd.lineThickness
                          , volta = newVolta
