@@ -1,6 +1,6 @@
 module VexFlow.Types where
 
-import Prelude (class Semigroup, class Monoid, (<>), mempty)
+import Prelude (class Eq, class Semigroup, class Monoid, (<>), mempty)
 import Data.Maybe (Maybe)
 import Data.Abc (BarType, NoteDuration, KeySignature)
 import Data.Either (Either)
@@ -27,7 +27,8 @@ type StaveConfig =
     , y :: Int
     , width :: Int
     , barNo :: Int
-    , hasEndLine :: Boolean
+    , hasRightBar :: Boolean
+    , hasDoubleRightBar :: Boolean
     }
 
 -- | the time signature
@@ -105,6 +106,13 @@ instance musicSpecMonoid:: Monoid MusicSpec where
     , midBarNoteIndex : mempty
     }
 
+data LineThickness =
+    Single
+  | Double
+  | NoLine
+
+derive instance eqLineThickness :: Eq LineThickness
+
 -- | we define MusicSpecContents separately from MusicSpec
 -- | because we need to pass it to JavaScript
 type MusicSpecContents =
@@ -120,9 +128,9 @@ type BarSpec =
   { barNumber :: Int
   , width  :: Int
   , xOffset :: Int
-  , startLine :: BarType       -- the Left bar line (always present)
-  , hasEndLine :: Boolean      -- does it have a right bar line (default true)?
-  , endLineRepeat :: Boolean   -- does it have an end repeat? important for end repeat markers
+  , startLine :: BarType                  -- the Left bar line (always present)
+  , endLineThickness :: LineThickness     -- right bar line type (default Single)?
+  , endLineRepeat :: Boolean              -- does it have an end repeat? important for end repeat markers
   , volta :: Maybe Volta
   , timeSignature :: TimeSignature
   , beamGroups :: Array BeamGroup

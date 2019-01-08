@@ -30,12 +30,13 @@ import Data.Newtype (unwrap)
 import Data.Array ((..), zip)
 import Data.Array (length) as Array
 import Data.Traversable (traverse)
-import Data.Abc (Bar, BarType, BodyPart(..), Music, NoteDuration, Repeat(..))
+import Data.Abc (Bar, BarType, BodyPart(..), Music, NoteDuration, Repeat(..),
+        Thickness(..))
 import Data.Abc.Metadata (isEmptyStave)
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext
                          ,isEmptyMusicSpec)
-import VexFlow.Types (AbcContext, BarSpec, MusicSpec(..), StaveSpec
-      ,staveIndentation)
+import VexFlow.Types (AbcContext, BarSpec, LineThickness(..), MusicSpec(..)
+      ,StaveSpec, staveIndentation)
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarWidth)
 import VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine, staveWidth,
          staveEndsWithRepeatBegin)
@@ -147,8 +148,8 @@ bar staveNumber barNumber abcBar =
         , width : width
         , xOffset : abcContext.accumulatedStaveWidth
         , startLine : modifiedStartLine abcContext.pendingRepeatBegin abcBar.startLine
-        , hasEndLine : true
-        , endLineRepeat : false
+        , endLineThickness : Single        -- not yet known
+        , endLineRepeat : false            -- not yet known
         , volta : startVolta abcBar.startLine isEmptyBar abcContext.isMidVolta
         , timeSignature : abcContext.timeSignature
         -- , beatsPerBeam : beatsPerBeam abcContext.timeSignature musicSpec
@@ -210,3 +211,13 @@ modifiedStartLine isPendingRepeatbegin barType =
       barType { repeat = Just Begin }
     else
       barType
+
+lineThickness :: BarType -> LineThickness
+lineThickness barType =
+  case barType.thickness of
+    Thin ->
+      Single
+    Invisible ->
+      NoLine
+    _ ->
+      Double

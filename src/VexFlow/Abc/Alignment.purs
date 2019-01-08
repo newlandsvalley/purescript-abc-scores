@@ -19,9 +19,9 @@ import Data.Foldable (foldl, foldM)
 import Data.Int (floor, toNumber)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (unwrap)
-import Prelude (bind, map, max, mempty, min, pure, ($), (*), (+), (-), (/), (<>), (>=))
+import Prelude (bind, map, max, mempty, min, pure, ($), (*), (+), (-), (/), (<>), (>=), (/=))
 import VexFlow.Abc.BarEnd (staveWidth)
-import VexFlow.Types (BarSpec, Config, StaveSpec, staveIndentation)
+import VexFlow.Types (BarSpec, Config, LineThickness(..), StaveSpec, staveIndentation)
 
 type Alignment a = State Int a
 
@@ -58,7 +58,7 @@ removeStaveExtension mss =
     Just ss ->
       -- drop the last bar if it has no end line marker
       let
-        barSpecs = takeWhile (\bs -> bs.hasEndLine) ss.barSpecs
+        barSpecs = takeWhile (\bs -> bs.endLineThickness /= NoLine) ss.barSpecs
       in
         Just $ ss { barSpecs = barSpecs }
 

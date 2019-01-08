@@ -81,16 +81,6 @@ var wrapper = function() {
       }
     },
 
-    /*
-    displayNotesImpl : function (stave) {
-      return function (notes) {
-        return function () {
-          return wrapper.drawNotes(stave, notes);
-        }
-      }
-    },
-    */
-
     displayAutoBeamedNotesImpl : function (stave) {
       return function (beamGroups) {
         return function (musicSpec) {
@@ -128,10 +118,15 @@ var wrapper = function() {
     makeStave: function (staveConfig, keySignature) {
 
       var staveOptions = new Object();
-      staveOptions.right_bar = staveConfig.hasEndLine;
+      staveOptions.right_bar = staveConfig.hasRightBar;
 
       // Create a stave at the required position on the canvas.
       var stave = new VF.Stave(staveConfig.x, staveConfig.y, staveConfig.width, staveOptions);
+
+      // create a doubled right bar line if required
+      if (staveConfig.hasDoubleRightBar) {
+         stave.setEndBarType(VF.Barline.type.DOUBLE);
+      }
 
       // Add a clef and key signature if it's the first bar in the stave
       if (staveConfig.barNo == 0) {

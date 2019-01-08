@@ -171,3 +171,12 @@ emptyBar =
     <> "L: 1/16\r\n"
     <> "K: D\r\n"
     <> "| C2 F2 G2 | | G2 F2 =EB |\r\n"
+
+doubleBarLine :: String
+doubleBarLine =
+    "X:1\r\n"
+    <> "T: double bar line\r\n"
+    <> "M: 4/4\r\n"
+    <> "L: 1/16\r\n"
+    <> "K: D\r\n"
+    <> "| C2 F2 G2 || G2 F2 =EB |\r\n"

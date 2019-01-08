@@ -17,10 +17,10 @@ import Data.Tuple (Tuple(..))
 import Data.Traversable (traverse_)
 import Effect (Effect)
 import Effect.Console (log)
-import Prelude ((<>), (*), (==), (&&), ($), Unit, bind, discard, pure, unit)
+import Prelude ((<>), (*), (==), (/=), (&&), ($), Unit, bind, discard, pure, unit)
 import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runTuneBody)
-import VexFlow.Types (BarSpec, BeamGroups, Config
+import VexFlow.Types (BarSpec, BeamGroups, Config, LineThickness(..)
          , MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec
          , TimeSignature, VexScore)
 import VexFlow.Abc.ContextChange (ContextChange(..))
@@ -52,7 +52,8 @@ staveConfig staveNo barSpec=
   , y : staveSeparation * staveNo
   , width : barSpec.width
   , barNo : barSpec.barNumber
-  , hasEndLine : barSpec.hasEndLine
+  , hasRightBar : (barSpec.endLineThickness /= NoLine)
+  , hasDoubleRightBar : (barSpec.endLineThickness == Double)
   }
 
 newStave :: StaveConfig -> KeySignature -> Effect Stave

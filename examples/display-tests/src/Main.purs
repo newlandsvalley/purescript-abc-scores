@@ -74,6 +74,7 @@ main = do
   _ <- displayAtStave lineContinuation 15
   _ <- displayAtStave longLine 16
   _ <- displayAtStave emptyBar 17
+  _ <- displayAtStave doubleBarLine 18
   pure unit
 
 
