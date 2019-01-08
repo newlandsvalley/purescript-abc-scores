@@ -43,6 +43,7 @@ import VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine, staveWidth,
 import VexFlow.Abc.Volta (startVolta, isMidVolta)
 import VexFlow.Abc.Beam (defaultBeamGroups)
 
+
 type Translation a = ExceptT String (State AbcContext) a
 
 
@@ -136,6 +137,7 @@ bar staveNumber barNumber abcBar =
       isEmptyBar = isEmptyMusicSpec musicSpec
       displayedKeySig =
         if (barNumber == 0) then
+        -- , beatsPerBeam : beatsPerBeam abcContext.timeSignature musicSpec
           Just abcContext.keySignature
         else
           Nothing
@@ -152,12 +154,12 @@ bar staveNumber barNumber abcBar =
         , endLineRepeat : false            -- not yet known
         , volta : startVolta abcBar.startLine isEmptyBar abcContext.isMidVolta
         , timeSignature : abcContext.timeSignature
-        -- , beatsPerBeam : beatsPerBeam abcContext.timeSignature musicSpec
         , beamGroups : defaultBeamGroups abcContext.timeSignature musicSpec
         , musicSpec : musicSpec
         }
       -- check if we're in the midst of a volta
       newIsMidVolta = isMidVolta abcBar.startLine isEmptyBar abcContext.isMidVolta
+
       -- accumulate the bar width
       newWidth = abcContext.accumulatedStaveWidth + barSpec.width
       -- set the new state.  We must reset isNewTimeSignature here which is only

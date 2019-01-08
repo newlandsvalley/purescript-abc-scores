@@ -9,6 +9,7 @@ import VexFlow.Abc.Utils (canvasHeight)
 import Data.Abc.Parser (parse)
 import Data.Abc (AbcTune)
 import Examples.FullTune.Texts (augustsson, cig, ewa, fastan, smalandPolska,
+                                gustavPersson,
                                 keyChangeSample, meterChangeSample,
                                 continuationSample, emptyBarSample)
 
@@ -26,8 +27,8 @@ configure tune =
 main :: Effect Boolean
 main =
   let
-    -- eAbcTune = parse emptyBarSample
-    eAbcTune = parse ewa
+    eAbcTune = parse gustavPersson
+    -- eAbcTune = parse ewa
   in
     case eAbcTune of
       Right abcTune -> do

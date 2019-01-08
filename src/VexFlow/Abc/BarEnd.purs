@@ -48,8 +48,6 @@ shiftBarEnd  acc barSpec = do
     newVolta =
       if lastBarEnd.isEndRepeat then
         completeVolta barSpec.volta
-      else if (lineThickness == Double) then
-        Nothing
       else
         barSpec.volta
     -- carry over the bar repeat marker and line thickness from the last bar to

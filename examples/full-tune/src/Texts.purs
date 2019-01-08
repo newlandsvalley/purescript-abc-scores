@@ -76,6 +76,21 @@ smalandPolska =
   <> "c2de f2ef g2fg |a2ga (ba)gf e2c2 | c2de f2ef g2fg |a2ga (ba)gf e2c2 |\r\n"
   <> "c2de f2g2 a3f |f2e2 f8 :|\r\n"
 
+gustavPersson :: String
+gustavPersson =
+  "X: 1\r\n"
+  <> "T: Polska efter Gustav Persson\r\n"
+  <> "R: polska\r\n"
+  <> "M: 9/8\r\n"
+  <> "L: 1/16\r\n"
+  <> "K:Dmin\r\n"
+  <> "|: F4A2 A4G2 E4F2 | D4F2 (E4FE) D4d2 | c4e2 e4d2 c4=B2 |1 A4c2 =B6 A4G2 :|\r\n"
+  <> "|2 A4c2 =B6 A6 || A2=B2^c2 d4e2 f4d2 | e2^f2^g2 a4^c2 a4^c2 | A4d2 d6-d4^c2 |\r\n"
+  <> "A3=B3 ^c3d3 e3f3 | f2e2f2 a6 f4a2 | a4g2 (e4fe) ^c4e2 | e4d2 (=B4cB) A6 |\r\n"
+  <> "A2=B2^c2 d4e2 f4d2 | e2^f2^g2 a4^c2 a4^c2 | A4d2 d12 |\r\n"
+  <> "|: (A4=B^c) d3c3 A6 | A3G3 E3F3 D6 | (4d2e2d2^c2 d3f3 e3d3 | c6 A12 |\r\n"
+  <> "| (A4=B^c) d3c3 A6 | A3G3 E3F3 D3B3 | A3G3 E3F3 D3F3 | (E4FE) D12 :|\r\n"
+
 keyChangeSample :: String
 keyChangeSample =
   "K: D\r\n"

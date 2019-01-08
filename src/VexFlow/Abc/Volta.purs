@@ -10,7 +10,7 @@ module VexFlow.Abc.Volta
 -- | in VexFlow need to be extended over all the bars in which they have an
 -- | effect
 
-import Prelude (($), (==), (||), show)
+import Prelude (($), (==), (/=), (&&), (||), show)
 import Data.Abc (BarType, Repeat(..), Thickness(..))
 import Data.Maybe (Maybe(..), isJust)
 
@@ -100,6 +100,5 @@ isEndVolta barType isEmptyBar =
      (barType.repeat == Just End)
   || (barType.repeat == Just BeginAndEnd)
   || (barType.repeat == Just Begin)
-  || (barType.thickness == ThinThick)
-  || (barType.thickness == ThickThin)
+  || (barType.thickness /= Thin && barType.thickness /= Invisible)
   || isEmptyBar
