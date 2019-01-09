@@ -33,8 +33,7 @@ import Data.Traversable (traverse)
 import Data.Abc (Bar, BarType, BodyPart(..), Music, NoteDuration, Repeat(..),
         Thickness(..))
 import Data.Abc.Metadata (isEmptyStave)
-import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext
-                         ,isEmptyMusicSpec)
+import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext)
 import VexFlow.Types (AbcContext, BarSpec, LineThickness(..), MusicSpec(..)
       ,StaveSpec, staveIndentation)
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarWidth)
@@ -134,7 +133,6 @@ bar staveNumber barNumber abcBar =
     -- we must get the context AFTER iterating through the music
     abcContext <- get
     let
-      isEmptyBar = isEmptyMusicSpec musicSpec
       displayedKeySig =
         if (barNumber == 0) then
         -- , beatsPerBeam : beatsPerBeam abcContext.timeSignature musicSpec
@@ -152,13 +150,13 @@ bar staveNumber barNumber abcBar =
         , startLine : modifiedStartLine abcContext.pendingRepeatBegin abcBar.startLine
         , endLineThickness : Single        -- not yet known
         , endLineRepeat : false            -- not yet known
-        , volta : startVolta abcBar.startLine isEmptyBar abcContext.isMidVolta
+        , volta : startVolta abcBar.startLine abcContext.isMidVolta
         , timeSignature : abcContext.timeSignature
         , beamGroups : defaultBeamGroups abcContext.timeSignature musicSpec
         , musicSpec : musicSpec
         }
       -- check if we're in the midst of a volta
-      newIsMidVolta = isMidVolta abcBar.startLine isEmptyBar abcContext.isMidVolta
+      newIsMidVolta = isMidVolta abcBar.startLine abcContext.isMidVolta
 
       -- accumulate the bar width
       newWidth = abcContext.accumulatedStaveWidth + barSpec.width

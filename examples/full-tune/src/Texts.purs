@@ -113,3 +113,13 @@ continuationSample =
 emptyBarSample :: String
 emptyBarSample =
   "| ABc | | def |\r\n"
+
+voltaContinuationSample :: String
+voltaContinuationSample =
+    "X:1\r\n"
+    <> "T: volta continued across staves\r\n"
+    <> "M: 3/4\r\n"
+    <> "L: 1/8\r\n"
+    <> "K: D\r\n"
+    <> "| AB cd ef |1 bb cc dd :|2 dd cc bb | AA BB cc |\r\n"
+    <> "| dd ee ff || g6 |\r\n"

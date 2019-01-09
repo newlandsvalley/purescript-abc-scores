@@ -37,12 +37,12 @@ type Volta =
 -- | build a beginning Volta definition for a bar. When beginning, we only
 -- | recognize a new Begin Volta or a continuation of a previous bar's Volta
 -- | but the overall definition is incomplete.
-startVolta :: BarType -> Boolean -> Boolean -> Maybe Volta
-startVolta barType isEmptyBar isCurrentlyMidVolta =
+startVolta :: BarType -> Boolean -> Maybe Volta
+startVolta barType isCurrentlyMidVolta =
   case barType.iteration of
     Nothing ->
       if (isCurrentlyMidVolta) then
-        if (isEndVolta barType isEmptyBar) then
+        if (isEndVolta barType) then
           Nothing
         else
           Just { voltaType : 3           -- Mid (continuation)
@@ -81,11 +81,11 @@ completeVolta mvolta =
 -- | switched on by an iteration marker
 -- | switched off by an end repeat
 -- | otherwise unchanged
-isMidVolta :: BarType -> Boolean -> Boolean -> Boolean
-isMidVolta barType isEmptyBar current =
+isMidVolta :: BarType -> Boolean -> Boolean
+isMidVolta barType current =
   if (isJust barType.iteration) then
     true
-  else if (isEndVolta barType isEmptyBar) then
+  else if (isEndVolta barType) then
     false
   else
     current
@@ -94,11 +94,10 @@ isMidVolta barType isEmptyBar current =
 -- | return true if the current bar indicates the end of a Volta section
 -- | not entirely sure here what the rules should be.  We'll say a section ends
 -- | if there is a Begin, End or BeginAndEnd repeat or if there is a thick
--- | barline or else if the bar itself is devoid of contents
-isEndVolta :: BarType -> Boolean -> Boolean
-isEndVolta barType isEmptyBar =
+-- | barline 
+isEndVolta :: BarType -> Boolean
+isEndVolta barType  =
      (barType.repeat == Just End)
   || (barType.repeat == Just BeginAndEnd)
   || (barType.repeat == Just Begin)
   || (barType.thickness /= Thin && barType.thickness /= Invisible)
-  || isEmptyBar
