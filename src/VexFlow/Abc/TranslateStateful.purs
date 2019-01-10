@@ -17,7 +17,7 @@ module VexFlow.Abc.TranslateStateful
 --     and meter) because we can't represent it using the score's 'dotted'
 --     conventions.
 
-import Prelude (($), (<>), (+), (==), bind, mempty, pure, show)
+import Prelude (($), (<>), (+), (==), (&&), bind, mempty, pure, show)
 import Control.Monad.Except.Trans
 import Control.Monad.State (State, evalStateT, execStateT, get, put)
 import VexFlow.Abc.Translate (headerChange, music) as Trans
@@ -33,7 +33,8 @@ import Data.Traversable (traverse)
 import Data.Abc (Bar, BarType, BodyPart(..), Music, NoteDuration, Repeat(..),
         Thickness(..))
 import Data.Abc.Metadata (isEmptyStave)
-import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext)
+import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext,
+           isEmptyMusicSpec)
 import VexFlow.Types (AbcContext, BarSpec, LineThickness(..), MusicSpec(..)
       ,StaveSpec, staveIndentation)
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarWidth)
@@ -135,13 +136,21 @@ bar staveNumber barNumber abcBar =
     let
       displayedKeySig =
         if (barNumber == 0) then
-        -- , beatsPerBeam : beatsPerBeam abcContext.timeSignature musicSpec
           Just abcContext.keySignature
         else
           Nothing
       width =
         estimateBarWidth (barNumber == 0)
            abcContext.isNewTimeSignature displayedKeySig abcBar
+      -- continue any volta from the previous bar.  However, the first bar
+      -- in a new stave may jusg be empty of notes, merely displaying the key
+      -- signature, in which case we don't display the volta
+      volta =
+        if (barNumber == 0 && isEmptyMusicSpec musicSpec) then
+          Nothing
+        else
+          startVolta abcBar.startLine abcContext.isMidVolta
+
       barSpec :: BarSpec
       barSpec =
         { barNumber : barNumber
@@ -150,7 +159,7 @@ bar staveNumber barNumber abcBar =
         , startLine : modifiedStartLine abcContext.pendingRepeatBegin abcBar.startLine
         , endLineThickness : Single        -- not yet known
         , endLineRepeat : false            -- not yet known
-        , volta : startVolta abcBar.startLine abcContext.isMidVolta
+        , volta : volta
         , timeSignature : abcContext.timeSignature
         , beamGroups : defaultBeamGroups abcContext.timeSignature musicSpec
         , musicSpec : musicSpec
@@ -167,6 +176,7 @@ bar staveNumber barNumber abcBar =
                                  , isNewTimeSignature = false
                                  , pendingRepeatBegin = false
                                  }
+
     _ <- put newAbcContext
     withExceptT (\err -> err <> ": bar " <> show barNumber) $ pure barSpec
 
