@@ -27,8 +27,8 @@ configure tune =
 main :: Effect Boolean
 main =
   let
-    -- eAbcTune = parse voltaContinuationSample
-    eAbcTune = parse ewa
+    eAbcTune = parse voltaContinuationSample
+    -- eAbcTune = parse ewa
   in
     case eAbcTune of
       Right abcTune -> do

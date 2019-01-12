@@ -46,7 +46,8 @@ shiftBarEnd  acc barSpec = do
     -- marker that ends a volta section or if the current bar
     -- starts with a double line
     newVolta =
-      if lastBarEnd.isEndRepeat then
+      if (lastBarEnd.isEndRepeat || lastBarEnd.lineThickness == Double) then
+      --  if lastBarEnd.isEndRepeat then
         completeVolta barSpec.volta
       else
         barSpec.volta

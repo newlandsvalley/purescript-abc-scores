@@ -69,9 +69,11 @@ completeVolta mvolta =
         newVoltaType =
           case volta.voltaType of
             2 ->
-              5                  -- Begin -> begin_End
+              5                  -- Begin -> Begin_End
             3 ->
               4                  -- Mid -> End
+            5 ->
+              4                  -- Begin_End -> End
             x ->
               x
       in
@@ -94,7 +96,7 @@ isMidVolta barType current =
 -- | return true if the current bar indicates the end of a Volta section
 -- | not entirely sure here what the rules should be.  We'll say a section ends
 -- | if there is a Begin, End or BeginAndEnd repeat or if there is a thick
--- | barline 
+-- | barline
 isEndVolta :: BarType -> Boolean
 isEndVolta barType  =
      (barType.repeat == Just End)
