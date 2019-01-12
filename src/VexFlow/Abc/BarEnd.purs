@@ -19,15 +19,11 @@ import Data.Array ((:), last, reverse, snoc)
 import Data.Foldable (foldM)
 import Data.Maybe (Maybe(..), maybe)
 import VexFlow.Abc.Utils (isEmptyMusicSpec)
-import VexFlow.Abc.Volta (completeVolta)
+import VexFlow.Abc.Volta (completeVolta, isEndVolta)
 import VexFlow.Types (BarSpec, LineThickness(..), MusicSpec)
 
-type BarEnd =
-  { isEndRepeat :: Boolean
-  , lineThickness :: LineThickness
-  }
-
-type BarState = State BarEnd (Array BarSpec)
+-- | the state is the bar type of the last bar (moving backwards over the stave)
+type BarState = State BarType (Array BarSpec)
 
 -- | move any bar end repeat or thickness marker to the previous bar
 -- | i.e. a bar end and thiskness should belong to the bar it ends not the
@@ -35,30 +31,29 @@ type BarState = State BarEnd (Array BarSpec)
 -- | remember we're processing the bars backwards
 shiftBarEnd :: Array BarSpec -> BarSpec -> BarState
 shiftBarEnd  acc barSpec = do
-  lastBarEnd <- get
+  lastBarType <- get
   let
-    -- does the current bar have an end repeat ?
-    isEndRepeat = (barSpec.startLine.repeat == Just End) ||
-                 (barSpec.startLine.repeat == Just BeginAndEnd)
+    -- does the last bar have an end repeat ?
+    isLastBarEndRepeat = (lastBarType.repeat == Just End) ||
+                          (lastBarType.repeat == Just BeginAndEnd)
     -- and its thickness
-    lineThickness = barlineThickness barSpec.startLine
+    lastLineThickness = barlineThickness lastBarType
     -- complete the volta if we detect that we've arrived at a bar
     -- marker that ends a volta section or if the current bar
     -- starts with a double line
     newVolta =
-      if (lastBarEnd.isEndRepeat || lastBarEnd.lineThickness == Double) then
-      --  if lastBarEnd.isEndRepeat then
+      if (isEndVolta lastBarType) then
         completeVolta barSpec.volta
       else
         barSpec.volta
     -- carry over the bar repeat marker and line thickness from the last bar to
     -- this where it now decorates the right-hand bar line of the bar.
-    newBarSpec = barSpec { endLineRepeat = lastBarEnd.isEndRepeat
-                         , endLineThickness = lastBarEnd.lineThickness
+    newBarSpec = barSpec { endLineRepeat = isLastBarEndRepeat
+                         , endLineThickness = lastLineThickness
                          , volta = newVolta
                          }
     -- save the end bar repeat of the current bar to state
-  _ <- put { isEndRepeat, lineThickness }
+  _ <- put barSpec.startLine
   -- if we come across a bar empty of music (always the case in the final bar
   -- of the stave) then we can now ignore it.
   if (redundantBar barSpec)
@@ -80,10 +75,7 @@ redundantBar barSpec =
 -- | as we're only allowed a foldl we need to reverse at the start
 repositionBarEndRepeats :: Array BarSpec -> Array BarSpec
 repositionBarEndRepeats bs =
-  evalState (shiftBarEnds $ reverse bs)
-    { isEndRepeat : false
-    , lineThickness : Single
-    }
+  evalState (shiftBarEnds $ reverse bs) simpleBarType
 
 -- | fill out the stave line to the maximum permiitted line width by specifiying
 -- | an empty final bar of the residual width
@@ -137,7 +129,6 @@ barlineThickness barType =
       NoLine
     _ ->
       Double
-
 
 simpleBarType :: BarType
 simpleBarType =

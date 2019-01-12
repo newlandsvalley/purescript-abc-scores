@@ -3,6 +3,7 @@ module VexFlow.Abc.Volta
   , startVolta
   , completeVolta
   , isMidVolta
+  , isEndVolta
   ) where
 
 -- | support for Voltas (repeated sections that alter with each iteration)
@@ -92,7 +93,6 @@ isMidVolta barType current =
   else
     current
 
--- | THIS IS HACKY
 -- | return true if the current bar indicates the end of a Volta section
 -- | not entirely sure here what the rules should be.  We'll say a section ends
 -- | if there is a Begin, End or BeginAndEnd repeat or if there is a thick

@@ -126,7 +126,7 @@ volta =
     <> "M: 4/4\r\n"
     <> "L: 1/16\r\n"
     <> "K: C\r\n"
-    <> "|: C4F4 G4G4 |1 G8 C8 | F8 F8 :|2 C8 C8 | F8 F8 ||: E8 E8\r\n"
+    <> "|: C4F4 G4G4 |1 G8 C8 | F8 F8 :|2 C8 C8 | F8 F8 |: E8 E8\r\n"
 
 grace :: String
 grace =
