@@ -55,6 +55,8 @@ type NoteSpec =
   , accidentals :: Array String
   , dots :: Array Int
   , graceKeys :: Array String
+  , ornaments :: Array String
+  , articulations :: Array String
   }
 
 -- | A raw note that VexFlow understands

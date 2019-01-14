@@ -137,6 +137,24 @@ grace =
     <> "K: D\r\n"
     <> "| G2 {A}G4 F2 C4 {E}F2G2 | c2f2 (3c2{a}f2g2 c2f2 g2>{b}a2| \r\n"
 
+ornament :: String
+ornament =
+    "X:1\r\n"
+    <> "T: ornaments\r\n"
+    <> "M: 4/4\r\n"
+    <> "L: 1/16\r\n"
+    <> "K: D\r\n"
+    <> "| G2 !trill! G4 F2 !turn! C4  F2G2 | G2 !lowermordent!  G4 F2 !uppermordent! C4 F2G2 | \r\n"
+
+articulation :: String
+articulation =
+    "X:1\r\n"
+    <> "T: articulations\r\n"
+    <> "M: 4/4\r\n"
+    <> "L: 1/16\r\n"
+    <> "K: D\r\n"
+    <> "| G2 H G4 F2 L C4  F2G2 | !tenuto! G2 u G4 F2 v C4  .F2.G2 |\r\n"
+
 lineContinuation :: String
 lineContinuation =
     "X:1\r\n"

@@ -11,19 +11,20 @@ import Data.Abc
 
 import Data.Abc.Canonical (keySignatureAccidental)
 import Data.Abc.KeySignature (normaliseModalKey)
-import Data.Array (length, mapWithIndex)
+import Data.Array (length, mapWithIndex, (:))
 import Data.Either (Either(..))
+import Data.List (List, foldl)
 import Data.List.NonEmpty (head, toUnfoldable) as Nel
+import Data.Maybe (Maybe(..), maybe)
 import Data.Rational ((%), numerator, denominator)
 import Data.String.Common (toLower)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
-import Data.Maybe (Maybe(..), maybe)
 import Prelude ((<>), ($), (*), (+), (-), (==), map, mempty, show)
+import VexFlow.Abc.ContextChange (ContextChange(..))
+import VexFlow.Abc.TickableContext (NoteCount, TickableContext, getTickableContext)
 import VexFlow.Abc.Utils (dotCount, normaliseBroken, noteDotCount, noteTicks)
 import VexFlow.Types (AbcContext, NoteSpec, TupletSpec, MusicSpec(..))
-import VexFlow.Abc.TickableContext (NoteCount, TickableContext, getTickableContext)
-import VexFlow.Abc.ContextChange (ContextChange(..))
 
 -- | generate a VexFlow indication of pitch
 pitch :: PitchClass -> Accidental -> Int -> String
@@ -120,26 +121,19 @@ music context tickablePosition noteIndex phraseDuration m =
       _ ->
         buildMusicSpecFromNs tickableContext [] (Right [])
 
-
-graceableNote :: AbcContext -> Int -> GraceableNote -> Either String NoteSpec
-graceableNote context noteIndex gn =
+-- | Translate an ABC graceable note to a VexFlow note
+-- | failing if the duration cannot be translated
+-- | noteIndex is the index of the note within any bigger structure such as
+-- | a tuplet or broken rhythm pair and is 0 for a note on its own
+graceableNote :: AbcContext -> Int -> GraceableNote-> Either String NoteSpec
+graceableNote context noteIndex gn  =
   let
     graceNotes :: Array AbcNote
     graceNotes = maybe [] (\grace -> Nel.toUnfoldable grace.notes) gn.maybeGrace
     graceKeys :: Array String
     graceKeys = map notePitch graceNotes
-  in
-    note context noteIndex graceKeys gn.abcNote
-
--- | Translate an ABC note to a VexFlow note
--- | failing if the duration cannot be translated
--- | noteIndex is the index of the note within any bigger structure such as
--- | a tuplet or broken rhythm pair and is 0 for a note on its own
-note :: AbcContext -> Int -> Array String -> AbcNote -> Either String NoteSpec
-note context noteIndex graceKeys abcNote  =
-  let
-    edur = noteDur context abcNote
-    key = notePitch abcNote
+    edur = noteDur context gn.abcNote
+    key = notePitch gn.abcNote
   in
     case edur of
       Right dur ->
@@ -151,11 +145,14 @@ note context noteIndex graceKeys abcNote  =
             }
         in Right
           { vexNote : vexNote
-          , accidentals : [accidental abcNote.accidental]
-          , dots : [noteDotCount context abcNote]
+          , accidentals : [accidental gn.abcNote.accidental]
+          , dots : [noteDotCount context gn.abcNote]
           , graceKeys : graceKeys
+          , ornaments : ornaments gn.decorations
+          , articulations : articulations gn.decorations
           }
       Left x -> Left x
+
 
 -- | translate an ABC rest to a VexFlow note
 -- | which we'll position on the B stave line
@@ -179,6 +176,8 @@ rest context abcRest =
           , accidentals : []
           , dots : [dotCount context abcRest.duration]
           , graceKeys : []
+          , ornaments : []
+          , articulations : []
           }
       Left x -> Left x
 
@@ -212,6 +211,8 @@ chord context abcChord =
           , accidentals : accidentals
           , dots : dotCounts
           , graceKeys : []
+          , ornaments : []
+          , articulations : []
           }
       Left x -> Left x
 
@@ -346,6 +347,68 @@ duration ctx d =
           <> (show $ numerator d)
           <> "/"
           <> (show $ denominator d))
+
+-- | translate an ABC note decoration into a VexFlow note ornament
+ornaments :: List String -> Array String
+ornaments decorations =
+  let
+    f :: Array String -> String -> Array String
+    f acc decoration =
+      case decoration of
+        "T" ->
+          "tr" : acc
+        "trill" ->
+          "tr" : acc
+        "turn" ->
+          "turn" : acc
+        "P" ->
+          "upmordent" : acc
+        "uppermordent" ->
+          "upmordent" : acc
+        "M" ->
+          "mordent" : acc
+        "lowermordent" ->
+          "mordent" : acc
+        _ ->
+          acc
+  in
+    foldl f [] decorations
+
+-- | translate an ABC note decoration into a VexFlow note articulation
+articulations :: List String -> Array String
+articulations artics =
+  let
+    f :: Array String -> String -> Array String
+    f acc decoration =
+      case decoration of
+        "." ->          -- staccato
+          "a." : acc
+        "upbow" ->      -- up bow
+          "a|" : acc
+        "u" ->          -- up bow
+          "a|" : acc
+        "downbow" ->    -- down bow
+          "am" : acc
+        "v" ->          -- down bow
+          "am" : acc
+        "L" ->          -- accent
+          "a>" : acc
+        "accent" ->     -- accent
+          "a>" : acc
+        "emphasis" ->   -- accent
+          "a>" : acc
+        "H" ->          -- fermata  (above)
+          "a@a" : acc
+        "fermata" ->    -- fermata  (above)
+          "a@a" : acc
+        "tenuto" ->     -- tenuto
+          "a-" : acc
+        _ ->
+          acc
+  in
+    foldl f [] artics
+
+
 
 buildMusicSpecFromNs :: TickableContext -> Array Int -> Either String (Array NoteSpec) -> Either String MusicSpec
 buildMusicSpecFromNs tCtx midBarNoteIndex ens =

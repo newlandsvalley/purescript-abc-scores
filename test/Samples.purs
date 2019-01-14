@@ -41,14 +41,14 @@ cn d =
     abcNote =
       { pitchClass: C, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
   in
-    { maybeGrace : Nothing, abcNote }
+    { maybeGrace : Nothing, decorations : Nil, abcNote }
 
 f :: Int -> Music
 f d =
   let
     abcNote = { pitchClass: F, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
   in
-    Note { maybeGrace : Nothing, abcNote }
+    Note { maybeGrace : Nothing, decorations : Nil, abcNote }
 
 
 g :: Int ->  Music
@@ -60,7 +60,7 @@ gn d =
     abcNote =
       { pitchClass: G, accidental: Implicit, octave: 4, duration: fromInt d, tied: false }
   in
-    { maybeGrace : Nothing, abcNote }
+    { maybeGrace : Nothing, decorations : Nil, abcNote }
 
 -- key signatures
 gMajor :: KeySignature

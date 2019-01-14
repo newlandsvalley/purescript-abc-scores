@@ -71,10 +71,12 @@ main = do
   _ <- displayAtStave simpleTie 12
   _ <- displayAtStave volta 13
   _ <- displayAtStave grace 14
-  _ <- displayAtStave lineContinuation 15
-  _ <- displayAtStave longLine 16
-  _ <- displayAtStave emptyBar 17
-  _ <- displayAtStave doubleBarLine 18
+  _ <- displayAtStave ornament 15
+  _ <- displayAtStave articulation 16
+  _ <- displayAtStave lineContinuation 17
+  _ <- displayAtStave longLine 18
+  _ <- displayAtStave emptyBar 19
+  _ <- displayAtStave doubleBarLine 20
   pure unit
 
 

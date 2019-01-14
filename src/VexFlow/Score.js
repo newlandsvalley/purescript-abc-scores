@@ -215,6 +215,8 @@ var wrapper = function() {
       var sn = new VF.StaveNote(noteSpec.vexNote);
       wrapper.addAccidentals (sn, noteSpec.accidentals);
       wrapper.addDots (sn, noteSpec.dots);
+      wrapper.addOrnaments (sn, noteSpec.ornaments);
+      wrapper.addArticulations (sn, noteSpec.articulations);
 
       if (noteSpec.graceKeys.length > 0) {
         var graceNotes = noteSpec.graceKeys.map(wrapper.makeGraceNote);
@@ -255,7 +257,7 @@ var wrapper = function() {
       return new Vex.Flow.Fraction(group.noteCount, group.noteKind);
     },
 
-    // add the accidental(s) to the staveNote(s)
+    // add the accidental(s) to the staveNote
     addAccidentals: function (staveNote, accidentals) {
       accidentals.forEach (function (accidentalString, index) {
         if (accidentalString) {
@@ -265,7 +267,6 @@ var wrapper = function() {
     },
 
     // add the accidental(s) to the staveNote(s)
-    // not sure yet how to represent double-dots
     addDots: function (staveNote, dots) {
       dots.forEach (function (dotCount, index) {
         if (dotCount == 2) {
@@ -275,8 +276,21 @@ var wrapper = function() {
           staveNote.addDot(index);
         }
       });
-    }
+    },
 
+    // add the ornamant(s) to the staveNote
+    addOrnaments: function (staveNote, ornaments) {
+      ornaments.forEach (function (ornament, index) {
+        staveNote.addModifier(0, new VF.Ornament(ornament));
+      });
+    },
+
+    // add the articulation(s) to the staveNote
+    addArticulations: function (staveNote, articulations) {
+      articulations.forEach (function (articulation, index) {
+        staveNote.addArticulation(0, new VF.Articulation(articulation));
+      });
+    }
 
   }
 
