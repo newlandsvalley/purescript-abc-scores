@@ -84,6 +84,7 @@ blomgren =
   <> "R:Slängpolska\r\n"
   <> "M:3/4\r\n"
   <> "L:1/16\r\n"
+  <> "Q:1/4=120\r\n"
   <> "K:Gm\r\n"
   <> "GFGA B4 A4 | G2g2 bagf g2d2 | \\\r\n"
   <> "edcB dcBA cBAG | F2G2 A2d2 D4 | \r\n"

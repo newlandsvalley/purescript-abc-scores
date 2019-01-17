@@ -37,7 +37,7 @@ ewa =
   <> "C: Josefina Paulson\r\n"
   <> "M: 9/8\r\n"
   <> "L: 1/8\r\n"
-  <> "Q: 3/8=110\r\n"
+  <> "Q: 3/8=120\r\n"
   <> "K: G\r\n"
   <> "|: D2E D3 B3- | B2A B2c BAB | cB2 (2:3AG FEF | GD2 C3 B,3 | \r\n"
   <> "| D2E D3 B3- | B2A B2c BAB | cB2 (2:3AG FEF | G3 G6 :| \r\n"

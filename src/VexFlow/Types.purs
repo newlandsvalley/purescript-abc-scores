@@ -37,10 +37,18 @@ type TimeSignature =
   , denominator :: Int
   }
 
+-- | the tempo marking
+type Tempo =
+  { duration :: String
+  , dots :: Int
+  , bpm :: Int
+  }
+
 -- | The ABC Context
 type AbcContext =
   { timeSignature :: TimeSignature
   , keySignature :: KeySignature
+  , mTempo :: Maybe Tempo
   , unitNoteLength :: NoteDuration
   , staveNo :: Maybe Int
   , accumulatedStaveWidth :: Int
@@ -144,5 +152,6 @@ type StaveSpec =
   , staveWidth :: Int               -- the cumulative width of the stave bars
   , keySignature :: KeySignature
   , isNewTimeSignature :: Boolean   -- do we need to display a time signature?
+  , mTempo :: Maybe Tempo           -- the tempo marker
   , barSpecs :: Array BarSpec
   }

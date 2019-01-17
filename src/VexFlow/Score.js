@@ -65,7 +65,7 @@ var wrapper = function() {
       }
     },
 
-    timeSignatureImpl : function (stave) {
+    addTimeSignature : function (stave) {
       return function (timeSignature) {
         return function () {
           return wrapper.drawTimeSignature(stave, timeSignature);
@@ -73,10 +73,18 @@ var wrapper = function() {
       }
     },
 
-    keySignatureImpl : function (stave) {
+    addKeySignature : function (stave) {
       return function (keySignature) {
         return function () {
           return wrapper.drawKeySignature(stave, keySignature, false);
+        }
+      }
+    },
+
+    addTempoMarkingImpl : function (stave) {
+      return function (tempo) {
+        return function () {
+          return wrapper.drawTempoMarking(stave, tempo);
         }
       }
     },
@@ -168,12 +176,15 @@ var wrapper = function() {
       stave.setVoltaType(voltaType, volta.iteration, 30);
     },
 
-
     drawKeySignature: function (stave, keySignature, withClef) {
       if (withClef) {
         stave.addClef("treble");
       }
       stave.setKeySignature(keySignature);
+    },
+
+    drawTempoMarking: function (stave, tempo) {
+      stave.setTempo(tempo, 0);
     },
 
     drawAutoBeamedNotes: function (stave, beamGroups, musicSpec) {
@@ -309,5 +320,6 @@ exports.displayBarBothRepeat = wrapper.displayBarBothRepeat;
 exports.displayAutoBeamedNotesImpl = wrapper.displayAutoBeamedNotesImpl;
 exports.displayTupletedNotesImpl = wrapper.displayTupletedNotesImpl;
 exports.displayVolta = wrapper.displayVolta;
-exports.timeSignatureImpl = wrapper.timeSignatureImpl;
-exports.keySignatureImpl = wrapper.keySignatureImpl;
+exports.addTimeSignature = wrapper.addTimeSignature;
+exports.addKeySignature = wrapper.addKeySignature;
+exports.addTempoMarkingImpl = wrapper.addTempoMarkingImpl;

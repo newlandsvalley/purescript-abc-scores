@@ -1,6 +1,5 @@
 module VexFlow.Score
   ( Stave
-  , addTimeSignature
   , createScore
   , renderScore
   , renderTune
@@ -12,7 +11,7 @@ module VexFlow.Score
 import Data.Abc (AbcTune, KeySignature, Repeat(..))
 import Data.Array (null)
 import Data.Either (Either(..))
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), maybe)
 import Data.Tuple (Tuple(..))
 import Data.Traversable (traverse_)
 import Effect (Effect)
@@ -22,12 +21,11 @@ import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Types (BarSpec, BeamGroups, Config, LineThickness(..)
          , MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec
-         , TimeSignature, VexScore)
+         , Tempo, TimeSignature, VexScore)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Volta (Volta)
 import VexFlow.Abc.Alignment (alignStaves)
 import VexFlow.Abc.Utils (initialAbcContext)
-
 
 -- | a stave
 foreign import data Stave :: Type
@@ -37,14 +35,6 @@ staveSeparation = 100
 
 staveMargin :: Int
 staveMargin = 10
-
-addTimeSignature :: Stave -> TimeSignature -> Effect Unit
-addTimeSignature stave timeSignature =
-  timeSignatureImpl stave timeSignature
-
-addKeySignature :: Stave -> KeySignature -> Effect Unit
-addKeySignature stave ks =
-  keySignatureImpl stave (Translate.keySignature ks)
 
 staveConfig :: Int -> BarSpec -> StaveConfig
 staveConfig staveNo barSpec=
@@ -138,9 +128,15 @@ displayBarSpec staveSpec barSpec =
       -- add a time signature to the first bar stave.  This only happensif it's
       -- stave 0 or if a BodyPart time sig header change has just occurred
       if (barSpec.barNumber == 0) && (staveSpec.isNewTimeSignature)
-      --      if (barSpec.barNumber == 0) && (staveSpec.staveNo == 0)
         then
           addTimeSignature staveBar barSpec.timeSignature
+        else
+          pure unit
+
+      -- and add a tempo marking if one is present in the ABC
+      if (barSpec.barNumber == 0) && (staveSpec.staveNo == 0)
+        then
+          addTempoMarking staveBar staveSpec.mTempo
         else
           pure unit
 
@@ -194,10 +190,15 @@ displayContextChange staveBar contextChange =
       addTimeSignature staveBar { numerator, denominator}
     KeyChange modifiedKeySignature ->
       -- note - this is dropping the modifications
-      addKeySignature staveBar modifiedKeySignature.keySignature
+      addKeySignature staveBar (Translate.keySignature modifiedKeySignature.keySignature)
     UnitNoteChange _ ->
       -- this has no immediate effect on the displayed stave
       pure unit
+
+-- | Add the tempo signature to the score is there is one
+addTempoMarking :: Stave -> Maybe Tempo -> Effect Unit
+addTempoMarking stave mTempo =
+  maybe (pure unit) (addTempoMarkingImpl stave) mTempo
 
 -- | initialise VexFlow against the canvas where it renders
 foreign import initialiseCanvas :: Config -> Effect Unit
@@ -222,6 +223,8 @@ foreign import displayBarBothRepeat :: Stave -> Effect Unit
 -- | display a Volta
 foreign import displayVolta :: Stave -> Volta -> Effect Unit
 -- | add the time signature
-foreign import timeSignatureImpl :: Stave -> TimeSignature -> Effect Unit
+foreign import addTimeSignature :: Stave -> TimeSignature -> Effect Unit
 -- | add the key signature
-foreign import keySignatureImpl :: Stave -> String -> Effect Unit
+foreign import addKeySignature :: Stave -> String -> Effect Unit
+-- | add the tempo signature
+foreign import addTempoMarkingImpl :: Stave -> Tempo -> Effect Unit

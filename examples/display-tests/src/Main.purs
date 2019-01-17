@@ -31,6 +31,7 @@ abcContext :: MeterSignature -> KeySignature -> Int -> AbcContext
 abcContext (Tuple x y) keySignature staveNo =
   { timeSignature : { numerator: x, denominator: y }
   , keySignature : keySignature
+  , mTempo : Nothing
   , unitNoteLength : ( 1 % 16)
   , staveNo : Just staveNo
   , accumulatedStaveWidth : staveIndentation

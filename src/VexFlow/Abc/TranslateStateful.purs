@@ -108,6 +108,7 @@ bodyPart bp =
                     , staveWidth : accumulatedStaveWidth
                     , keySignature : abcContext.keySignature
                     , isNewTimeSignature : isNewTimeSignature
+                    , mTempo : abcContext.mTempo
                     , barSpecs : filledStaveLine
                     }
     BodyInfo header ->

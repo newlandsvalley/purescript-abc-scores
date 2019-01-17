@@ -16,14 +16,14 @@ import Data.Either (Either(..))
 import Data.List (List, foldl)
 import Data.List.NonEmpty (head, toUnfoldable) as Nel
 import Data.Maybe (Maybe(..), maybe)
-import Data.Rational ((%), numerator, denominator)
+import Data.Rational ((%))
 import Data.String.Common (toLower)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import Prelude ((<>), ($), (*), (+), (-), (==), map, mempty, show)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext, getTickableContext)
-import VexFlow.Abc.Utils (dotCount, normaliseBroken, noteDotCount, noteTicks)
+import VexFlow.Abc.Utils (duration, dotCount, normaliseBroken, noteDotCount)
 import VexFlow.Types (AbcContext, NoteSpec, TupletSpec, MusicSpec(..))
 
 -- | generate a VexFlow indication of pitch
@@ -160,7 +160,7 @@ graceableNote context noteIndex gn  =
 rest :: AbcContext -> AbcRest -> Either String NoteSpec
 rest context abcRest =
   let
-    edur = duration context abcRest.duration
+    edur = duration context.unitNoteLength abcRest.duration
     key = pitch B Implicit 4
   in
     case edur of
@@ -293,60 +293,12 @@ headerChange ctx h =
 -- | note durations and these are multiplicative)
 chordalNoteDur :: AbcContext -> NoteDuration -> AbcNote -> Either String String
 chordalNoteDur ctx chordDur abcNote  =
-  duration ctx (abcNote.duration * chordDur)
+  duration ctx.unitNoteLength (abcNote.duration * chordDur)
 
 -- | translate a note duration
 noteDur :: AbcContext -> AbcNote -> Either String String
 noteDur ctx abcNote =
-  duration ctx abcNote.duration
-
--- | translate a duration (from a note or rest), wrapping in a Result which indicates an
--- | unsupported duration.  This rounds values of 'short enough' note durations
--- | to the nearest supported value
-duration :: AbcContext -> NoteDuration -> Either String String
-duration ctx d =
-  case noteTicks ctx d of
-    128 ->
-      Right "w"
-    112 ->
-      Right "hdd"
-    96 ->
-      Right "hd"
-    64 ->
-      Right "h"
-    56 ->
-      Right "qdd"
-    48 ->
-      Right "qd"
-    32 ->
-      Right "q"
-    28 ->
-      Right "8dd"
-    24 ->
-      Right "8d"
-    16 ->
-      Right "8"
-    14 ->
-      Right "16dd"
-    12 ->
-      Right "16d"
-    8 ->
-      Right "16"
-    7 ->
-      Right "32dd"
-    6 ->
-      Right "32d"
-    4 ->
-      Right "32"
-    3 ->
-      Right "64d"
-    2 ->
-      Right "64"
-    _ ->
-      Left ("too long or too dotted duration: "
-          <> (show $ numerator d)
-          <> "/"
-          <> (show $ denominator d))
+  duration ctx.unitNoteLength abcNote.duration
 
 -- | translate an ABC note decoration into a VexFlow note ornament
 ornaments :: List String -> Array String

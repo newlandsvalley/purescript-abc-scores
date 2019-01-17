@@ -22,6 +22,7 @@ startAbcContext :: MeterSignature -> AbcContext
 startAbcContext (Tuple x y) =
   { timeSignature : { numerator: x, denominator: y }
   , keySignature : cMajor
+  , mTempo : Nothing
   , unitNoteLength : ( 1 % 16)
   , staveNo : Nothing
   , accumulatedStaveWidth : staveIndentation
