@@ -35,4 +35,6 @@ To build the example showing beaming in 4/4 rhythms
 Limitations
 -----------
 
-*  ABC's modified key signature (for defining non-classical modes as found in, for example, some klezmer scores) is not supported.
+*  ABC's modified key signature (for defining non-classical modes as found in, for example, some klezmer scores) is not supported.  (It is not yet supported by VexFlow.)
+*  Chords are not supported (intentionally).
+*  Slurs are not supported.  This is partly because they are problematic in ABC (being unbalanceable) and partly because it is unclear to me how they are supported in VexFlow across stave bars.
