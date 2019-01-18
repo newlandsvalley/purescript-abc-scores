@@ -45,7 +45,7 @@ chords44 =
   <> "M: 4/4\r\n"
   <> "L: 1/16\r\n"
   <> "K: C\r\n"
-  <> "| C2F2G2G2 [G8C8F8] | [G4C4F4] [G4C4F4] F2C2 G3G1 |\r\n"
+  <> "| C2F2G2G2 [G8C8F8] | [C4G4F4] [C3F3A3] F3C2 G3G1 |\r\n"
 
 brokenRhythm44 :: String
 brokenRhythm44 =

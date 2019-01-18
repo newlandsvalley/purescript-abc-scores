@@ -1,7 +1,7 @@
 module VexFlow.Abc.Utils
   ( applyContextChanges
-  , duration
-  , dotCount
+  , vexDuration
+  , compoundVexDuration
   , normaliseBroken
   , noteDotCount
   , noteTicks
@@ -16,7 +16,7 @@ import Data.Abc (AbcTune, AbcNote, Broken(..), GraceableNote, KeySignature,
   TempoSignature)
 import Data.Abc.Metadata (dotFactor, getMeter, getKeySig, getTempoSig,
        getUnitNoteLength)
-import Data.Array (null) as Array
+import Data.Array (null, replicate) as Array
 import Data.Either (Either(..), hush)
 import Data.Foldable (foldl)
 import Data.Int (round, toNumber) as Int
@@ -24,137 +24,85 @@ import Data.List (List(..), length, null)
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Rational (fromInt, toNumber, numerator, denominator, (%))
 import Data.Tuple (Tuple(..))
+import Data.String.CodeUnits (fromCharArray)
 import Prelude (map, show, ($), (*), (+), (-), (/), (<>), identity)
 import VexFlow.Abc.ContextChange (ContextChange(..))
-import VexFlow.Types (AbcContext, Config, MusicSpec(..), Tempo, staveIndentation)
+import VexFlow.Types (AbcContext, Config, MusicSpec(..), Tempo,
+   VexDuration, staveIndentation)
 
--- | translate a duration (from a note or rest), wrapping in a Result which indicates an
--- | unsupported duration.  This rounds values of 'short enough' note durations
--- | to the nearest supported value
-duration :: NoteDuration -> NoteDuration -> Either String String
-duration unitNoteLength d =
+-- | build a VexDuration
+vexDuration :: NoteDuration -> NoteDuration -> Either String VexDuration
+vexDuration unitNoteLength d =
   case noteTicks unitNoteLength d of
     128 ->
-      Right "w"
+      Right { vexDurString : "w", dots : 0 }
     112 ->
-      Right "hdd"
+      Right { vexDurString : "h", dots : 2 }
     96 ->
-      Right "hd"
+      Right { vexDurString : "h", dots : 1 }
     64 ->
-      Right "h"
+      Right { vexDurString : "h", dots : 0 }
     56 ->
-      Right "qdd"
+      Right { vexDurString : "q", dots : 2 }
     48 ->
-      Right "qd"
+      Right { vexDurString : "q", dots : 1 }
     32 ->
-      Right "q"
+      Right { vexDurString : "q", dots : 0 }
     28 ->
-      Right "8dd"
+      Right {vexDurString : "8", dots : 2 }
     24 ->
-      Right "8d"
+      Right { vexDurString : "8", dots : 1 }
     16 ->
-      Right "8"
+      Right { vexDurString : "8", dots : 0 }
     14 ->
-      Right "16dd"
+      Right { vexDurString : "16", dots : 2 }
     12 ->
-      Right "16d"
+      Right { vexDurString : "16", dots : 1 }
     8 ->
-      Right "16"
+      Right { vexDurString : "16", dots : 0 }
     7 ->
-      Right "32dd"
+      Right { vexDurString : "32", dots : 2 }
     6 ->
-      Right "32d"
+      Right { vexDurString : "32", dots : 1 }
     4 ->
-      Right "32"
+      Right { vexDurString : "32", dots : 0 }
     3 ->
-      Right "64d"
+      Right { vexDurString : "64", dots : 1 }
     2 ->
-      Right "64"
+      Right { vexDurString : "64", dots : 0 }
     _ ->
       Left ("too long or too dotted duration: "
           <> (show $ numerator d)
           <> "/"
           <> (show $ denominator d))
+
+-- | Generate a compound VexFlow duration - i.e. a String which is prefaced
+-- | by the basic note duration and this is followd by (optionally) a
+-- | number of 'd's which represent the number of dots to diaplay.
+compoundVexDuration :: VexDuration -> String
+compoundVexDuration vexDur =
+ let
+   dStr = fromCharArray $ Array.replicate vexDur.dots 'd'
+ in
+   vexDur.vexDurString <> dStr
 
 -- | build a VexFlow tempo from the BPM and the tempo note duration
 buildTempo :: Int -> NoteDuration -> Either String Tempo
 buildTempo bpm d =
-  case noteTicks (fromInt 1) d of
-    128 ->
-      Right { duration : "w", dots : 0, bpm }
-    112 ->
-      Right { duration : "h", dots : 2, bpm }
-    96 ->
-      Right { duration : "h", dots : 1, bpm }
-    64 ->
-      Right { duration : "h", dots : 0, bpm }
-    56 ->
-      Right { duration : "q", dots : 2, bpm }
-    48 ->
-      Right { duration : "q", dots : 1, bpm }
-    32 ->
-      Right { duration : "q", dots : 0, bpm }
-    28 ->
-      Right { duration : "8", dots : 2, bpm }
-    24 ->
-      Right { duration : "8", dots : 1, bpm }
-    16 ->
-      Right { duration : "8", dots : 0, bpm }
-    14 ->
-      Right { duration : "16", dots : 2, bpm }
-    12 ->
-      Right { duration : "16", dots : 1, bpm }
-    8 ->
-      Right { duration : "16", dots : 0, bpm }
-    7 ->
-      Right { duration : "32", dots : 2, bpm }
-    6 ->
-      Right { duration : "32", dots : 1, bpm }
-    4 ->
-      Right { duration : "32", dots : 0, bpm }
-    3 ->
-      Right { duration : "64", dots : 1, bpm }
-    2 ->
-      Right { duration : "64", dots : 0, bpm }
-    _ ->
-      Left ("too long or too dotted duration: "
-          <> (show $ numerator d)
-          <> "/"
-          <> (show $ denominator d))
+  case (vexDuration (fromInt 1) d) of
+    Right vexDur ->
+      Right { duration : vexDur.vexDurString, dots : vexDur.dots, bpm }
+    Left err ->
+      Left err
 
-
--- | the degree to which a note is dotted
-dotCount :: AbcContext -> NoteDuration -> Int
-dotCount ctx d =
-  case noteTicks ctx.unitNoteLength d of
-    112 ->
-      2
-    96 ->
-      1
-    56 ->
-      2
-    48 ->
-      1
-    28 ->
-      2
-    24 ->
-      1
-    14 ->
-      2
-    12 ->
-      1
-    7 ->
-      2
-    6 ->
-      1
-    3 ->
-      1
-    _ ->
-      0
-
+-- | calculate the number of dots in a dotted note
 noteDotCount :: AbcContext -> AbcNote -> Int
 noteDotCount ctx abcNote =
-  dotCount ctx abcNote.duration
+  case vexDuration ctx.unitNoteLength abcNote.duration of
+    Right vexDur ->
+      vexDur.dots
+    _ ->
+      0
 
 -- | note duration in ticks - 1 beat split into 128 possible unit ticks
 noteTicks :: NoteDuration -> NoteDuration -> Int

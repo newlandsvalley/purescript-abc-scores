@@ -23,8 +23,8 @@ import Data.Tuple (Tuple(..))
 import Prelude ((<>), ($), (*), (+), (-), (==), map, mempty, show)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext, getTickableContext)
-import VexFlow.Abc.Utils (duration, dotCount, normaliseBroken, noteDotCount)
-import VexFlow.Types (AbcContext, NoteSpec, TupletSpec, MusicSpec(..))
+import VexFlow.Abc.Utils (normaliseBroken, noteDotCount, vexDuration, compoundVexDuration)
+import VexFlow.Types (AbcContext, NoteSpec, TupletSpec, MusicSpec(..), VexDuration)
 
 -- | generate a VexFlow indication of pitch
 pitch :: PitchClass -> Accidental -> Int -> String
@@ -132,21 +132,22 @@ graceableNote context noteIndex gn  =
     graceNotes = maybe [] (\grace -> Nel.toUnfoldable grace.notes) gn.maybeGrace
     graceKeys :: Array String
     graceKeys = map notePitch graceNotes
-    edur = noteDur context gn.abcNote
+    -- edur = noteDur context gn.abcNote
+    eVexDur = vexDuration context.unitNoteLength gn.abcNote.duration
     key = notePitch gn.abcNote
   in
-    case edur of
-      Right dur ->
+    case eVexDur of
+      Right vexDur ->
         let
           vexNote =
             { clef : "treble"
             , keys : [key]
-            , duration : dur
+            , duration : compoundVexDuration vexDur
             }
         in Right
           { vexNote : vexNote
           , accidentals : [accidental gn.abcNote.accidental]
-          , dots : [noteDotCount context gn.abcNote]
+          , dots : [vexDur.dots]
           , graceKeys : graceKeys
           , ornaments : ornaments gn.decorations
           , articulations : articulations gn.decorations
@@ -160,21 +161,22 @@ graceableNote context noteIndex gn  =
 rest :: AbcContext -> AbcRest -> Either String NoteSpec
 rest context abcRest =
   let
-    edur = duration context.unitNoteLength abcRest.duration
+    eVexDur = vexDuration context.unitNoteLength abcRest.duration
+    -- edur = duration context.unitNoteLength abcRest.duration
     key = pitch B Implicit 4
   in
-    case edur of
-      Right dur ->
+    case eVexDur of
+      Right vexDur ->
         let
           vexNote =
             { clef : "treble"
             , keys : [key]
-            , duration : (dur <> "r")
+            , duration : (compoundVexDuration vexDur <> "r")
             }
         in Right
           { vexNote : vexNote
           , accidentals : []
-          , dots : [dotCount context abcRest.duration]
+          , dots : [vexDur.dots]
           , graceKeys : []
           , ornaments : []
           , articulations : []
@@ -189,27 +191,29 @@ rest context abcRest =
 chord :: AbcContext -> AbcChord -> Either String NoteSpec
 chord context abcChord =
   let
-    edur :: Either String String
-    edur = chordalNoteDur context abcChord.duration (Nel.head abcChord.notes)
+    eVexDur :: Either String VexDuration
+    eVexDur = chordalNoteDur context abcChord.duration (Nel.head abcChord.notes)
     keys :: Array String
     keys = map notePitch (Nel.toUnfoldable abcChord.notes)
+
     dotCounts :: Array Int
     dotCounts = map (noteDotCount context) (Nel.toUnfoldable abcChord.notes)
+
     accidentals :: Array String
     accidentals = map noteAccidental (Nel.toUnfoldable abcChord.notes)
   in
-    case edur of
-      Right dur ->
+    case eVexDur of
+      Right vexDur ->
         let
           vexNote =
             { clef : "treble"
             , keys : keys
-            , duration : dur
+            , duration : compoundVexDuration vexDur
             }
         in Right
           { vexNote : vexNote
           , accidentals : accidentals
-          , dots : dotCounts
+          , dots : dotCounts   -- we need to apply dots to each note in the chord
           , graceKeys : []
           , ornaments : []
           , articulations : []
@@ -291,14 +295,9 @@ headerChange ctx h =
 -- | translate a note duration within a chord
 -- | (in ABC, a chord has a duration over and above the individual
 -- | note durations and these are multiplicative)
-chordalNoteDur :: AbcContext -> NoteDuration -> AbcNote -> Either String String
+chordalNoteDur :: AbcContext -> NoteDuration -> AbcNote -> Either String VexDuration
 chordalNoteDur ctx chordDur abcNote  =
-  duration ctx.unitNoteLength (abcNote.duration * chordDur)
-
--- | translate a note duration
-noteDur :: AbcContext -> AbcNote -> Either String String
-noteDur ctx abcNote =
-  duration ctx.unitNoteLength abcNote.duration
+  vexDuration ctx.unitNoteLength (abcNote.duration * chordDur)
 
 -- | translate an ABC note decoration into a VexFlow note ornament
 ornaments :: List String -> Array String

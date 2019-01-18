@@ -1,11 +1,11 @@
 module VexFlow.Types where
 
-import Prelude (class Eq, class Semigroup, class Monoid, (<>), mempty)
-import Data.Maybe (Maybe)
 import Data.Abc (BarType, NoteDuration, KeySignature)
 import Data.Either (Either)
-import VexFlow.Abc.TickableContext (TickableContext)
+import Data.Maybe (Maybe)
+import Prelude (class Eq, class Monoid, class Semigroup, mempty, (<>), (=<<))
 import VexFlow.Abc.ContextChange (ContextChange)
+import VexFlow.Abc.TickableContext (TickableContext)
 import VexFlow.Abc.Volta (Volta)
 
 staveIndentation :: Int
@@ -35,6 +35,11 @@ type StaveConfig =
 type TimeSignature =
   { numerator :: Int
   , denominator :: Int
+  }
+
+type VexDuration =
+  { vexDurString :: String   -- w,h,q,8,16 or 32
+  , dots :: Int              -- number of dots
   }
 
 -- | the tempo marking
