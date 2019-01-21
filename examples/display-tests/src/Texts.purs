@@ -198,3 +198,12 @@ doubleBarLine =
     <> "L: 1/16\r\n"
     <> "K: D\r\n"
     <> "| C2 F2 G2 || G2 F2 =EB |\r\n"
+
+slurs :: String
+slurs =
+    "X:1\r\n"
+    <> "T: double bar line\r\n"
+    <> "M: 4/4\r\n"
+    <> "L: 1/8\r\n"
+    <> "K: D\r\n"
+    <> "| C2 (F2G2) A2 | (G2 F2 (=EB) cd) | (C2 (3D2E2F2) G2 |\r\n"

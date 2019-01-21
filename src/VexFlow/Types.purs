@@ -3,10 +3,11 @@ module VexFlow.Types where
 import Data.Abc (BarType, NoteDuration, KeySignature)
 import Data.Either (Either)
 import Data.Maybe (Maybe)
-import Prelude (class Eq, class Monoid, class Semigroup, mempty, (<>), (=<<))
+import Prelude (class Eq, class Monoid, class Semigroup, mempty, (<>))
 import VexFlow.Abc.ContextChange (ContextChange)
 import VexFlow.Abc.TickableContext (TickableContext)
 import VexFlow.Abc.Volta (Volta)
+import VexFlow.Abc.Slur (SlurBracket, VexCurve)
 
 staveIndentation :: Int
 staveIndentation = 10
@@ -119,6 +120,7 @@ instance musicSpecMonoid:: Monoid MusicSpec where
     , tickableContext : mempty
     , contextChanges : mempty
     , midBarNoteIndex : mempty
+    , slurBrackets : mempty
     }
 
 data LineThickness =
@@ -136,7 +138,8 @@ type MusicSpecContents =
   , ties :: Array Int
   , tickableContext :: TickableContext
   , contextChanges :: Array ContextChange
-  , midBarNoteIndex  :: Array Int  -- note index (if any) at the bar midpoint
+  , midBarNoteIndex  :: Array Int      -- note index (if any) at the bar midpoint
+  , slurBrackets :: Array SlurBracket  -- brackets (L and R) demarking slurs
   }
 
 type BarSpec =
@@ -149,6 +152,7 @@ type BarSpec =
   , volta :: Maybe Volta
   , timeSignature :: TimeSignature
   , beamGroups :: Array BeamGroup
+  , curves :: Array VexCurve              --  curves representing slurs
   , musicSpec :: MusicSpec
   }
 

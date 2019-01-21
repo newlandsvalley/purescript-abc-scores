@@ -78,6 +78,7 @@ main = do
   _ <- displayAtStave longLine 18
   _ <- displayAtStave emptyBar 19
   _ <- displayAtStave doubleBarLine 20
+  _ <- displayAtStave slurs 21
   pure unit
 
 

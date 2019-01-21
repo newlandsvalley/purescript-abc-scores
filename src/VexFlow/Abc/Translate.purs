@@ -22,9 +22,11 @@ import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import Prelude ((<>), ($), (*), (+), (-), (==), map, mempty, show)
 import VexFlow.Abc.ContextChange (ContextChange(..))
+import VexFlow.Abc.Slur (SlurBracket(..))
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext, getTickableContext)
 import VexFlow.Abc.Utils (normaliseBroken, noteDotCount, vexDuration, compoundVexDuration)
 import VexFlow.Types (AbcContext, NoteSpec, TupletSpec, MusicSpec(..), VexDuration)
+
 
 -- | generate a VexFlow indication of pitch
 pitch :: PitchClass -> Accidental -> Int -> String
@@ -112,14 +114,24 @@ music context tickablePosition noteIndex phraseDuration m =
                 , tickableContext : tickableContext
                 , contextChanges : mempty
                 , midBarNoteIndex : midBarNoteIndex
+                , slurBrackets : mempty
                 }
               ) eRes
 
+      Slur bracket ->
+        case bracket of
+          '(' ->
+            Right $ buildMusicSpecFromSlurBracket [ LeftBracket noteIndex ]
+          ')' ->
+            Right $ buildMusicSpecFromSlurBracket [ RightBracket (noteIndex -1) ]
+          _ ->
+            Right $ mempty :: MusicSpec
+
       Inline header ->
-        buildMusicSpecFromContextChange $ headerChange context header
+        Right $ buildMusicSpecFromContextChange $ headerChange context header
 
       _ ->
-        buildMusicSpecFromNs tickableContext [] (Right [])
+        Right $ mempty :: MusicSpec
 
 -- | Translate an ABC graceable note to a VexFlow note
 -- | failing if the duration cannot be translated
@@ -272,7 +284,6 @@ restOrNote context noteIndex rOrn =
 -- | cater for an inline header (within a stave)
 -- |   we need to cater for changes in key signature, meter or unit note length
 -- | which all alter the translation context.  All other headers may be ignored
-
 headerChange :: AbcContext -> Header -> Array ContextChange
 headerChange ctx h =
   case h of
@@ -360,7 +371,6 @@ articulations artics =
     foldl f [] artics
 
 
-
 buildMusicSpecFromNs :: TickableContext -> Array Int -> Either String (Array NoteSpec) -> Either String MusicSpec
 buildMusicSpecFromNs tCtx midBarNoteIndex ens =
   map (\ns -> MusicSpec
@@ -370,6 +380,7 @@ buildMusicSpecFromNs tCtx midBarNoteIndex ens =
     , tickableContext : tCtx
     , contextChanges : []
     , midBarNoteIndex : midBarNoteIndex
+    , slurBrackets : mempty
     }) ens
 
 buildMusicSpecFromN :: TickableContext -> Int -> Array Int -> Boolean -> Either String NoteSpec -> Either String MusicSpec
@@ -383,15 +394,19 @@ buildMusicSpecFromN tCtx noteIndex midBarNoteIndex isTied ens =
       , tickableContext : tCtx
       , contextChanges : []
       , midBarNoteIndex : midBarNoteIndex
+      , slurBrackets : mempty
       }) ens
 
-buildMusicSpecFromContextChange :: Array ContextChange -> Either String MusicSpec
-buildMusicSpecFromContextChange contextChange =
-    Right $ MusicSpec
-      { noteSpecs : []
-      , tuplets : []
-      , ties : []
-      , tickableContext : mempty
-      , contextChanges : contextChange
-      , midBarNoteIndex : []
-      }
+buildMusicSpecFromContextChange :: Array ContextChange -> MusicSpec
+buildMusicSpecFromContextChange contextChanges =
+  let
+    (MusicSpec contents) = mempty :: MusicSpec
+  in
+    MusicSpec contents { contextChanges = contextChanges }
+
+buildMusicSpecFromSlurBracket :: Array SlurBracket -> MusicSpec
+buildMusicSpecFromSlurBracket slurBrackets =
+  let
+    (MusicSpec contents) = mempty :: MusicSpec
+  in
+    MusicSpec contents { slurBrackets = slurBrackets }

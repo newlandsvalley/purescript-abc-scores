@@ -20,6 +20,7 @@ main :: Effect Unit
 main = runTest do
   configThreadingSuite
   beamGroupsSuite
+  slursSuite
 
 configure :: AbcTune -> Config
 configure tune =
@@ -134,3 +135,27 @@ beamGroupsSuite =
         mFirstBar = getFirstBar "L: 1/8\r\nM: 4/4\r\nC2EF F2AB\r\n"
       Assert.equal (Just [{ noteCount : 1, noteKind : 4}]) $
         map (\b -> b.beamGroups) mFirstBar
+
+slursSuite :: Free TestF Unit
+slursSuite =
+  suite "slurs" do
+    test "simple" do
+      let
+        mFirstBar = getFirstBar "CDE (FG)A Bcd efg\r\n"
+      Assert.equal (Just [{ from : 3, to : 4}]) $
+        map (\b -> b.curves) mFirstBar
+    test "nested" do
+      let
+        mFirstBar = getFirstBar "CDE (F(GA) B)cd efg\r\n"
+      Assert.equal (Just [{ from : 4, to : 5}, { from : 3, to : 6}]) $
+        map (\b -> b.curves) mFirstBar
+    test "unmatched start" do
+      let
+        mFirstBar = getFirstBar "(CDE (FG)A Bcd efg\r\n"
+      Assert.equal (Just [{ from : 3, to : 4}]) $
+        map (\b -> b.curves) mFirstBar
+    test "unmatched end" do
+      let
+        mFirstBar = getFirstBar "CDE (FG)A Bcd) efg\r\n"
+      Assert.equal (Just [{ from : 3, to : 4}]) $
+        map (\b -> b.curves) mFirstBar

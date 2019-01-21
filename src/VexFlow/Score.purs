@@ -24,6 +24,7 @@ import VexFlow.Types (BarSpec, BeamGroups, Config, LineThickness(..)
          , Tempo, TimeSignature, VexScore)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Volta (Volta)
+import VexFlow.Abc.Slur (VexCurves)
 import VexFlow.Abc.Alignment (alignStaves)
 import VexFlow.Abc.Utils (initialAbcContext)
 
@@ -146,9 +147,9 @@ displayBarSpec staveSpec barSpec =
 
       if (null musicSpec.tuplets)
         then
-          displayAutoBeamedNotesImpl staveBar barSpec.beamGroups musicSpec
+          displayAutoBeamedNotesImpl staveBar barSpec.beamGroups barSpec.curves musicSpec
         else
-          displayTupletedNotesImpl staveBar barSpec.beamGroups musicSpec
+          displayTupletedNotesImpl staveBar barSpec.beamGroups barSpec.curves musicSpec
       displayStave staveBar
 
 -- | display bar begin repeat markers
@@ -209,9 +210,9 @@ foreign import newStaveImpl :: StaveConfig -> String -> Effect Stave
 -- | get the width of a stave
 foreign import getStaveWidth :: Stave -> Effect Int
 -- | display the notes in a stave bar using auto-beaming
-foreign import displayAutoBeamedNotesImpl :: Stave -> BeamGroups -> MusicSpecContents -> Effect Unit
+foreign import displayAutoBeamedNotesImpl :: Stave -> BeamGroups -> VexCurves -> MusicSpecContents -> Effect Unit
 -- | display the notes in a stave bar where tuplets exist in the bar
-foreign import displayTupletedNotesImpl :: Stave -> BeamGroups -> MusicSpecContents -> Effect Unit
+foreign import displayTupletedNotesImpl :: Stave -> BeamGroups -> VexCurves -> MusicSpecContents -> Effect Unit
 -- | display the (filled) bar
 foreign import displayStave :: Stave -> Effect Unit
 -- | dispay a bar begin repeat

@@ -91,9 +91,11 @@ var wrapper = function() {
 
     displayAutoBeamedNotesImpl : function (stave) {
       return function (beamGroups) {
-        return function (musicSpec) {
-          return function () {
-            return wrapper.drawAutoBeamedNotes(stave, beamGroups, musicSpec);
+        return function (vexCurves) {
+          return function (musicSpec) {
+            return function () {
+              return wrapper.drawAutoBeamedNotes(stave, beamGroups, vexCurves, musicSpec);
+            }
           }
         }
       }
@@ -101,9 +103,11 @@ var wrapper = function() {
 
     displayTupletedNotesImpl : function (stave) {
       return function (beamGroups) {
-        return function (musicSpec) {
-          return function () {
-           return wrapper.drawTupletedNotes(stave, beamGroups, musicSpec);
+        return function (vexCurves) {
+          return function (musicSpec) {
+            return function () {
+              return wrapper.drawTupletedNotes(stave, beamGroups, vexCurves, musicSpec);
+            }
           }
         }
       }
@@ -187,37 +191,42 @@ var wrapper = function() {
       stave.setTempo(tempo, 0);
     },
 
-    drawAutoBeamedNotes: function (stave, beamGroups, musicSpec) {
+    drawAutoBeamedNotes: function (stave, beamGroups, vexCurves, musicSpec) {
       // console.log("drawAutoBeamedNotes")
       // console.log(musicSpec);
       var notes = musicSpec.noteSpecs.map(wrapper.makeStaveNote);
-      // notes.unshift (new VF.BarNote({ type: 'single' }));  Doesn't work
 
       var ties = musicSpec.ties.map(wrapper.makeTie (notes));
       // console.log(ties);
       var groups = beamGroups.map(wrapper.beamGroup);
 
       var beams = VF.Beam.generateBeams(notes, { groups : groups } );
+
+      var curves = vexCurves.map(wrapper.makeCurve (notes));
+
       Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
       ties.forEach(function(t) {t.setContext(context).draw()})
       beams.forEach(function(b) {b.setContext(context).draw()});
+      curves.forEach(function(c) {c.setContext(context).draw()});
     },
 
-    drawTupletedNotes: function (stave, beamGroups, musicSpec) {
+    drawTupletedNotes: function (stave, beamGroups, vexCurves, musicSpec) {
       // console.log("drawTupletedNotes")
       // console.log(musicSpec);
       var notes = musicSpec.noteSpecs.map(wrapper.makeStaveNote);
       var tuplets = musicSpec.tuplets.map(wrapper.makeTupletLayout (notes));
       var ties = musicSpec.ties.map(wrapper.makeTie (notes));
       var groups = beamGroups.map(wrapper.beamGroup);
-
       var beams = VF.Beam.generateBeams(notes, { groups : groups } );
+      var curves = vexCurves.map(wrapper.makeCurve (notes));
+
       Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
       beams.forEach(function(b) {b.setContext(context).draw()});
       ties.forEach(function(t) {t.setContext(context).draw()})
       tuplets.forEach(function(tuplet){
         tuplet.setContext(context).draw();
       });
+      curves.forEach(function(c) {c.setContext(context).draw()});
     },
 
 
@@ -266,6 +275,17 @@ var wrapper = function() {
     // auto-beaming definition of one beam group
     beamGroup: function (group) {
       return new Vex.Flow.Fraction(group.noteCount, group.noteKind);
+    },
+
+    // make a slur represented by a curve
+    makeCurve: function (notes) {
+      return function (vexCurve) {
+        return new VF.Curve(
+          notes[vexCurve.from],
+          notes[vexCurve.to],
+          { cps: [{ x: 0, y: 10 }, { x: 0, y: 20 }]
+        });
+      };
     },
 
     // add the accidental(s) to the staveNote

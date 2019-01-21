@@ -95,6 +95,8 @@ fillStaveLine maxWidth bs =
                               , endLineThickness = NoLine
                               , endLineRepeat = false
                               , volta = Nothing
+                              , beamGroups = []
+                              , curves = []
                               , musicSpec = mempty :: MusicSpec
                               }
           in

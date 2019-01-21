@@ -42,7 +42,7 @@ import VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine, staveWidth,
          staveEndsWithRepeatBegin)
 import VexFlow.Abc.Volta (startVolta, isMidVolta)
 import VexFlow.Abc.Beam (defaultBeamGroups)
-
+import VexFlow.Abc.Slur (vexCurves)
 
 type Translation a = ExceptT String (State AbcContext) a
 
@@ -135,6 +135,7 @@ bar staveNumber barNumber abcBar =
     -- we must get the context AFTER iterating through the music
     abcContext <- get
     let
+      MusicSpec spec = musicSpec
       displayedKeySig =
         if (barNumber == 0) then
           Just abcContext.keySignature
@@ -163,6 +164,7 @@ bar staveNumber barNumber abcBar =
         , volta : volta
         , timeSignature : abcContext.timeSignature
         , beamGroups : defaultBeamGroups abcContext.timeSignature musicSpec
+        , curves : vexCurves spec.slurBrackets
         , musicSpec : musicSpec
         }
       -- check if we're in the midst of a volta
