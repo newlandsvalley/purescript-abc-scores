@@ -89,24 +89,12 @@ var wrapper = function() {
       }
     },
 
-    displayAutoBeamedNotesImpl : function (stave) {
+    displayBarContents : function (stave) {
       return function (beamGroups) {
         return function (vexCurves) {
           return function (musicSpec) {
             return function () {
-              return wrapper.drawAutoBeamedNotes(stave, beamGroups, vexCurves, musicSpec);
-            }
-          }
-        }
-      }
-    },
-
-    displayTupletedNotesImpl : function (stave) {
-      return function (beamGroups) {
-        return function (vexCurves) {
-          return function (musicSpec) {
-            return function () {
-              return wrapper.drawTupletedNotes(stave, beamGroups, vexCurves, musicSpec);
+              return wrapper.drawBarContents(stave, beamGroups, vexCurves, musicSpec);
             }
           }
         }
@@ -191,27 +179,9 @@ var wrapper = function() {
       stave.setTempo(tempo, 0);
     },
 
-    drawAutoBeamedNotes: function (stave, beamGroups, vexCurves, musicSpec) {
-      // console.log("drawAutoBeamedNotes")
-      // console.log(musicSpec);
-      var notes = musicSpec.noteSpecs.map(wrapper.makeStaveNote);
-
-      var ties = musicSpec.ties.map(wrapper.makeTie (notes));
-      // console.log(ties);
-      var groups = beamGroups.map(wrapper.beamGroup);
-
-      var beams = VF.Beam.generateBeams(notes, { groups : groups } );
-
-      var curves = vexCurves.map(wrapper.makeCurve (notes));
-
-      Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
-      ties.forEach(function(t) {t.setContext(context).draw()})
-      beams.forEach(function(b) {b.setContext(context).draw()});
-      curves.forEach(function(c) {c.setContext(context).draw()});
-    },
-
-    drawTupletedNotes: function (stave, beamGroups, vexCurves, musicSpec) {
-      // console.log("drawTupletedNotes")
+    /* draw the contents of the bar, using auto-beaming for the notes */
+    drawBarContents: function (stave, beamGroups, vexCurves, musicSpec) {
+      // console.log("drawBarContents")
       // console.log(musicSpec);
       var notes = musicSpec.noteSpecs.map(wrapper.makeStaveNote);
       var tuplets = musicSpec.tuplets.map(wrapper.makeTupletLayout (notes));
@@ -327,8 +297,6 @@ var wrapper = function() {
 
 }();
 
-
-
 exports.initialiseCanvas = wrapper.initialiseCanvas;
 exports.clearCanvas = wrapper.clearCanvas;
 exports.newStaveImpl = wrapper.newStaveImpl;
@@ -337,8 +305,7 @@ exports.getStaveWidth = wrapper.getStaveWidth;
 exports.displayBarBeginRepeat = wrapper.displayBarBeginRepeat;
 exports.displayBarEndRepeat = wrapper.displayBarEndRepeat;
 exports.displayBarBothRepeat = wrapper.displayBarBothRepeat;
-exports.displayAutoBeamedNotesImpl = wrapper.displayAutoBeamedNotesImpl;
-exports.displayTupletedNotesImpl = wrapper.displayTupletedNotesImpl;
+exports.displayBarContents = wrapper.displayBarContents;
 exports.displayVolta = wrapper.displayVolta;
 exports.addTimeSignature = wrapper.addTimeSignature;
 exports.addKeySignature = wrapper.addKeySignature;
