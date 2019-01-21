@@ -37,4 +37,4 @@ Limitations
 
 *  ABC's modified key signature (for defining non-classical modes as found in, for example, some klezmer scores) is not supported.  (It is not yet supported by VexFlow.)
 *  Chords are not supported (intentionally).
-*  Slurs are not supported.  This is partly because they are problematic in ABC (being unbalanceable) and partly because it is unclear to me how they are supported in VexFlow across stave bars.
+*  Slurs are only supported if they are entirely contained within a bar.  This is partly because they are problematic in ABC (being unbalanceable) and partly because the score for the ABC is engraved on a bar-by-bar basis.  Although VexFlow does allow you to specify that the beginning and end notes live in separate bars, we cannot take advantage of it because, when processing the second bar, notes from the first are no longer in the stack frame.
