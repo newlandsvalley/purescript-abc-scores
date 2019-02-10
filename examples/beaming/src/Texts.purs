@@ -64,3 +64,12 @@ beaming44g =
     <> "L: 1/16\r\n"
     <> "K: D\r\n"
     <> "| A4 A2Bc F8 |\r\n"
+
+beaming32 :: String
+beaming32 =
+    "X:1\r\n"
+    <> "T: Beaming in 3/2\r\n"
+    <> "M: 3/2\r\n"
+    <> "L: 1/8\r\n"
+    <> "K: Dm\r\n"
+    <> "| e2c4 de f2c2 | d3c c2BA B3A |\r\n"

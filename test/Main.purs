@@ -85,6 +85,11 @@ configThreadingSuite =
 beamGroupsSuite :: Free TestF Unit
 beamGroupsSuite =
   suite "beam groups" do
+    test "3/2" do
+      let
+        mFirstBar = getFirstBar "L: 1/8\r\nM: 3/2\r\ne2c4 de f2c2\r\n"
+      Assert.equal (Just [{ noteCount : 1, noteKind : 4}]) $
+        map (\b -> b.beamGroups) mFirstBar
     test "2/4" do
       let
         mFirstBar = getFirstBar "L: 1/8\r\nM: 2/4\r\nCD E/2F/2G/2A/2\r\n"
