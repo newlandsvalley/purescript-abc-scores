@@ -20,21 +20,14 @@ import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Types (BarSpec, BeamGroups, Config, LineThickness(..)
          , MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec
-         , Tempo, TimeSignature, VexScore)
+         , Tempo, TimeSignature, VexScore, staveSeparation)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Volta (Volta)
 import VexFlow.Abc.Slur (VexCurves)
-import VexFlow.Abc.Alignment (alignStaves)
 import VexFlow.Abc.Utils (initialAbcContext)
 
 -- | a stave
 foreign import data Stave :: Type
-
-staveSeparation :: Int
-staveSeparation = 100
-
-staveMargin :: Int
-staveMargin = 10
 
 staveConfig :: Int -> BarSpec -> StaveConfig
 staveConfig staveNo barSpec=
@@ -50,16 +43,16 @@ newStave :: StaveConfig -> KeySignature -> Effect Stave
 newStave staveCnfg ks =
   newStaveImpl staveCnfg (Translate.keySignature ks)
 
--- | render the ABC tune with no right-alignment
+-- | render the ABC tune
 renderTune :: Config -> AbcTune -> Effect Boolean
 renderTune config abcTune =
-  renderScore config false $ createScore config abcTune
+  renderScore config $ createScore config abcTune
 
 -- | render the tune but at the required stave number
 -- | useful for examples
 renderTuneAtStave :: Int -> Config -> AbcTune -> Effect Boolean
 renderTuneAtStave staveNo config abcTune =
-  renderScore config false $ createScoreAtStave staveNo config abcTune
+  renderScore config $ createScoreAtStave staveNo config abcTune
 
 -- | create a Vex Score from the ABC tune
 createScore :: Config -> AbcTune -> VexScore
@@ -86,19 +79,12 @@ createScoreAtStave staveNo config abcTune  =
       Right abcContext ->
         runTuneBody (abcContext { staveNo = Just staveNo }) abcTune.body
 
--- | render the Vex Score to the HTML page
--- | aligning on the RHS if required
-renderScore :: Config -> Boolean -> VexScore -> Effect Boolean
-renderScore config rightAlign eStaveSpecs  =
+-- | render the Vex Score to the HTML score div
+renderScore :: Config -> VexScore -> Effect Boolean
+renderScore config eStaveSpecs  =
   case eStaveSpecs of
     Right staveSpecs -> do
-      let
-        alignedScore =
-          if rightAlign then
-            alignStaves config staveSpecs
-          else
-            staveSpecs
-      _ <- traverse_ displayStaveSpec alignedScore
+      _ <- traverse_ displayStaveSpec staveSpecs
       pure true
     Left err -> do
       _ <- log ("error in producing score: " <> err)

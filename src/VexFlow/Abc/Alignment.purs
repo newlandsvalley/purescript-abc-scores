@@ -1,4 +1,6 @@
-module VexFlow.Abc.Alignment (alignStaves) where
+module VexFlow.Abc.Alignment
+  ( justifiedScoreConfig
+  , rightJustify) where
 
 -- | align the staves on the right hand side
 -- |
@@ -12,29 +14,56 @@ module VexFlow.Abc.Alignment (alignStaves) where
 -- | continuing to the stave end)
 -- |
 -- | this module provides a function for doing that.
+-- |
+-- | We measure the staves in VexFlow stave units and scale them when writing to
+-- | the canvas.
 
 import Control.Monad.State (State, evalStateT, get, put)
-import Data.Array (singleton, takeWhile)
+import Data.Array (length, singleton, takeWhile)
 import Data.Foldable (foldl, foldM)
 import Data.Int (floor, toNumber)
 import Data.Maybe (Maybe(..))
+import Data.Either (Either(..), either)
 import Data.Newtype (unwrap)
 import Prelude (bind, map, max, mempty, min, pure, ($), (*), (+), (-), (/), (<>), (>=), (/=))
 import VexFlow.Abc.BarEnd (staveWidth)
-import VexFlow.Types (BarSpec, Config, LineThickness(..), StaveSpec, staveIndentation)
+import VexFlow.Types (BarSpec, Config, LineThickness(..), StaveSpec, VexScore,
+       scoreVerticalMargin, staveIndentation, staveSeparation)
 
 type Alignment a = State Int a
+
+-- | right-justify the core
+rightJustify :: Int -> Number -> VexScore -> VexScore
+rightJustify maxCanvasWidth scale score =
+  either (\s -> Left s) (\staves -> Right $ alignStaves maxCanvasWidth scale staves) score
+
+-- | recalculate the canvas config based on the dimensions of the justified score
+justifiedScoreConfig :: VexScore -> Config -> Config
+justifiedScoreConfig score originalConfig =
+  let
+    justifiedScoreWidth :: Int
+    justifiedScoreWidth =
+      either (\_ -> 0) (\staves -> justifiedScoreCanvasWidth originalConfig.scale staves) score
+
+    justifiedScoreHeight :: Int
+    justifiedScoreHeight =
+      either (\_ -> 0) (\staves -> justifiedScoreCanvasHeight originalConfig.scale staves) score
+  in
+    originalConfig
+      { canvasWidth  = justifiedScoreWidth
+      , canvasHeight = justifiedScoreHeight
+      }
 
 -- | where possible, align all staves so that they are aligned at the right-hand
 -- | side of the score (as well, of course, as at the left).
 -- |
 -- | If the widest stave is wider than the maximum stave width (and hence
 -- | truncated) then align to this maximum width.
-alignStaves :: Config -> Array (Maybe StaveSpec) -> Array (Maybe StaveSpec)
-alignStaves config staves =
+alignStaves :: Int -> Number -> Array (Maybe StaveSpec) -> Array (Maybe StaveSpec)
+alignStaves maxCanvasWidth scale staves =
   let
     newStaves = map removeStaveExtension staves
-    maxWidth = maxStaveWidth config
+    maxWidth = maxStaveWidth maxCanvasWidth scale
     alignmentWidth = alignmentStaveWidth maxWidth newStaves
     mapf (Just staveSpec) =
       let
@@ -123,7 +152,23 @@ growStaveBar enlargement barSpec =
                      , width = width
                      }
 
--- | the maximum stave width depends on the config
-maxStaveWidth :: Config -> Int
-maxStaveWidth config =
-  floor $ (toNumber config.canvasWidth) / config.scale
+-- | the maximum stave width depends on the max canvas width and the scale
+maxStaveWidth :: Int -> Number -> Int
+maxStaveWidth canvasWidth scale =
+  floor $ (toNumber canvasWidth) / scale
+
+-- | the canvas width that contains the justified score
+justifiedScoreCanvasWidth :: Number -> Array (Maybe StaveSpec) -> Int
+justifiedScoreCanvasWidth scale staves =
+  let
+    staveWidth = (alignmentStaveWidth 10000 staves) + (2 * staveIndentation)
+  in
+    floor $ (toNumber staveWidth) * scale
+
+-- | the canvas height that contains the justified score
+justifiedScoreCanvasHeight :: Number -> Array (Maybe StaveSpec) -> Int
+justifiedScoreCanvasHeight scale staves =
+  let
+    staveHeight = ((length staves) * staveSeparation) + 2 * scoreVerticalMargin
+  in
+    floor $ (toNumber staveHeight) * scale

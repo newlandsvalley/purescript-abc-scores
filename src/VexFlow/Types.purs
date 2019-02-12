@@ -9,8 +9,17 @@ import VexFlow.Abc.TickableContext (TickableContext)
 import VexFlow.Abc.Volta (Volta)
 import VexFlow.Abc.Slur (SlurBracket, VexCurve)
 
+-- | the indentation of the stave from the left margin
 staveIndentation :: Int
 staveIndentation = 10
+
+-- | the margin above and below the score
+scoreVerticalMargin :: Int
+scoreVerticalMargin = 15
+
+-- | the distance between successive staves
+staveSeparation :: Int
+staveSeparation = 100
 
 type VexScore = Either String (Array (Maybe StaveSpec))
 
