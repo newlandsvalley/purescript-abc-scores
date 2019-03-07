@@ -8,6 +8,7 @@
 /examples/align-staves/dist/align-staves.js
 /examples/beaming/dist/beaming.js
 /examples/bugs/
+/examples/debug/
 /.psc*
 /.psa*
 /.purs*

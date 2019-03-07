@@ -6,7 +6,8 @@
     "full-tune": "pulp build --main Examples.FullTune.Main --include examples/full-tune/src --to examples/full-tune/dist/full-tune.js",
     "align-staves": "pulp build --main Examples.StaveAlignment.Main --include examples/align-staves/src --to examples/align-staves/dist/align-staves.js",
     "beaming": "pulp build --main Examples.Beaming.Main --include examples/beaming/src --to examples/beaming/dist/beaming.js",
-    "bugs": "pulp build --main Examples.Bugs.Main --include examples/bugs/src --to examples/bugs/dist/bugs.js"
+    "bugs": "pulp build --main Examples.Bugs.Main --include examples/bugs/src --to examples/bugs/dist/bugs.js",
+    "debug": "pulp run --main Examples.Debug.Main --include examples/debug/src"
   },
   "devDependencies": {
     "pulp": "^12.3.0",
