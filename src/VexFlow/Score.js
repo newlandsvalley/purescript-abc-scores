@@ -188,9 +188,7 @@ var wrapper = function() {
       var ties = musicSpec.ties.map(wrapper.makeTie (notes));
       console.log("beamSpecs");
       console.log(beamSpecs);
-      var beams = beamSpecs.map(function(i){
-              return new Vex.Flow.Beam(notes.slice(i[0], i[1]));
-            });
+      var beams = beamSpecs.map(wrapper.makeBeam (notes));
       var curves = vexCurves.map(wrapper.makeCurve (notes));
 
       Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
@@ -232,6 +230,14 @@ var wrapper = function() {
          });
       };
     },
+
+    // make a beam between the specified notes
+    makeBeam: function (notes) {
+      return function (beamSpec) {
+        return new Vex.Flow.Beam(notes.slice(beamSpec[0], beamSpec[1]));
+      };
+    },
+
 
     // tie a note to its successor
     makeTie: function (notes) {
