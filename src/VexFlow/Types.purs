@@ -112,6 +112,7 @@ type VexTuplet =
 type TupletSpec =
   { vexTuplet :: VexTuplet
   , noteSpecs :: Array NoteSpec
+  , tied :: Boolean               -- is the last note in the tuplet tied
   }
 
 

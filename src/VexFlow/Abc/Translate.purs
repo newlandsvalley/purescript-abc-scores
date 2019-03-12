@@ -11,7 +11,7 @@ import Data.Abc
 
 import Data.Abc.Canonical (keySignatureAccidental)
 import Data.Abc.KeySignature (normaliseModalKey)
-import Data.Array (length, mapWithIndex, (:))
+import Data.Array (last, length, mapWithIndex, (:))
 import Data.Either (Either(..))
 import Data.List (List, foldl)
 import Data.List.NonEmpty (toUnfoldable) as Nel
@@ -107,7 +107,13 @@ music context tickablePosition noteIndex phraseDuration m =
              MusicSpec
                 { noteSpecs : tupletSpec.noteSpecs
                 , tuplets : [tupletSpec.vexTuplet]
-                , ties : []
+                , ties :
+                   -- if the note is tied then save the index into the note array
+                   -- of the final note in the tuplet
+                   if tupletSpec.tied then
+                     [noteIndex + length tupletSpec.noteSpecs -1] 
+                   else
+                     []
                 , tickableContext : tickableContext
                 , contextChanges : mempty
                 , slurBrackets : mempty
@@ -265,6 +271,11 @@ tuplet :: AbcContext -> Int -> TupletSignature -> Array RestOrNote -> Either Str
 tuplet context startOffset signature rns =
   let
     enoteSpecs = sequence $ mapWithIndex (restOrNote context) rns
+    isTied = case last rns of
+      Just (Right gNote) ->
+        gNote.abcNote.tied
+      _ ->
+        false
     vexTuplet =
       { p : signature.p
       , q : signature.q
@@ -277,6 +288,7 @@ tuplet context startOffset signature rns =
         Right
           { vexTuplet : vexTuplet
           , noteSpecs : noteSpecs
+          , tied : isTied
           }
       Left x ->
         Left x

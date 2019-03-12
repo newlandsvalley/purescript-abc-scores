@@ -82,6 +82,7 @@ main = do
   _ <- displayAtStave crossBeatTriplet 20
   _ <- displayAtStave slurs 21
   _ <- displayAtStave stemDirection 22
+  _ <- displayAtStave tripletWithTie 23
   pure unit
 
 

@@ -216,3 +216,11 @@ stemDirection =
     <> "L: 1/16\r\n"
     <> "K: C\r\n"
     <> "| a4 g4 f4 e4 | e4 d4 c4 B4 | c4 B4 A4 G4 |\r\n"
+
+tripletWithTie :: String
+tripletWithTie =
+  "X: 1\r\n"
+  <> "M: 3/4\r\n"
+  <> "L: 1/16\r\n"
+  <> "K: D\r\n"
+  <> "| (3B2G4A6- A2G2 |\r\n"    
