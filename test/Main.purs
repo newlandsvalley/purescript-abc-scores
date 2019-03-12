@@ -21,7 +21,6 @@ import Test.Samples
 main :: Effect Unit
 main = runTest do
   configThreadingSuite
-  beamGroupsSuite
   slursSuite
   beatSuite
   beamingSuite
@@ -113,82 +112,19 @@ beamingSuite =
         mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\ne2c2 f2c2 B2A2\r\n"
       Assert.equal (Just [[0,2], [2,4], [4,6]]) $
         map (\b -> b.beamSpecs) mFirstBar
+    -- notes in triplet are too long to be beamed
     test "3/4 slow triplet start" do
       let
         mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\n(3e4c4f4 B2A2\r\n"
-      Assert.equal (Just [[0,3], [3,5]]) $
+      Assert.equal (Just [[3,5]]) $
         map (\b -> b.beamSpecs) mFirstBar
+    -- notes in triplet are too long to be beamed
     test "3/4 slow triplet end" do
       let
         mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\nC4 (3e4c4f4 \r\n"
-      Assert.equal (Just [[1,4]]) $
+      Assert.equal (Just []) $
         map (\b -> b.beamSpecs) mFirstBar
 
-
-
-
-
-
-
--- deprecateds tests because beam groups will be deprecates
-beamGroupsSuite :: Free TestF Unit
-beamGroupsSuite =
-  suite "beam groups" do
-    test "3/2" do
-      let
-        mFirstBar = getFirstBar "L: 1/8\r\nM: 3/2\r\ne2c4 de f2c2\r\n"
-      Assert.equal (Just [{ noteCount : 1, noteKind : 4}]) $
-        map (\b -> b.beamGroups) mFirstBar
-    test "2/4" do
-      let
-        mFirstBar = getFirstBar "L: 1/8\r\nM: 2/4\r\nCD E/2F/2G/2A/2\r\n"
-      Assert.equal (Just [{ noteCount : 1, noteKind : 4}]) $
-        map (\b -> b.beamGroups) mFirstBar
-    test "3/4 L=1/8" do
-      let
-        mFirstBar = getFirstBar "L: 1/8\r\nM: 3/4\r\nCD EF GA\r\n"
-      Assert.equal (Just [{ noteCount : 1, noteKind : 4}]) $
-        map (\b -> b.beamGroups) mFirstBar
-    test "3/4 L=1/16" do
-      let
-        mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\nC2D2 E2F2 G2A2\r\n"
-      Assert.equal (Just [{ noteCount : 1, noteKind : 4}]) $
-        map (\b -> b.beamGroups) mFirstBar
-    test "6/8" do
-      let
-        mFirstBar = getFirstBar "L: 1/8\r\nM: 6/8\r\nCDE FGA\r\n"
-      Assert.equal (Just [{ noteCount : 3, noteKind : 8}]) $
-        map (\b -> b.beamGroups) mFirstBar
-    test "9/8" do
-      let
-        mFirstBar = getFirstBar "L: 1/8\r\nM: 9/8\r\nCDE FGA Bcd\r\n"
-      Assert.equal (Just [{ noteCount : 3, noteKind : 8}]) $
-        map (\b -> b.beamGroups) mFirstBar
-    test "12/8" do
-      let
-        mFirstBar = getFirstBar "L: 1/8\r\nM: 12/8\r\nCDE FGA Bcd efg\r\n"
-      Assert.equal (Just [{ noteCount : 3, noteKind : 8}]) $
-        map (\b -> b.beamGroups) mFirstBar
-    test "standard reel (4/4)" do
-      let
-        mFirstBar = getFirstBar "L: 1/8\r\nM: 4/4\r\nCDEF FGAB\r\n"
-      Assert.equal (Just [{ noteCount : 2, noteKind : 4}]) $
-        map (\b -> b.beamGroups) mFirstBar
-    test "standard hornpipe (4/4) L=1/8" do
-      let
-        mFirstBar = getFirstBar "L: 1/8\r\nM: 4/4\r\nC>DE>F F>GA>B\r\n"
-      Assert.equal (Just [{ noteCount : 2, noteKind : 4}]) $
-        map (\b -> b.beamGroups) mFirstBar
-    test "standard hornpipe (4/4) L=1/16" do
-      let
-        mFirstBar = getFirstBar "L: 1/16\r\nM: 4/4\r\nC3DE3F F3GA3B\r\n"
-      Assert.equal (Just [{ noteCount : 2, noteKind : 4}]) $
-        map (\b -> b.beamGroups) mFirstBar
-    test "other 4/4" do
-      let
-        mFirstBar = getFirstBar "L: 1/8\r\nM: 4/4\r\nC2EF F2AB\r\n"
-      Assert.equal (Just [{ noteCount : 1, noteKind : 4}]) $
-        map (\b -> b.beamGroups) mFirstBar
 
 slursSuite :: Free TestF Unit
 slursSuite =

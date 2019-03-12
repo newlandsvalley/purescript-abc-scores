@@ -17,11 +17,10 @@ import Data.List (List, foldl)
 import Data.List.NonEmpty (toUnfoldable) as Nel
 import Data.Unfoldable (fromMaybe)
 import Data.Maybe (Maybe(..), maybe)
-import Data.Rational ((%))
 import Data.String.Common (toLower)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
-import Prelude ((<>), ($), (*), (+), (-), (==), map, mempty, show)
+import Prelude ((<>), ($), (*), (+), (-), map, mempty, show)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Slur (SlurBracket(..))
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext, getTickableContext)
@@ -29,7 +28,6 @@ import VexFlow.Abc.Utils (chordalNoteLength, normaliseBroken, noteDotCount, note
      , vexDuration, compoundVexDuration)
 import VexFlow.Abc.Beat (exactBeatNumber)
 import VexFlow.Types (AbcContext, BeatMarker, NoteSpec, TupletSpec, MusicSpec(..), VexDuration)
-
 
 -- | generate a VexFlow indication of pitch
 pitch :: PitchClass -> Accidental -> Int -> String
@@ -80,31 +78,25 @@ music context tickablePosition noteIndex phraseDuration m =
     tickableContext :: TickableContext
     tickableContext = getTickableContext m
     -- find the fraction  of the bar that has already been processed
-    barFraction =
-      phraseDuration * context.unitNoteLength
-    midBarNoteIndex =
-      if (barFraction == (1 % 2))
-        then [noteIndex]
-      else
-        []
+    barFraction = phraseDuration * context.unitNoteLength
     mBeatMarker :: Maybe BeatMarker
     mBeatMarker = exactBeatNumber barFraction context.beatDuration noteIndex
   in
     case m of
       Note gn ->
-        buildMusicSpecFromN tickableContext noteIndex midBarNoteIndex mBeatMarker gn.abcNote.tied
+        buildMusicSpecFromN tickableContext noteIndex mBeatMarker gn.abcNote.tied
           $ graceableNote context 0 gn
 
       Rest dur ->
         -- rests are never tied
-        buildMusicSpecFromN tickableContext noteIndex midBarNoteIndex mBeatMarker false $ rest context dur
+        buildMusicSpecFromN tickableContext noteIndex mBeatMarker false $ rest context dur
 
       Chord abcChord ->
         -- we don't support tied chords at the moment
-        buildMusicSpecFromN tickableContext noteIndex midBarNoteIndex mBeatMarker false $ chord context abcChord
+        buildMusicSpecFromN tickableContext noteIndex mBeatMarker false $ chord context abcChord
 
       BrokenRhythmPair gn1 broken gn2 ->
-        buildMusicSpecFromNs tickableContext midBarNoteIndex mBeatMarker $ brokenRhythm context gn1 broken gn2
+        buildMusicSpecFromNs tickableContext mBeatMarker $ brokenRhythm context gn1 broken gn2
 
       Tuplet signature rOrNs ->
         let
@@ -118,7 +110,6 @@ music context tickablePosition noteIndex phraseDuration m =
                 , ties : []
                 , tickableContext : tickableContext
                 , contextChanges : mempty
-                , midBarNoteIndex : midBarNoteIndex
                 , slurBrackets : mempty
                 , beatMarkers : fromMaybe mBeatMarker
                 }
@@ -316,14 +307,6 @@ headerChange ctx h =
     _ ->
       []
 
-{-}
--- | translate a note duration within a chord
--- | (in ABC, a chord has a duration over and above the individual
--- | note durations and these are multiplicative)
-chordalNoteDur :: AbcContext -> NoteDuration -> AbcNote -> Either String VexDuration
-chordalNoteDur ctx chordDur abcNote  =
-  vexDuration ctx.unitNoteLength (abcNote.duration * chordDur)
--}
 
 -- | translate an ABC note decoration into a VexFlow note ornament
 ornaments :: List String -> Array String
@@ -386,21 +369,20 @@ articulations artics =
     foldl f [] artics
 
 
-buildMusicSpecFromNs :: TickableContext -> Array Int -> Maybe BeatMarker -> Either String (Array NoteSpec) -> Either String MusicSpec
-buildMusicSpecFromNs tCtx midBarNoteIndex mBeatMarker ens =
+buildMusicSpecFromNs :: TickableContext -> Maybe BeatMarker -> Either String (Array NoteSpec) -> Either String MusicSpec
+buildMusicSpecFromNs tCtx mBeatMarker ens =
   map (\ns -> MusicSpec
     { noteSpecs : ns
     , tuplets : []
     , ties : []
     , tickableContext : tCtx
     , contextChanges : []
-    , midBarNoteIndex : midBarNoteIndex
     , slurBrackets : mempty
     , beatMarkers : fromMaybe mBeatMarker
     }) ens
 
-buildMusicSpecFromN :: TickableContext -> Int -> Array Int -> Maybe BeatMarker -> Boolean  -> Either String NoteSpec -> Either String MusicSpec
-buildMusicSpecFromN tCtx noteIndex midBarNoteIndex mBeatMarker isTied ens =
+buildMusicSpecFromN :: TickableContext -> Int -> Maybe BeatMarker -> Boolean  -> Either String NoteSpec -> Either String MusicSpec
+buildMusicSpecFromN tCtx noteIndex mBeatMarker isTied ens =
     map (\ns -> MusicSpec
       { noteSpecs : [ns]
       , tuplets : []
@@ -409,7 +391,6 @@ buildMusicSpecFromN tCtx noteIndex midBarNoteIndex mBeatMarker isTied ens =
          if isTied then [noteIndex] else []
       , tickableContext : tCtx
       , contextChanges : []
-      , midBarNoteIndex : midBarNoteIndex
       , slurBrackets : mempty
       , beatMarkers : fromMaybe mBeatMarker
       }) ens

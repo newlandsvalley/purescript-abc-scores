@@ -11,8 +11,6 @@ import VexFlow.Abc.Slur (SlurBracket, VexCurve)
 
 type BeatNumber = Int
 
-
-
 -- | the indentation of the stave from the left margin
 staveIndentation :: Int
 staveIndentation = 10
@@ -115,19 +113,8 @@ type TupletSpec =
   , noteSpecs :: Array NoteSpec
   }
 
--- BeamGroup and BeamGroups are deprecated - they define auto-beaming
-
--- | a beam group
-type BeamGroup =
-  { noteCount :: Int -- how many notes of the kind inhabit the group
-  , noteKind  :: Int -- the kind of note is the denominator of the time signature
-  }
-
-type BeamGroups = Array BeamGroup
 
 type BeamSpec = Array Int  -- must be of length 2 - from Index and to Index
-
---- type Beams = Array Beam
 
 -- | the specification of a music item or a bar of same
 -- | we may just have note specs in either or we may have
@@ -146,7 +133,6 @@ instance musicSpecMonoid:: Monoid MusicSpec where
     , ties : mempty
     , tickableContext : mempty
     , contextChanges : mempty
-    , midBarNoteIndex : mempty
     , slurBrackets : mempty
     , beatMarkers : mempty
     }
@@ -166,7 +152,6 @@ type MusicSpecContents =
   , ties :: Array Int
   , tickableContext :: TickableContext
   , contextChanges :: Array ContextChange
-  , midBarNoteIndex  :: Array Int      -- note index (if any) at the bar midpoint
   , slurBrackets :: Array SlurBracket  -- brackets (L and R) demarking slurs
   , beatMarkers :: Array BeatMarker    -- not indices marking exact beats
   }
@@ -180,7 +165,6 @@ type BarSpec =
   , endLineRepeat :: Boolean              -- does it have an end repeat? important for end repeat markers
   , volta :: Maybe Volta
   , timeSignature :: TimeSignature
-  , beamGroups :: Array BeamGroup         -- deprecated
   , beamSpecs :: Array BeamSpec
   , curves :: Array VexCurve              --  curves representing slurs
   , musicSpec :: MusicSpec

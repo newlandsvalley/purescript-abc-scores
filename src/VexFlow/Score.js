@@ -186,8 +186,6 @@ var wrapper = function() {
       var notes = musicSpec.noteSpecs.map(wrapper.makeStaveNote);
       var tuplets = musicSpec.tuplets.map(wrapper.makeTupletLayout (notes));
       var ties = musicSpec.ties.map(wrapper.makeTie (notes));
-      /* var groups = beamGroups.map(wrapper.beamGroup); */
-      /* var beams = VF.Beam.generateBeams(notes, { groups : groups } ); */
       console.log("beamSpecs");
       console.log(beamSpecs);
       var beams = beamSpecs.map(function(i){
@@ -246,13 +244,6 @@ var wrapper = function() {
         });
       };
     },
-
-    /*
-    // auto-beaming definition of one beam group
-    beamGroup: function (group) {
-      return new Vex.Flow.Fraction(group.noteCount, group.noteKind);
-    },
-    */
 
     // make a slur represented by a curve
     makeCurve: function (notes) {

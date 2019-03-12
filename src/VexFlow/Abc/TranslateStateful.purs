@@ -42,7 +42,7 @@ import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarW
 import VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine, staveWidth,
          staveEndsWithRepeatBegin)
 import VexFlow.Abc.Volta (startVolta, isMidVolta)
-import VexFlow.Abc.Beam (calculateBeams, defaultBeamGroups)
+import VexFlow.Abc.Beam (calculateBeams)
 import VexFlow.Abc.Slur (vexCurves)
 import VexFlow.Abc.Beat (exactBeatNumber)
 
@@ -167,7 +167,6 @@ bar staveNumber barNumber abcBar =
         , endLineRepeat : false            -- not yet known
         , volta : volta
         , timeSignature : abcContext.timeSignature
-        , beamGroups : defaultBeamGroups abcContext.timeSignature musicSpec
         , beamSpecs : calculateBeams spec.noteSpecs spec.beatMarkers spec.tuplets
         , curves : vexCurves spec.slurBrackets
         , musicSpec : musicSpec
