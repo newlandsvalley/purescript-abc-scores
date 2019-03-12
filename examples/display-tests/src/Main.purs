@@ -81,6 +81,7 @@ main = do
   _ <- displayAtStave emptyBar 19
   _ <- displayAtStave doubleBarLine 20
   _ <- displayAtStave slurs 21
+  _ <- displayAtStave stemDirection 22
   pure unit
 
 

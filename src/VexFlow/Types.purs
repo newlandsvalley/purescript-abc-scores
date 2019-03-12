@@ -97,6 +97,7 @@ type VexNote =
   { clef :: String
   , keys :: Array String
   , duration :: String
+  , auto_stem :: Boolean
   }
 
 -- | the specification of the layout of an individual tuplet in the stave
@@ -153,7 +154,7 @@ type MusicSpecContents =
   , tickableContext :: TickableContext
   , contextChanges :: Array ContextChange
   , slurBrackets :: Array SlurBracket  -- brackets (L and R) demarking slurs
-  , beatMarkers :: Array BeatMarker    -- not indices marking exact beats
+  , beatMarkers :: Array BeatMarker    -- note indices marking exact beats
   }
 
 type BarSpec =

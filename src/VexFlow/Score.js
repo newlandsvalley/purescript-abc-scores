@@ -193,10 +193,10 @@ var wrapper = function() {
 
       Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
       ties.forEach(function(t) {t.setContext(context).draw()})
+      beams.forEach(function(b) {b.setContext(context).draw()});
       tuplets.forEach(function(tuplet){
         tuplet.setContext(context).draw();
       });
-      beams.forEach(function(b) {b.setContext(context).draw()});
       curves.forEach(function(c) {c.setContext(context).draw()});
     },
 
@@ -234,7 +234,7 @@ var wrapper = function() {
     // make a beam between the specified notes
     makeBeam: function (notes) {
       return function (beamSpec) {
-        return new Vex.Flow.Beam(notes.slice(beamSpec[0], beamSpec[1]));
+        return new Vex.Flow.Beam(notes.slice(beamSpec[0], beamSpec[1]), true);
       };
     },
 

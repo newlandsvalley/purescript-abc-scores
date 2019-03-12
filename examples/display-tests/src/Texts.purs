@@ -207,3 +207,12 @@ slurs =
     <> "L: 1/8\r\n"
     <> "K: D\r\n"
     <> "| C2 (F2G2) A2 | (G2 F2 (=EB) cd) | (C2 (3D2E2F2) G2 |\r\n"
+
+stemDirection :: String
+stemDirection =
+    "X:1\r\n"
+    <> "T: stem direction\r\n"
+    <> "M: 4/4\r\n"
+    <> "L: 1/16\r\n"
+    <> "K: C\r\n"
+    <> "| a4 g4 f4 e4 | e4 d4 c4 B4 | c4 B4 A4 G4 |\r\n"    

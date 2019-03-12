@@ -152,6 +152,7 @@ graceableNote context noteIndex gn  =
             { clef : "treble"
             , keys : [key]
             , duration : compoundVexDuration vexDur
+            , auto_stem : true
             }
         in Right
           { vexNote : vexNote
@@ -182,6 +183,7 @@ rest context abcRest =
             { clef : "treble"
             , keys : [key]
             , duration : (compoundVexDuration vexDur <> "r")
+            , auto_stem : true
             }
         in Right
           { vexNote : vexNote
@@ -225,6 +227,7 @@ chord context abcChord =
             { clef : "treble"
             , keys : keys
             , duration : compoundVexDuration vexDur
+            , auto_stem : true
             }
         in Right
           { vexNote : vexNote
