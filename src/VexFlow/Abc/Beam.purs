@@ -2,10 +2,11 @@ module VexFlow.Abc.Beam (calculateBeams) where
 
 -- work out the beam groups from the time signature
 
-import Prelude (($), (==), (-), (>), (<), (&&))
+import Prelude (($), (==), (-), (>), (<), (&&), not)
 import Data.Array (slice, snoc)
 import Data.Foldable (foldl)
 import Data.Set (fromFoldable, toUnfoldable, union) as Set
+import Data.String.Utils (endsWith)
 import VexFlow.Types (BeamSpec, BeatMarker, NoteSpec, VexTuplet)
 
 quarterNoteTicks :: Int
@@ -45,7 +46,6 @@ beamFunc noteSpecs acc beatMarker =
      }
 
 -- check that each note in a potential beam is in fact 'beamable'
--- i.e. no note is longer than a quarter note
 allBeamableNotes :: Array NoteSpec -> Boolean
 allBeamableNotes noteSpecs =
   let
@@ -55,9 +55,12 @@ allBeamableNotes noteSpecs =
   in
     foldl f true noteSpecs
 
+-- a note is 'beamable' if in fact it really is a note (not a rest) and
+-- if it's smaller than a quarter note
 isBeamableNote :: NoteSpec -> Boolean
 isBeamableNote noteSpec =
   noteSpec.noteTicks < quarterNoteTicks
+    && (not $ endsWith "r" noteSpec.vexNote.duration)
 
 -- | The algorithm we use is to identify beat markers for successive
 -- | beats and to allow beaming only in those instances where there are at least
