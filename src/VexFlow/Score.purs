@@ -18,7 +18,7 @@ import Effect.Console (log)
 import Prelude ((<>), (*), (==), (/=), (&&), ($), Unit, bind, discard, pure, unit)
 import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runTuneBody)
-import VexFlow.Types (BarSpec, BeamGroups, Config, LineThickness(..)
+import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..)
          , MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec
          , Tempo, TimeSignature, VexScore, staveSeparation)
 import VexFlow.Abc.ContextChange (ContextChange(..))
@@ -129,7 +129,7 @@ displayBarSpec staveSpec barSpec =
       _ <- processBarBeginRepeat staveBar barSpec.startLine.repeat
       _ <- processBarEndRepeat staveBar barSpec.endLineRepeat
       _ <- processVolta staveBar barSpec.volta
-      displayBarContents staveBar barSpec.beamGroups barSpec.curves musicSpec
+      displayBarContents staveBar barSpec.beamSpecs barSpec.curves musicSpec
       displayStave staveBar
 
 -- | display bar begin repeat markers
@@ -190,7 +190,7 @@ foreign import newStaveImpl :: StaveConfig -> String -> Effect Stave
 -- | get the width of a stave
 foreign import getStaveWidth :: Stave -> Effect Int
 -- | display all the contents of the bar, using auto-beaming for the notes
-foreign import displayBarContents :: Stave -> BeamGroups -> VexCurves -> MusicSpecContents -> Effect Unit
+foreign import displayBarContents :: Stave -> Array BeamSpec -> VexCurves -> MusicSpecContents -> Effect Unit
 -- | display the (filled) bar
 foreign import displayStave :: Stave -> Effect Unit
 -- | dispay a bar begin repeat

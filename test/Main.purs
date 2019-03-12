@@ -9,11 +9,13 @@ import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
 import Data.Array (head)
 import Data.Either (Either(..))
+import Data.Rational ((%))
 import Control.Monad.Free (Free)
 import Data.Abc (AbcTune, PitchClass(..))
 import Data.Abc.Parser (parse)
 import VexFlow.Types (BarSpec, Config, VexScore)
 import VexFlow.Score (createScore)
+import VexFlow.Abc.Beat (exactBeatNumber)
 import Test.Samples
 
 main :: Effect Unit
@@ -21,6 +23,8 @@ main = runTest do
   configThreadingSuite
   beamGroupsSuite
   slursSuite
+  beatSuite
+  beamingSuite
 
 configure :: AbcTune -> Config
 configure tune =
@@ -81,7 +85,52 @@ configThreadingSuite =
         -- key change alters the time signature and beats per beam
       Assert.equal 465 abcContext.accumulatedStaveWidth
 
+beamingSuite :: Free TestF Unit
+beamingSuite =
+  suite "beaming" do
+    test "standard 2/4" do
+      let
+        mFirstBar = getFirstBar "L: 1/16\r\nM: 2/4\r\ne2c2 f2c2\r\n"
+      Assert.equal (Just [[0,2], [2,4]]) $
+        map (\b -> b.beamSpecs) mFirstBar
+    test "triplet starting 2/4" do
+      let
+        mFirstBar = getFirstBar "L: 1/16\r\nM: 2/4\r\n(3d2e2c2 f2c2\r\n"
+      Assert.equal (Just [[0,3], [3,5]]) $
+        map (\b -> b.beamSpecs) mFirstBar
+    test "standard 2/4 long introductory note" do
+      let
+        mFirstBar = getFirstBar "L: 1/16\r\nM: 2/4\r\nd4 f2c2\r\n"
+      Assert.equal (Just [[1,3]]) $
+        map (\b -> b.beamSpecs) mFirstBar
+    test "triplet starting 2/4" do
+     let
+       mFirstBar = getFirstBar "L: 1/16\r\nM: 2/4\r\nf2c2 (3d2e2c2 \r\n"
+     Assert.equal (Just [[0,2], [2,5]]) $
+    map (\b -> b.beamSpecs) mFirstBar
+    test "standard 3/4" do
+      let
+        mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\ne2c2 f2c2 B2A2\r\n"
+      Assert.equal (Just [[0,2], [2,4], [4,6]]) $
+        map (\b -> b.beamSpecs) mFirstBar
+    test "3/4 slow triplet start" do
+      let
+        mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\n(3e4c4f4 B2A2\r\n"
+      Assert.equal (Just [[0,3], [3,5]]) $
+        map (\b -> b.beamSpecs) mFirstBar
+    test "3/4 slow triplet end" do
+      let
+        mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\nC4 (3e4c4f4 \r\n"
+      Assert.equal (Just [[1,4]]) $
+        map (\b -> b.beamSpecs) mFirstBar
 
+
+
+
+
+
+
+-- deprecateds tests because beam groups will be deprecates
 beamGroupsSuite :: Free TestF Unit
 beamGroupsSuite =
   suite "beam groups" do
@@ -164,3 +213,22 @@ slursSuite =
         mFirstBar = getFirstBar "CDE (FG)A Bcd) efg\r\n"
       Assert.equal (Just [{ from : 3, to : 4}]) $
         map (\b -> b.curves) mFirstBar
+
+beatSuite :: Free TestF Unit
+beatSuite =
+  suite "beats" do
+    test "beat 0" do
+      Assert.equal (Just { beatNumber: 0, noteIndex: 1})
+        $ exactBeatNumber (0 % 2) (1 % 4) 1
+    test "beat 1" do
+      Assert.equal (Just { beatNumber: 1, noteIndex: 1})
+        $ exactBeatNumber (1 % 4) (1 % 4) 1
+    test "beat 2" do
+      Assert.equal  (Just { beatNumber: 2, noteIndex: 1})
+        $ exactBeatNumber (1 % 2) (1 % 4) 1
+    test "beat 3" do
+      Assert.equal (Just { beatNumber: 3, noteIndex: 2})
+        $ exactBeatNumber (3 % 4) (1 % 4) 2
+    test "off beat" do
+      Assert.equal Nothing
+        $ exactBeatNumber (2 % 5) (1 % 4) 1

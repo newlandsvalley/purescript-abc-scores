@@ -9,6 +9,10 @@ import VexFlow.Abc.TickableContext (TickableContext)
 import VexFlow.Abc.Volta (Volta)
 import VexFlow.Abc.Slur (SlurBracket, VexCurve)
 
+type BeatNumber = Int
+
+
+
 -- | the indentation of the stave from the left margin
 staveIndentation :: Int
 staveIndentation = 10
@@ -39,7 +43,7 @@ type StaveConfig =
     , barNo :: Int
     , hasRightBar :: Boolean
     , hasDoubleRightBar :: Boolean
-    }
+  }
 
 -- | the time signature
 type TimeSignature =
@@ -59,6 +63,12 @@ type Tempo =
   , bpm :: Int
   }
 
+-- a note that starts exactly on a beat
+type BeatMarker =
+  { beatNumber :: BeatNumber
+  , noteIndex :: Int
+  }
+
 -- | The ABC Context
 type AbcContext =
   { timeSignature :: TimeSignature
@@ -71,6 +81,7 @@ type AbcContext =
   , isNewTimeSignature :: Boolean    -- we need to display a changed time signature
   , maxWidth :: Int
   , pendingRepeatBegin :: Boolean    -- begin repeat to be prepended to next stave
+  , beatDuration :: NoteDuration     -- the duratio of one beat under the time signature
   }
 
 type NoteSpec =
@@ -80,6 +91,7 @@ type NoteSpec =
   , graceKeys :: Array String
   , ornaments :: Array String
   , articulations :: Array String
+  , noteTicks :: Int     -- the measurable duration of the note in ticks
   }
 
 -- | A raw note that VexFlow understands
@@ -103,6 +115,8 @@ type TupletSpec =
   , noteSpecs :: Array NoteSpec
   }
 
+-- BeamGroup and BeamGroups are deprecated - they define auto-beaming
+
 -- | a beam group
 type BeamGroup =
   { noteCount :: Int -- how many notes of the kind inhabit the group
@@ -110,6 +124,10 @@ type BeamGroup =
   }
 
 type BeamGroups = Array BeamGroup
+
+type BeamSpec = Array Int  -- must be of length 2 - from Index and to Index
+
+--- type Beams = Array Beam
 
 -- | the specification of a music item or a bar of same
 -- | we may just have note specs in either or we may have
@@ -130,6 +148,7 @@ instance musicSpecMonoid:: Monoid MusicSpec where
     , contextChanges : mempty
     , midBarNoteIndex : mempty
     , slurBrackets : mempty
+    , beatMarkers : mempty
     }
 
 data LineThickness =
@@ -149,6 +168,7 @@ type MusicSpecContents =
   , contextChanges :: Array ContextChange
   , midBarNoteIndex  :: Array Int      -- note index (if any) at the bar midpoint
   , slurBrackets :: Array SlurBracket  -- brackets (L and R) demarking slurs
+  , beatMarkers :: Array BeatMarker    -- not indices marking exact beats
   }
 
 type BarSpec =
@@ -160,7 +180,8 @@ type BarSpec =
   , endLineRepeat :: Boolean              -- does it have an end repeat? important for end repeat markers
   , volta :: Maybe Volta
   , timeSignature :: TimeSignature
-  , beamGroups :: Array BeamGroup
+  , beamGroups :: Array BeamGroup         -- deprecated
+  , beamSpecs :: Array BeamSpec
   , curves :: Array VexCurve              --  curves representing slurs
   , musicSpec :: MusicSpec
   }

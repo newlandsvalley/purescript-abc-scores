@@ -90,11 +90,11 @@ var wrapper = function() {
     },
 
     displayBarContents : function (stave) {
-      return function (beamGroups) {
+      return function (beamSpecs) {
         return function (vexCurves) {
           return function (musicSpec) {
             return function () {
-              return wrapper.drawBarContents(stave, beamGroups, vexCurves, musicSpec);
+              return wrapper.drawBarContents(stave, beamSpecs, vexCurves, musicSpec);
             }
           }
         }
@@ -180,22 +180,27 @@ var wrapper = function() {
     },
 
     /* draw the contents of the bar, using auto-beaming for the notes */
-    drawBarContents: function (stave, beamGroups, vexCurves, musicSpec) {
+    drawBarContents: function (stave, beamSpecs, vexCurves, musicSpec) {
       // console.log("drawBarContents")
       // console.log(musicSpec);
       var notes = musicSpec.noteSpecs.map(wrapper.makeStaveNote);
       var tuplets = musicSpec.tuplets.map(wrapper.makeTupletLayout (notes));
       var ties = musicSpec.ties.map(wrapper.makeTie (notes));
-      var groups = beamGroups.map(wrapper.beamGroup);
-      var beams = VF.Beam.generateBeams(notes, { groups : groups } );
+      /* var groups = beamGroups.map(wrapper.beamGroup); */
+      /* var beams = VF.Beam.generateBeams(notes, { groups : groups } ); */
+      console.log("beamSpecs");
+      console.log(beamSpecs);
+      var beams = beamSpecs.map(function(i){
+              return new Vex.Flow.Beam(notes.slice(i[0], i[1]));
+            });
       var curves = vexCurves.map(wrapper.makeCurve (notes));
 
       Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
-      beams.forEach(function(b) {b.setContext(context).draw()});
       ties.forEach(function(t) {t.setContext(context).draw()})
       tuplets.forEach(function(tuplet){
         tuplet.setContext(context).draw();
       });
+      beams.forEach(function(b) {b.setContext(context).draw()});
       curves.forEach(function(c) {c.setContext(context).draw()});
     },
 
@@ -242,10 +247,12 @@ var wrapper = function() {
       };
     },
 
+    /*
     // auto-beaming definition of one beam group
     beamGroup: function (group) {
       return new Vex.Flow.Fraction(group.noteCount, group.noteKind);
     },
+    */
 
     // make a slur represented by a curve
     makeCurve: function (notes) {

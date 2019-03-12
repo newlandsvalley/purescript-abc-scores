@@ -9,6 +9,7 @@ import Data.Either (Either(..))
 import Data.Int (round, toNumber)
 import VexFlow.Score (initialiseCanvas, renderTuneAtStave)
 import VexFlow.Types (Config, AbcContext, staveIndentation)
+import VexFlow.Abc.Beat (beatDuration)
 import Data.Abc (KeySignature, MeterSignature)
 import Data.Abc.Parser (parse)
 import Examples.DisplayTests.Texts
@@ -28,8 +29,8 @@ config =
   }
 
 abcContext :: MeterSignature -> KeySignature -> Int -> AbcContext
-abcContext (Tuple x y) keySignature staveNo =
-  { timeSignature : { numerator: x, denominator: y }
+abcContext (Tuple numerator denominator ) keySignature staveNo =
+  { timeSignature : { numerator, denominator}
   , keySignature : keySignature
   , mTempo : Nothing
   , unitNoteLength : ( 1 % 16)
@@ -39,6 +40,7 @@ abcContext (Tuple x y) keySignature staveNo =
   , isNewTimeSignature : false
   , maxWidth : round $ (toNumber canvasWidth / scale)
   , pendingRepeatBegin: false
+  , beatDuration: beatDuration { numerator, denominator }
   }
 
 -- | we give each test it's own stave.

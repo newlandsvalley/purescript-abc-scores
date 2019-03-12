@@ -17,13 +17,14 @@ module VexFlow.Abc.TranslateStateful
 --     and meter) because we can't represent it using the score's 'dotted'
 --     conventions.
 
-import Prelude (($), (<>), (+), (==), (&&), bind, mempty, pure, show)
+import Prelude (($), (<>), (+), (*), (==), (&&), bind, mempty, pure, show)
 import Control.Monad.Except.Trans
 import Control.Monad.State (State, evalStateT, execStateT, get, put)
 import VexFlow.Abc.Translate (headerChange, music) as Trans
 import Data.Either (Either, either)
 import Data.Foldable (foldM, foldl)
 import Data.List (List, toUnfoldable, length)
+import Data.Unfoldable (fromMaybe) as U
 import Data.Tuple (Tuple(..))
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Newtype (unwrap)
@@ -35,14 +36,15 @@ import Data.Abc (Bar, BarType, BodyPart(..), Music, NoteDuration, Repeat(..),
 import Data.Abc.Metadata (isEmptyStave)
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext,
            isEmptyMusicSpec)
-import VexFlow.Types (AbcContext, BarSpec, LineThickness(..), MusicSpec(..)
-      ,StaveSpec, staveIndentation)
+import VexFlow.Types (AbcContext, BarSpec, BeatMarker,  LineThickness(..),
+         MusicSpec(..), StaveSpec, staveIndentation)
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarWidth)
 import VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine, staveWidth,
          staveEndsWithRepeatBegin)
 import VexFlow.Abc.Volta (startVolta, isMidVolta)
-import VexFlow.Abc.Beam (defaultBeamGroups)
+import VexFlow.Abc.Beam (calculateBeams, defaultBeamGroups)
 import VexFlow.Abc.Slur (vexCurves)
+import VexFlow.Abc.Beat (exactBeatNumber)
 
 type Translation a = ExceptT String (State AbcContext) a
 
@@ -131,10 +133,12 @@ bars staveNumber bs =
 bar :: Int -> Int -> Bar -> Translation BarSpec
 bar staveNumber barNumber abcBar =
   do
-    musicSpec <- foldOverMusics $ toUnfoldable abcBar.music
+    musicSpec0 <- foldOverMusics $ toUnfoldable abcBar.music
     -- we must get the context AFTER iterating through the music
+    -- because the fold can chenge the context
     abcContext <- get
     let
+      musicSpec = addFinalBeatMarker abcContext musicSpec0
       MusicSpec spec = musicSpec
       displayedKeySig =
         if (barNumber == 0) then
@@ -164,6 +168,7 @@ bar staveNumber barNumber abcBar =
         , volta : volta
         , timeSignature : abcContext.timeSignature
         , beamGroups : defaultBeamGroups abcContext.timeSignature musicSpec
+        , beamSpecs : calculateBeams spec.noteSpecs spec.beatMarkers spec.tuplets
         , curves : vexCurves spec.slurBrackets
         , musicSpec : musicSpec
         }
@@ -215,6 +220,18 @@ music tickablePosition noteIndex phraseDuration m =
       newContext = applyContextChanges abcContext spec
     _ <- put newContext
     either throwError pure spec
+
+-- | add the final beat marker (i.e. at the end of the bar) if one exists -
+-- | i.e. the note index after the final note if the bar is full
+addFinalBeatMarker :: AbcContext -> MusicSpec -> MusicSpec
+addFinalBeatMarker abcContext (MusicSpec ms) =
+  let
+    (TickableContext noteIndex _ phraseDuration) = ms.tickableContext
+    barDuration = phraseDuration * abcContext.unitNoteLength
+    mBeatMarker :: Maybe BeatMarker
+    mBeatMarker = exactBeatNumber barDuration abcContext.beatDuration noteIndex
+  in
+    MusicSpec $ ms { beatMarkers = ms.beatMarkers <> U.fromMaybe mBeatMarker }
 
 -- | carry over any pending Repeat Begin marker that may have ended the last stave
 modifiedStartLine :: Boolean -> BarType -> BarType

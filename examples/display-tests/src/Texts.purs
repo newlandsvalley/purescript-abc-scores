@@ -9,7 +9,7 @@ simple68 =
   <> "M: 6/8\r\n"
   <> "L: 1/16\r\n"
   <> "K: E\r\n"
-  <> "| C2F2G2G2 F2 =EB | C2F2G2G2 F2 C2 |\r\n"
+  <> "| C2F2G2 G2F2 =EB | C2F2G2 G2 F2 C2 |\r\n"
 
 simple44 :: String
 simple44 =

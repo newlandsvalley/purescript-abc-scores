@@ -2,6 +2,7 @@ module VexFlow.Abc.Utils
   ( applyContextChanges
   , vexDuration
   , compoundVexDuration
+  , chordalNoteLength
   , normaliseBroken
   , noteDotCount
   , noteTicks
@@ -11,7 +12,7 @@ module VexFlow.Abc.Utils
   , isEmptyMusicSpec
   , canvasHeight) where
 
-import Data.Abc (AbcTune, AbcNote, Broken(..), GraceableNote, KeySignature,
+import Data.Abc (AbcChord, AbcTune, AbcNote, Broken(..), GraceableNote, KeySignature,
   ModifiedKeySignature, Accidental(..), Mode(..), NoteDuration, PitchClass(..),
   TempoSignature)
 import Data.Abc.Metadata (dotFactor, getMeter, getKeySig, getTempoSig,
@@ -21,12 +22,14 @@ import Data.Either (Either(..), hush)
 import Data.Foldable (foldl)
 import Data.Int (round, toNumber) as Int
 import Data.List (List(..), length, null)
+import Data.List.NonEmpty (head) as Nel
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Rational (fromInt, toNumber, numerator, denominator, (%))
 import Data.Tuple (Tuple(..))
 import Data.String.CodeUnits (fromCharArray)
 import Prelude (map, show, ($), (*), (+), (-), (/), (<>), identity)
 import VexFlow.Abc.ContextChange (ContextChange(..))
+import VexFlow.Abc.Beat (beatDuration)
 import VexFlow.Types (AbcContext, Config, MusicSpec(..), Tempo,
    VexDuration, staveIndentation)
 
@@ -85,6 +88,14 @@ compoundVexDuration vexDur =
    dStr = fromCharArray $ Array.replicate vexDur.dots 'd'
  in
    vexDur.vexDurString <> dStr
+
+-- | the length of an ABC note is he length of a note in the chord multiplied
+-- | by the length of the chord itself
+-- | note this is not a full duration as that must take into account the
+-- | unit note length
+chordalNoteLength :: AbcChord -> NoteDuration
+chordalNoteLength abcChord =
+  (Nel.head abcChord.notes).duration * abcChord.duration
 
 -- | build a VexFlow tempo from the BPM and the tempo note duration
 buildTempo :: Int -> NoteDuration -> Either String Tempo
@@ -169,6 +180,7 @@ initialAbcContext tune config =
         , maxWidth : Int.round $
             (Int.toNumber (config.canvasWidth - staveIndentation)) / config.scale
         , pendingRepeatBegin : false
+        , beatDuration : beatDuration  { numerator, denominator }
         }
     else
       Left "modifications to standard key signatures are not supported"

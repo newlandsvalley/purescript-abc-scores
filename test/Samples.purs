@@ -9,6 +9,7 @@ import Data.Maybe (Maybe(..))
 import Data.List (List(..), fromFoldable)
 import Data.Array (toUnfoldable)
 import VexFlow.Abc.TranslateStateful (execBodyPart)
+import VexFlow.Abc.Beat (beatDuration)
 
 
 cMajor :: KeySignature
@@ -19,8 +20,8 @@ cMajor =
     }
 
 startAbcContext :: MeterSignature -> AbcContext
-startAbcContext (Tuple x y) =
-  { timeSignature : { numerator: x, denominator: y }
+startAbcContext (Tuple numerator denominator) =
+  { timeSignature : { numerator, denominator }
   , keySignature : cMajor
   , mTempo : Nothing
   , unitNoteLength : ( 1 % 16)
@@ -30,6 +31,7 @@ startAbcContext (Tuple x y) =
   , isNewTimeSignature : false
   , maxWidth : 1200
   , pendingRepeatBegin: false
+  , beatDuration: beatDuration { numerator, denominator }
   }
 
 c :: Int -> Music
