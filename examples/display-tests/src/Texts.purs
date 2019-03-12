@@ -184,20 +184,20 @@ longLine =
 emptyBar :: String
 emptyBar =
     "X:1\r\n"
-    <> "T: empty bar\r\n"
-    <> "M: 4/4\r\n"
-    <> "L: 1/16\r\n"
+    <> "T: empty bar and double barline\r\n"
+    <> "M: 3/4\r\n"
+    <> "L: 1/8\r\n"
     <> "K: D\r\n"
-    <> "| C2 F2 G2 | | G2 F2 =EB |\r\n"
+    <> "| C2 F2 G2 | | G2 F2 =EB || A6 |\r\n"
 
-doubleBarLine :: String
-doubleBarLine =
+crossBeatTriplet :: String
+crossBeatTriplet =
     "X:1\r\n"
-    <> "T: double bar line\r\n"
-    <> "M: 4/4\r\n"
+    <> "T: triplet spanning beats\r\n"
+    <> "M: 2/4\r\n"
     <> "L: 1/16\r\n"
-    <> "K: D\r\n"
-    <> "| C2 F2 G2 || G2 F2 =EB |\r\n"
+    <> "K: Gm\r\n"
+    <> "| d3 (3cBA F3 |\r\n"
 
 slurs :: String
 slurs =
@@ -215,4 +215,4 @@ stemDirection =
     <> "M: 4/4\r\n"
     <> "L: 1/16\r\n"
     <> "K: C\r\n"
-    <> "| a4 g4 f4 e4 | e4 d4 c4 B4 | c4 B4 A4 G4 |\r\n"    
+    <> "| a4 g4 f4 e4 | e4 d4 c4 B4 | c4 B4 A4 G4 |\r\n"

@@ -79,7 +79,7 @@ main = do
   _ <- displayAtStave lineContinuation 17
   _ <- displayAtStave longLine 18
   _ <- displayAtStave emptyBar 19
-  _ <- displayAtStave doubleBarLine 20
+  _ <- displayAtStave crossBeatTriplet 20
   _ <- displayAtStave slurs 21
   _ <- displayAtStave stemDirection 22
   pure unit
