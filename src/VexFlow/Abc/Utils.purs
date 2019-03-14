@@ -196,6 +196,7 @@ updateAbcContext abcContext change =
       in
         abcContext { timeSignature = timeSignature
                    , isNewTimeSignature = true
+                   , beatDuration = beatDuration  { numerator, denominator }
                    }
     KeyChange modifiedKeySignature ->
       abcContext { keySignature = modifiedKeySignature.keySignature
