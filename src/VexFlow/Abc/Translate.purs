@@ -111,7 +111,7 @@ music context tickablePosition noteIndex phraseDuration m =
                    -- if the note is tied then save the index into the note array
                    -- of the final note in the tuplet
                    if tupletSpec.tied then
-                     [noteIndex + length tupletSpec.noteSpecs -1] 
+                     [noteIndex + length tupletSpec.noteSpecs -1]
                    else
                      []
                 , tickableContext : tickableContext
@@ -321,7 +321,6 @@ headerChange ctx h =
           []
     _ ->
       []
-
 
 -- | translate an ABC note decoration into a VexFlow note ornament
 ornaments :: List String -> Array String

@@ -124,6 +124,11 @@ beamingSuite =
         mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\nC4 (3e4c4f4 \r\n"
       Assert.equal (Just []) $
         map (\b -> b.beamSpecs) mFirstBar
+    test "standard 4/4" do
+      let
+        mFirstBar = getFirstBar "L: 1/16\r\nM: 4/4\r\ne2c2 f2c2 e2c2 f2c2\r\n"
+      Assert.equal (Just [[0,2], [2,4], [4,6], [6,8]]) $
+        map (\b -> b.beamSpecs) mFirstBar
 
 
 slursSuite :: Free TestF Unit

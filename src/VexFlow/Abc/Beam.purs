@@ -2,27 +2,37 @@ module VexFlow.Abc.Beam (calculateBeams) where
 
 -- work out the beam groups from the time signature
 
-import Prelude (($), (==), (-), (>), (<), (&&), not)
+import Prelude (($), (==), (-), (>), (<), (&&),  map, not)
 import Data.Array (slice, snoc)
 import Data.Foldable (foldl)
 import Data.Set (fromFoldable, toUnfoldable, union) as Set
+import Data.Map (Map, empty, insert, toUnfoldable)
+import Data.Tuple (snd)
 import Data.String.Utils (endsWith)
-import VexFlow.Types (BeamSpec, BeatMarker, NoteSpec, VexTuplet)
+import VexFlow.Types (BeamSpec, BeatMarker, BeatNumber, NoteSpec,
+         TimeSignature, VexTuplet)
 
 quarterNoteTicks :: Int
 quarterNoteTicks = 32
 
 
 -- | Calculate the beams, which come from standard beats or from tuplets
-calculateBeams :: Array NoteSpec -> Array BeatMarker -> Array VexTuplet -> Array BeamSpec
-calculateBeams noteSpecs beatMarkers tuplets =
+calculateBeams ::
+     TimeSignature
+  -> Array NoteSpec
+  -> Array BeatMarker
+  -> Array VexTuplet
+  -> Array BeamSpec
+calculateBeams timeSignature noteSpecs beatMarkers tuplets =
   merge
-    (calculateStandardBeams noteSpecs beatMarkers)
+    (calculateStandardBeams timeSignature noteSpecs beatMarkers)
     (calculateTupletBeams noteSpecs tuplets)
+
+type BeamMap = Map BeatNumber BeamSpec
 
 type BeamAcc =
    { beatMarker :: BeatMarker
-   , beams :: Array BeamSpec
+   , beams :: BeamMap
    }
 
 beamFunc :: Array NoteSpec -> BeamAcc -> BeatMarker -> BeamAcc
@@ -38,7 +48,7 @@ beamFunc noteSpecs acc beatMarker =
       newBeam = [acc.beatMarker.noteIndex, beatMarker.noteIndex]
     in
       { beatMarker: beatMarker
-      , beams: snoc acc.beams newBeam
+      , beams: insert beatMarker.beatNumber newBeam acc.beams
       }
   else
      { beatMarker : beatMarker
@@ -65,15 +75,20 @@ isBeamableNote noteSpec =
 -- | The algorithm we use is to identify beat markers for successive
 -- | beats and to allow beaming only in those instances where there are at least
 -- | a couple of notes to beam.
-calculateStandardBeams :: Array NoteSpec -> Array BeatMarker -> Array BeamSpec
-calculateStandardBeams noteSpecs beatMarkers =
+calculateStandardBeams ::
+  TimeSignature -> Array NoteSpec -> Array BeatMarker -> Array BeamSpec
+calculateStandardBeams timeSignature noteSpecs beatMarkers =
   let
     initialBM = { beatNumber : 0, noteIndex: 0 }
     result = foldl (beamFunc noteSpecs)
-               { beatMarker: initialBM, beams: []}
+               { beatMarker: initialBM, beams: empty }
                beatMarkers
   in
-    result.beams
+    if (commonTime == timeSignature) then
+      optimiseCommonTimeBeaming result.beams
+    else
+    -- toUnfoldable from Map natually produces output sorted by key
+      map snd $ toUnfoldable result.beams
 
 -- | calculate the tuplet beams
 calculateTupletBeams :: Array NoteSpec -> Array VexTuplet -> Array BeamSpec
@@ -97,3 +112,15 @@ merge standardBeams tupletBeams =
     tupletBeamsSet = Set.fromFoldable tupletBeams
   in
     Set.toUnfoldable $ Set.union standardBeamsSet tupletBeamsSet
+
+-- | this is a placeholder where we could possibly determine an efficient
+-- | optimisation strategy for coalescing the beaming in common time
+optimiseCommonTimeBeaming :: BeamMap -> Array BeamSpec
+optimiseCommonTimeBeaming bm =
+  map snd $ toUnfoldable bm
+
+commonTime :: TimeSignature
+commonTime =
+  { numerator : 4
+  , denominator : 4
+  }
