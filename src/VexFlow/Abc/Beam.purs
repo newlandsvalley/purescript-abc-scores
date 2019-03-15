@@ -2,10 +2,10 @@ module VexFlow.Abc.Beam (calculateBeams) where
 
 -- work out the beam groups from the time signature
 
-import Prelude (($), (==), (-), (>), (<), (<>), (&&),  map, not)
-import Data.Array (slice, snoc)
+import Prelude (($), (==), (-), (>), (<), (<>), (&&),  (<=), (>=), map, not)
+import Data.Array (any, slice, snoc)
 import Data.Foldable (foldl)
-import Data.Set (fromFoldable, toUnfoldable, union) as Set
+-- import Data.Set (fromFoldable, toUnfoldable, union) as Set
 import Data.Map (Map, empty, insert, lookup, toUnfoldable)
 import Data.Tuple (snd)
 import Data.String.Utils (endsWith)
@@ -110,14 +110,33 @@ calculateTupletBeams noteSpecs vts =
   in
     foldl f [] vts
 
+{-}
 -- | merge the two, eliminating repeats
-merge :: Array BeamRange -> Array BeamRange -> Array BeamRange
-merge standardBeams tupletBeams =
+-- | (this does not cater for subsumption)
+merge1 :: Array BeamRange -> Array BeamRange -> Array BeamRange
+merge1 standardBeams tupletBeams =
   let
     standardBeamsSet = Set.fromFoldable standardBeams
     tupletBeamsSet = Set.fromFoldable tupletBeams
   in
     Set.toUnfoldable $ Set.union standardBeamsSet tupletBeamsSet
+-}
+
+
+-- | merge the tuplet beam ranges into the standard set
+-- | ensuring that if the standard set subsumes an incoming tuplet range
+-- | then the incomer is ignored.
+merge :: Array BeamRange -> Array BeamRange -> Array BeamRange
+merge standardBeams tupletBeams =
+  let
+    -- merge the new tuplet beam if it is not subsumed by what's there already
+    mergeFunc sBeams tupletBeam =
+      if (subsumes sBeams tupletBeam) then
+        sBeams
+      else
+        snoc sBeams tupletBeam
+  in
+    foldl mergeFunc standardBeams tupletBeams
 
 -- | Optimisations in common time which, wherever possible, allow
 -- | the beams for the first two beats in the bar to be coalesced
@@ -137,6 +156,17 @@ coalesce (Just r1) (Just r2) = [{ start: r1.start, end: r2.end }]
 coalesce (Just r) _ = [r]
 coalesce _ (Just r) = [r]
 coalesce _ _ = []
+
+-- | return true if the set of beam ranges subsumes the range of the incoming one
+subsumes :: Array BeamRange -> BeamRange -> Boolean
+subsumes as new =
+  let
+    -- does big envelop little ?
+    envelops :: BeamRange -> BeamRange -> Boolean
+    envelops little big =
+      big.start <= little.start && big.end >= little.end
+  in
+    any (envelops new) as
 
 commonTime :: TimeSignature
 commonTime =

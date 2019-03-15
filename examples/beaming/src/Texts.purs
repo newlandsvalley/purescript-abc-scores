@@ -65,6 +65,15 @@ beaming44g =
     <> "K: D\r\n"
     <> "| A4 A2Bc F8 |\r\n"
 
+beaming44h :: String
+beaming44h =
+    "X:1\r\n"
+    <> "T: Beaming in 4/4 - subsumed triplets\r\n"
+    <> "M: 4/4\r\n"
+    <> "L: 1/16\r\n"
+    <> "K: D\r\n"
+    <> "| (3c2d2e2 f2g2 c2f2 (3g2a2b2 |\r\n"    
+
 beaming32 :: String
 beaming32 =
     "X:1\r\n"
