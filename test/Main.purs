@@ -124,11 +124,23 @@ beamingSuite =
         mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\nC4 (3e4c4f4 \r\n"
       Assert.equal (Just []) $
         map (\b -> b.beamSpecs) mFirstBar
-    test "standard 4/4" do
+    -- common time optimisations
+    test "common time optimisation both halves" do
       let
         mFirstBar = getFirstBar "L: 1/16\r\nM: 4/4\r\ne2c2 f2c2 e2c2 f2c2\r\n"
-      Assert.equal (Just [[0,2], [2,4], [4,6], [6,8]]) $
+      Assert.equal (Just [[0,4], [4,8]]) $
         map (\b -> b.beamSpecs) mFirstBar
+    test "common time optimisation first half" do
+      let
+        mFirstBar = getFirstBar "L: 1/16\r\nM: 4/4\r\ne2c2 f2c2 e4 f2c2\r\n"
+      Assert.equal (Just [[0,4], [5,7]]) $
+        map (\b -> b.beamSpecs) mFirstBar
+    test "common time optimisation second half" do
+      let
+        mFirstBar = getFirstBar "L: 1/16\r\nM: 4/4\r\ne4 f2c2 e2c2 f2c2 \r\n"
+      Assert.equal (Just [[1,3], [3,7]]) $
+        map (\b -> b.beamSpecs) mFirstBar
+
 
 
 slursSuite :: Free TestF Unit

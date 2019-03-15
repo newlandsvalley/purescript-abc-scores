@@ -2,6 +2,10 @@ module VexFlow.Abc.Beat (beatDuration, exactBeatNumber) where
 
 -- | We need to work out where the beat lies before we can
 -- | work out explicit beaming
+-- | Beat Numbers are of use in determining the span of notes that exist
+-- | within a beat. e.g. in common time, they will be labelled 1,2,3 and 4
+-- | (in fact what is recorded for the first beat is 0 as it starts and 1 as
+-- | it ends, but the end beat mark is of value).
 
 import Prelude ((/), ($))
 import Data.Rational

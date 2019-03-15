@@ -2,19 +2,24 @@ module VexFlow.Abc.Beam (calculateBeams) where
 
 -- work out the beam groups from the time signature
 
-import Prelude (($), (==), (-), (>), (<), (&&),  map, not)
+import Prelude (($), (==), (-), (>), (<), (<>), (&&),  map, not)
 import Data.Array (slice, snoc)
 import Data.Foldable (foldl)
 import Data.Set (fromFoldable, toUnfoldable, union) as Set
-import Data.Map (Map, empty, insert, toUnfoldable)
+import Data.Map (Map, empty, insert, lookup, toUnfoldable)
 import Data.Tuple (snd)
 import Data.String.Utils (endsWith)
+import Data.Maybe (Maybe(..))
 import VexFlow.Types (BeamSpec, BeatMarker, BeatNumber, NoteSpec,
          TimeSignature, VexTuplet)
 
+type BeamRange =
+  { start :: Int
+  , end :: Int
+  }
+
 quarterNoteTicks :: Int
 quarterNoteTicks = 32
-
 
 -- | Calculate the beams, which come from standard beats or from tuplets
 calculateBeams ::
@@ -24,11 +29,12 @@ calculateBeams ::
   -> Array VexTuplet
   -> Array BeamSpec
 calculateBeams timeSignature noteSpecs beatMarkers tuplets =
-  merge
-    (calculateStandardBeams timeSignature noteSpecs beatMarkers)
-    (calculateTupletBeams noteSpecs tuplets)
+  map (\r -> [r.start, r.end]) $
+    merge
+      (calculateStandardBeams timeSignature noteSpecs beatMarkers)
+      (calculateTupletBeams noteSpecs tuplets)
 
-type BeamMap = Map BeatNumber BeamSpec
+type BeamMap = Map BeatNumber BeamRange
 
 type BeamAcc =
    { beatMarker :: BeatMarker
@@ -44,8 +50,8 @@ beamFunc noteSpecs acc beatMarker =
       && (allBeamableNotes
            $ slice acc.beatMarker.noteIndex beatMarker.noteIndex noteSpecs)) then
     let
-      newBeam :: Array Int
-      newBeam = [acc.beatMarker.noteIndex, beatMarker.noteIndex]
+      newBeam :: BeamRange
+      newBeam = {start: acc.beatMarker.noteIndex, end: beatMarker.noteIndex}
     in
       { beatMarker: beatMarker
       , beams: insert beatMarker.beatNumber newBeam acc.beams
@@ -76,7 +82,7 @@ isBeamableNote noteSpec =
 -- | beats and to allow beaming only in those instances where there are at least
 -- | a couple of notes to beam.
 calculateStandardBeams ::
-  TimeSignature -> Array NoteSpec -> Array BeatMarker -> Array BeamSpec
+  TimeSignature -> Array NoteSpec -> Array BeatMarker -> Array BeamRange
 calculateStandardBeams timeSignature noteSpecs beatMarkers =
   let
     initialBM = { beatNumber : 0, noteIndex: 0 }
@@ -91,21 +97,21 @@ calculateStandardBeams timeSignature noteSpecs beatMarkers =
       map snd $ toUnfoldable result.beams
 
 -- | calculate the tuplet beams
-calculateTupletBeams :: Array NoteSpec -> Array VexTuplet -> Array BeamSpec
+calculateTupletBeams :: Array NoteSpec -> Array VexTuplet -> Array BeamRange
 calculateTupletBeams noteSpecs vts =
     -- map (\vt -> [vt.startPos, vt.endPos]) vts
   let
-    f :: Array BeamSpec -> VexTuplet -> Array BeamSpec
+    f :: Array BeamRange -> VexTuplet -> Array BeamRange
     f bs vt =
       if allBeamableNotes $ slice vt.startPos vt.endPos noteSpecs then
-        snoc bs [vt.startPos, vt.endPos]
+        snoc bs { start: vt.startPos, end: vt.endPos }
       else
         bs
   in
     foldl f [] vts
 
 -- | merge the two, eliminating repeats
-merge :: Array BeamSpec -> Array BeamSpec -> Array BeamSpec
+merge :: Array BeamRange -> Array BeamRange -> Array BeamRange
 merge standardBeams tupletBeams =
   let
     standardBeamsSet = Set.fromFoldable standardBeams
@@ -113,11 +119,24 @@ merge standardBeams tupletBeams =
   in
     Set.toUnfoldable $ Set.union standardBeamsSet tupletBeamsSet
 
--- | this is a placeholder where we could possibly determine an efficient
--- | optimisation strategy for coalescing the beaming in common time
-optimiseCommonTimeBeaming :: BeamMap -> Array BeamSpec
+-- | Optimisations in common time which, wherever possible, allow
+-- | the beams for the first two beats in the bar to be coalesced
+-- | and also the last two beats in the bar
+optimiseCommonTimeBeaming :: BeamMap -> Array BeamRange
 optimiseCommonTimeBeaming bm =
-  map snd $ toUnfoldable bm
+  coalesce (lookup 1 bm) (lookup 2 bm)
+  <>
+  coalesce (lookup 3 bm) (lookup 4 bm)
+  -- to swith off the optimisation, replace with this:
+  -- (it may be too expensive to compute)
+  -- map snd $ toUnfoldable bm
+
+-- | coalesce the beaming for two adjacent beats in the bar
+coalesce :: Maybe BeamRange -> Maybe BeamRange -> Array BeamRange
+coalesce (Just r1) (Just r2) = [{ start: r1.start, end: r2.end }]
+coalesce (Just r) _ = [r]
+coalesce _ (Just r) = [r]
+coalesce _ _ = []
 
 commonTime :: TimeSignature
 commonTime =
