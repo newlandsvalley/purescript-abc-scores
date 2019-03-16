@@ -9,7 +9,7 @@ beaming44a =
     <> "M: 4/4\r\n"
     <> "L: 1/16\r\n"
     <> "K: C\r\n"
-    <> "| c2f2g2g2 f4 e2e2 |\r\n"
+    <> "B | c2f2g2g2 f4 e2e2 |\r\n"
 
 beaming44b :: String
 beaming44b =

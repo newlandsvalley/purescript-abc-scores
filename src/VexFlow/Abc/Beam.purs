@@ -180,7 +180,7 @@ calculateLeadinBeam ns =
   let
     len = length ns
   in
-    if (0 < len && (allBeamableNotes ns)) then
+    if (1 < len && (allBeamableNotes ns)) then
       [[0, len]]
     else
       []
