@@ -2,8 +2,8 @@ module VexFlow.Abc.Beam (calculateBeams) where
 
 -- work out the beam groups from the time signature
 
-import Prelude (($), (==), (-), (>), (<), (<>), (&&),  (<=), (>=), map, not)
-import Data.Array (any, slice, snoc)
+import Prelude (($), (==), (-), (>), (<), (<>), (&&), (<=), (>=), map, not)
+import Data.Array (any, length, slice, snoc)
 import Data.Foldable (foldl)
 -- import Data.Set (fromFoldable, toUnfoldable, union) as Set
 import Data.Map (Map, empty, insert, lookup, toUnfoldable)
@@ -29,10 +29,15 @@ calculateBeams ::
   -> Array VexTuplet
   -> Array BeamSpec
 calculateBeams timeSignature noteSpecs beatMarkers tuplets =
-  map (\r -> [r.start, r.end]) $
-    merge
-      (calculateStandardBeams timeSignature noteSpecs beatMarkers)
-      (calculateTupletBeams noteSpecs tuplets)
+  if (length beatMarkers > 1) then
+    -- normal bars
+    map (\r -> [r.start, r.end]) $
+      merge
+        (calculateStandardBeams timeSignature noteSpecs beatMarkers)
+        (calculateTupletBeams noteSpecs tuplets)
+  else
+    -- short lead-in bar
+    calculateLeadinBeam noteSpecs
 
 type BeamMap = Map BeatNumber BeamRange
 
@@ -167,6 +172,18 @@ subsumes as new =
       big.start <= little.start && big.end >= little.end
   in
     any (envelops new) as
+
+-- | calculate the beaming for any short lead-in bar
+-- |  (i.e. a bar with no first beat)
+calculateLeadinBeam :: Array NoteSpec -> Array BeamSpec
+calculateLeadinBeam ns =
+  let
+    len = length ns
+  in
+    if (0 < len && (allBeamableNotes ns)) then
+      [[0, len]]
+    else
+      []
 
 commonTime :: TimeSignature
 commonTime =

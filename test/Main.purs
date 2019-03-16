@@ -134,6 +134,11 @@ beamingSuite =
         mFirstBar = getFirstBar "L: 1/16\r\nM: 4/4\r\ne2c2 f2c2 (3f2c2d2 e2c2 \r\n"
       Assert.equal (Just [[0,4], [4,9]]) $
         map (\b -> b.beamSpecs) mFirstBar
+    test "short lead-in" do
+      let
+        mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\ncde\r\n"
+      Assert.equal (Just [[0,3]]) $
+        map (\b -> b.beamSpecs) mFirstBar
     -- common time optimisations
     test "common time optimisation both halves" do
       let
