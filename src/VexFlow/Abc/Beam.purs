@@ -2,17 +2,25 @@ module VexFlow.Abc.Beam (calculateBeams) where
 
 -- work out the beam groups from the time signature
 
-import Prelude (($), (==), (-), (>), (<), (<>), (&&), (<=), (>=), map, not)
-import Data.Array (any, length, slice, snoc)
+import Prelude (($), (==), (-), (+), (>), (<), (<>), (&&), (<=), (>=), (<<<), map, not)
+import Data.Array (any, filter, groupBy, length, mapWithIndex, slice, snoc)
+import Data.Array.NonEmpty (NonEmptyArray, length, head, last) as NE
 import Data.Foldable (foldl)
 -- import Data.Set (fromFoldable, toUnfoldable, union) as Set
 import Data.Map (Map, empty, insert, lookup, toUnfoldable)
 import Data.Tuple (snd)
 import Data.String.Utils (endsWith)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromJust, isJust)
+import Partial.Unsafe (unsafePartial)
 import VexFlow.Types (BeamSpec, BeatMarker, BeatNumber, NoteSpec,
          TimeSignature, VexTuplet)
 
+-- | a note is beamable if it is smaller than an eighth note and not a rest
+-- | We represent it by Just the note index if beamable, Nothing otherwise
+type Beamable = Maybe Int
+
+-- | a beam range is the index of the first note in the beam plus the
+-- | index of (one greater than) the last note in the beam
 type BeamRange =
   { start :: Int
   , end :: Int
@@ -108,25 +116,15 @@ calculateTupletBeams noteSpecs vts =
   let
     f :: Array BeamRange -> VexTuplet -> Array BeamRange
     f bs vt =
+      {-}
       if allBeamableNotes $ slice vt.startPos vt.endPos noteSpecs then
         snoc bs { start: vt.startPos, end: vt.endPos }
       else
         bs
+      -}
+      bs <> generateTupletBeamRanges vt noteSpecs
   in
     foldl f [] vts
-
-{-}
--- | merge the two, eliminating repeats
--- | (this does not cater for subsumption)
-merge1 :: Array BeamRange -> Array BeamRange -> Array BeamRange
-merge1 standardBeams tupletBeams =
-  let
-    standardBeamsSet = Set.fromFoldable standardBeams
-    tupletBeamsSet = Set.fromFoldable tupletBeams
-  in
-    Set.toUnfoldable $ Set.union standardBeamsSet tupletBeamsSet
--}
-
 
 -- | merge the tuplet beam ranges into the standard set
 -- | ensuring that if the standard set subsumes an incoming tuplet range
@@ -142,6 +140,7 @@ merge standardBeams tupletBeams =
         snoc sBeams tupletBeam
   in
     foldl mergeFunc standardBeams tupletBeams
+
 
 -- | Optimisations in common time which, wherever possible, allow
 -- | the beams for the first two beats in the bar to be coalesced
@@ -184,6 +183,54 @@ calculateLeadinBeam ns =
       [[0, len]]
     else
       []
+
+-- | generate beam ranges for a tuplet.
+-- | (a single tuplet may now have 'broken' beaming - i.e. more than one beam
+-- | group caused, for example by a component notespec being too big to beam
+-- | or forced to be unbeamed because it is a rest
+generateTupletBeamRanges ::  VexTuplet -> Array NoteSpec -> Array BeamRange
+generateTupletBeamRanges vt noteSpecs =
+  (toRanges <<< filterRanges <<< groupBeamables) $ buildTupletBeamables vt noteSpecs
+
+-- | group together successive 'Just' values (and also isolated Nothing values)
+groupBeamables :: Array Beamable -> Array (NE.NonEmptyArray Beamable)
+groupBeamables mis =
+  groupBy (\a b -> isJust a && isJust b) mis
+
+-- | filter from the grouped array of Beamables those sub arrays with more than one
+-- | element.  This removes all the Nothings and also singleton 'Justs'
+-- | what's left is those Beamables that represent a range of successive values
+-- | and this is what's beamable ib VexFlow
+filterRanges :: Array (NE.NonEmptyArray Beamable) -> Array (NE.NonEmptyArray Beamable)
+filterRanges mis =
+  filter (\a -> NE.length a > 1) mis
+
+-- | convert the filtered array to an array of beam ranges
+toRanges :: Array (NE.NonEmptyArray Beamable) -> Array BeamRange
+toRanges mis =
+  let
+    -- convert a sequence of beamables to a beam range
+    toRange :: NE.NonEmptyArray Beamable -> BeamRange
+    toRange range =
+      { start: unsafePartial $ fromJust $ NE.head range
+      , end: (unsafePartial $ fromJust $ NE.last range) + 1
+      }
+  in
+    map toRange mis
+
+-- | build an array of Beamables from a tuplet (and its notes)
+buildTupletBeamables :: VexTuplet -> Array NoteSpec -> Array Beamable
+buildTupletBeamables vt noteSpecs =
+  let
+    f :: Int -> NoteSpec -> Beamable
+    f i n =
+      if (isBeamableNote n) then
+        Just (i + vt.startPos)
+      else
+        Nothing
+  in
+    mapWithIndex f $ slice vt.startPos vt.endPos noteSpecs
+
 
 commonTime :: TimeSignature
 commonTime =

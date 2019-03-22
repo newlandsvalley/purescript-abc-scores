@@ -66,4 +66,5 @@ main = do
   _ <- displayAtStave beaming44g 6
   _ <- displayAtStave beaming44h 7
   _ <- displayAtStave beaming32  8
+  _ <- displayAtStave beam16thInTuplet 9
   pure unit

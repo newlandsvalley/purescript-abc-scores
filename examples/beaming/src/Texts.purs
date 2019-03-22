@@ -82,3 +82,12 @@ beaming32 =
     <> "L: 1/8\r\n"
     <> "K: Dm\r\n"
     <> "| e2c4 de f2c2 | d3c c2BA B3A |\r\n"
+
+beam16thInTuplet :: String
+beam16thInTuplet =
+    "X:1\r\n"
+    <> "T: beam 16th notes inside long tuplets\r\n"
+    <> "M: 3/4\r\n"
+    <> "L: 1/16\r\n"
+    <> "K: C\r\n"
+    <> "| (3:2:4c4d4e2f2 ABcd | (3:2:5B2c2d4e2f2 ABcd |\r\n"
