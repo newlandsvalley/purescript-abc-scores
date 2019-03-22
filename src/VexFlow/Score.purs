@@ -57,27 +57,21 @@ renderTuneAtStave staveNo config abcTune =
 -- | create a Vex Score from the ABC tune
 createScore :: Config -> AbcTune -> VexScore
 createScore config abcTune  =
-  let
-    eAbcContext = initialAbcContext abcTune config
-  in
-    case eAbcContext of
-      Left error ->
-        Left error
-      Right abcContext ->
-        runTuneBody abcContext abcTune.body
+  case (initialAbcContext abcTune config) of
+    Left error ->
+      Left error
+    Right abcContext ->
+      runTuneBody abcContext abcTune.body
 
 -- | create a Vex Score from the ABC tune but output at the required
 -- | stave number.  Useful for examples.
 createScoreAtStave :: Int -> Config -> AbcTune -> VexScore
 createScoreAtStave staveNo config abcTune  =
-  let
-    eAbcContext = initialAbcContext abcTune config
-  in
-    case eAbcContext of
-      Left error ->
-        Left error
-      Right abcContext ->
-        runTuneBody (abcContext { staveNo = Just staveNo }) abcTune.body
+  case (initialAbcContext abcTune config) of
+    Left error ->
+      Left error
+    Right abcContext ->
+      runTuneBody (abcContext { staveNo = Just staveNo }) abcTune.body
 
 -- | render the Vex Score to the HTML score div
 renderScore :: Config -> VexScore -> Effect Boolean

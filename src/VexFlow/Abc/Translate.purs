@@ -264,9 +264,8 @@ brokenRhythm context gn1 broken gn2 =
       (Tuple _ (Left e2) ) ->
         Left e2
 
--- | translate an ABC tuplet pair to a VexFlow tuplet spec
+-- | translate an ABC tuplet to a VexFlow tuplet spec
 -- | failing if any note duration cannot be translated
--- | not finished - n1 can alter the context for n2
 tuplet :: AbcContext -> Int -> TupletSignature -> Array RestOrNote -> Either String TupletSpec
 tuplet context startOffset signature rns =
   let

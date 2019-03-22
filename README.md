@@ -26,8 +26,8 @@ To build the example showing right-alignment of staves
      bower install
      npm run align-staves
 
-To build the example showing beaming in 4/4 rhythms
----------------------------------------------------
+To build the example showing beaming
+------------------------------------
      bower install
      npm run beaming     
 
