@@ -254,10 +254,16 @@ var wrapper = function() {
     // make a slur represented by a curve
     makeCurve: function (notes) {
       return function (vexCurve) {
+        // the slope of the curve is just a simple heuristic
+        var controlPoints = [{ x: 0, y: 5 }, { x: 0, y: 5 }]
+        if (vexCurve.to - vexCurve.from > 1 ) {
+          controlPoints = [{ x: 0, y: 10 }, { x: 0, y: 10 }]
+        }
         return new VF.Curve(
           notes[vexCurve.from],
           notes[vexCurve.to],
-          { cps: [{ x: 0, y: 10 }, { x: 0, y: 20 }]
+          { thickness: 2,
+            cps: controlPoints
         });
       };
     },

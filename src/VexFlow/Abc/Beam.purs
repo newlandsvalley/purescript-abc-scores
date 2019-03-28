@@ -15,7 +15,7 @@ import Partial.Unsafe (unsafePartial)
 import VexFlow.Types (BeamSpec, BeatMarker, BeatNumber, NoteSpec,
          TimeSignature, VexTuplet)
 
--- | a note is beamable if it is smaller than an eighth note and not a rest
+-- | a note is beamable if it is smaller than a quarter note and not a rest
 -- | We represent it by Just the note index if beamable, Nothing otherwise
 type Beamable = Maybe Int
 
