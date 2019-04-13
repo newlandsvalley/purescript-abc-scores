@@ -87,6 +87,7 @@ type NoteSpec =
   , accidentals :: Array String
   , dots :: Array Int
   , graceKeys :: Array String
+  , graceAccidentals :: Array String
   , ornaments :: Array String
   , articulations :: Array String
   , noteTicks :: Int     -- the measurable duration of the note in ticks

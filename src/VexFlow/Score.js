@@ -211,6 +211,7 @@ var wrapper = function() {
 
       if (noteSpec.graceKeys.length > 0) {
         var graceNotes = noteSpec.graceKeys.map(wrapper.makeGraceNote);
+        wrapper.addGraceAccidentals (graceNotes, noteSpec.graceAccidentals);
         var graceNoteGroup =  new VF.GraceNoteGroup(graceNotes, true);
         sn.addModifier(0, graceNoteGroup.beamNotes());
       }
@@ -277,7 +278,16 @@ var wrapper = function() {
       });
     },
 
-    // add the accidental(s) to the staveNote(s)
+    // add any accidentals to the grace notes
+    addGraceAccidentals: function (graceNotes, accidentals) {
+      accidentals.forEach (function (accidentalString, index) {
+        if (accidentalString) {
+          graceNotes[index].addAccidental(index, new VF.Accidental(accidentalString));
+        }
+      });
+    },
+
+    // add the dottedness to the staveNote
     addDots: function (staveNote, dots) {
       dots.forEach (function (dotCount, index) {
         if (dotCount == 2) {

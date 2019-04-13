@@ -147,6 +147,8 @@ graceableNote context noteIndex gn  =
     graceNotes = maybe [] (\grace -> Nel.toUnfoldable grace.notes) gn.maybeGrace
     graceKeys :: Array String
     graceKeys = map notePitch graceNotes
+    graceAccidentals :: Array String
+    graceAccidentals = map noteAccidental graceNotes
     -- edur = noteDur context gn.abcNote
     eVexDur = vexDuration context.unitNoteLength gn.abcNote.duration
     key = notePitch gn.abcNote
@@ -165,6 +167,7 @@ graceableNote context noteIndex gn  =
           , accidentals : [accidental gn.abcNote.accidental]
           , dots : [vexDur.dots]
           , graceKeys : graceKeys
+          , graceAccidentals : graceAccidentals
           , ornaments : ornaments gn.decorations
           , articulations : articulations gn.decorations
           , noteTicks : noteTicks context.unitNoteLength gn.abcNote.duration
@@ -196,6 +199,7 @@ rest context abcRest =
           , accidentals : []
           , dots : [vexDur.dots]
           , graceKeys : []
+          , graceAccidentals : []
           , ornaments : []
           , articulations : []
           , noteTicks : noteTicks context.unitNoteLength abcRest.duration
@@ -240,6 +244,7 @@ chord context abcChord =
           , accidentals : accidentals
           , dots : dotCounts   -- we need to apply dots to each note in the chord
           , graceKeys : []
+          , graceAccidentals : []
           , ornaments : []
           , articulations : []
           , noteTicks : noteTicks context.unitNoteLength chordLen

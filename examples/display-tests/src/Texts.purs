@@ -135,7 +135,7 @@ grace =
     <> "M: 4/4\r\n"
     <> "L: 1/16\r\n"
     <> "K: D\r\n"
-    <> "| G2 {A}G4 F2 C4 {E}F2G2 | c2f2 (3c2{a}f2g2 c2f2 g2>{b}a2| \r\n"
+    <> "| G2 {A}G4 F2 C4 {E}F2G2 | c2f2 (3c2{a}f2g2 c2f2 g2>{^g}a2| \r\n"
 
 ornament :: String
 ornament =
@@ -223,4 +223,4 @@ tripletWithTie =
   <> "M: 3/4\r\n"
   <> "L: 1/16\r\n"
   <> "K: D\r\n"
-  <> "| (3B2G4A6- A2G2 |\r\n"    
+  <> "| (3B2G4A6- A2G2 |\r\n"
