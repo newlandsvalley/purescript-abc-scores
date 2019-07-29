@@ -98,7 +98,8 @@ music context tickablePosition noteIndex phraseDuration m =
       BrokenRhythmPair gn1 broken gn2 ->
         buildMusicSpecFromNs tickableContext mBeatMarker $ brokenRhythm context gn1 broken gn2
 
-      Tuplet signature rOrNs ->
+      Tuplet mGrace signature rOrNs ->
+        -- grace notes prefacing tuplets currently ignored
         let
           eRes = tuplet context tickablePosition signature (Nel.toUnfoldable rOrNs)
         in
