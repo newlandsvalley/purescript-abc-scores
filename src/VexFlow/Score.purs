@@ -1,10 +1,12 @@
 module VexFlow.Score
-  ( Stave
+  ( Renderer
+  , Stave
   , createScore
   , renderScore
   , renderTune
   , renderTuneAtStave
   , initialiseCanvas
+  , resizeCanvas
   , newStave
   , clearCanvas) where
 
@@ -26,6 +28,8 @@ import VexFlow.Abc.Volta (Volta)
 import VexFlow.Abc.Slur (VexCurves)
 import VexFlow.Abc.Utils (initialAbcContext)
 
+-- | the Vex renderer
+foreign import data Renderer :: Type
 -- | a stave
 foreign import data Stave :: Type
 
@@ -44,15 +48,15 @@ newStave staveCnfg ks =
   newStaveImpl staveCnfg (Translate.keySignature ks)
 
 -- | render the ABC tune
-renderTune :: Config -> AbcTune -> Effect Boolean
-renderTune config abcTune =
-  renderScore config $ createScore config abcTune
+renderTune :: Config -> Renderer -> AbcTune -> Effect Boolean
+renderTune config renderer abcTune =
+  renderScore config renderer $ createScore config abcTune
 
 -- | render the tune but at the required stave number
 -- | useful for examples
-renderTuneAtStave :: Int -> Config -> AbcTune -> Effect Boolean
-renderTuneAtStave staveNo config abcTune =
-  renderScore config $ createScoreAtStave staveNo config abcTune
+renderTuneAtStave :: Int -> Config -> Renderer -> AbcTune -> Effect Boolean
+renderTuneAtStave staveNo config renderer abcTune =
+  renderScore config renderer $ createScoreAtStave staveNo config abcTune
 
 -- | create a Vex Score from the ABC tune
 createScore :: Config -> AbcTune -> VexScore
@@ -74,28 +78,28 @@ createScoreAtStave staveNo config abcTune  =
       runTuneBody (abcContext { staveNo = Just staveNo }) abcTune.body
 
 -- | render the Vex Score to the HTML score div
-renderScore :: Config -> VexScore -> Effect Boolean
-renderScore config eStaveSpecs  =
+renderScore :: Config -> Renderer -> VexScore -> Effect Boolean
+renderScore config renderer eStaveSpecs  =
   case eStaveSpecs of
     Right staveSpecs -> do
-      _ <- traverse_ displayStaveSpec staveSpecs
+      _ <- traverse_ (displayStaveSpec renderer) staveSpecs
       pure true
     Left err -> do
       _ <- log ("error in producing score: " <> err)
       pure false
 
-displayStaveSpec :: Maybe StaveSpec -> Effect Unit
-displayStaveSpec mStaveSpec =
+displayStaveSpec :: Renderer -> Maybe StaveSpec -> Effect Unit
+displayStaveSpec renderer mStaveSpec =
   case mStaveSpec of
     (Just staveSpec) ->
-      traverse_ (displayBarSpec staveSpec) staveSpec.barSpecs
+      traverse_ (displayBarSpec renderer staveSpec) staveSpec.barSpecs
     _ ->
       -- the body part is merely a header - no display needed
       pure unit
 
 -- | display a single bar from the (translated) BarSpec
-displayBarSpec :: StaveSpec -> BarSpec -> Effect Unit
-displayBarSpec staveSpec barSpec =
+displayBarSpec :: Renderer -> StaveSpec -> BarSpec -> Effect Unit
+displayBarSpec renderer staveSpec barSpec =
   let
     (MusicSpec musicSpec) = barSpec.musicSpec
   in
@@ -123,8 +127,8 @@ displayBarSpec staveSpec barSpec =
       _ <- processBarBeginRepeat staveBar barSpec.startLine.repeat
       _ <- processBarEndRepeat staveBar barSpec.endLineRepeat
       _ <- processVolta staveBar barSpec.volta
-      displayBarContents staveBar barSpec.beamSpecs barSpec.curves musicSpec
-      displayStave staveBar
+      renderBarContents renderer staveBar barSpec.beamSpecs barSpec.curves musicSpec
+      renderStave renderer staveBar
 
 -- | display bar begin repeat markers
 processBarBeginRepeat :: Stave -> Maybe Repeat -> Effect Unit
@@ -176,17 +180,19 @@ addTempoMarking stave mTempo =
   maybe (pure unit) (addTempoMarkingImpl stave) mTempo
 
 -- | initialise VexFlow against the canvas where it renders
-foreign import initialiseCanvas :: Config -> Effect Unit
+foreign import initialiseCanvas :: Config -> Effect Renderer
+-- | resize the canvas
+foreign import resizeCanvas :: Renderer -> Config -> Effect Unit
 -- | clear the score from the canvas
-foreign import clearCanvas :: Effect Unit
+foreign import clearCanvas :: Renderer -> Effect Unit
 -- | create a new stave bar
 foreign import newStaveImpl :: StaveConfig -> String -> Effect Stave
 -- | get the width of a stave
 foreign import getStaveWidth :: Stave -> Effect Int
 -- | display all the contents of the bar, using auto-beaming for the notes
-foreign import displayBarContents :: Stave -> Array BeamSpec -> VexCurves -> MusicSpecContents -> Effect Unit
+foreign import renderBarContents :: Renderer -> Stave -> Array BeamSpec -> VexCurves -> MusicSpecContents -> Effect Unit
 -- | display the (filled) bar
-foreign import displayStave :: Stave -> Effect Unit
+foreign import renderStave :: Renderer -> Stave -> Effect Unit
 -- | dispay a bar begin repeat
 foreign import displayBarBeginRepeat :: Stave -> Effect Unit
 -- | dispay a bar begin repeat

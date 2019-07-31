@@ -7,7 +7,7 @@ import Data.Rational ((%))
 import Data.Maybe (Maybe(..))
 import Data.Either (Either(..))
 import Data.Int (round, toNumber)
-import VexFlow.Score (initialiseCanvas, renderTuneAtStave)
+import VexFlow.Score (Renderer, initialiseCanvas, renderTuneAtStave)
 import VexFlow.Types (Config, AbcContext, staveIndentation)
 import VexFlow.Abc.Beat (beatDuration)
 import Data.Abc (KeySignature, MeterSignature)
@@ -43,28 +43,28 @@ abcContext (Tuple numerator denominator ) keySignature staveNo =
   , beatDuration: beatDuration { numerator, denominator }
   }
 
-displayAtStave :: String -> Int -> Effect Boolean
-displayAtStave text staveNo =
+displayAtStave :: Renderer -> String -> Int -> Effect Boolean
+displayAtStave renderer text staveNo =
   let
     eAbcTune = parse text
   in
     case eAbcTune of
       Right abcTune -> do
-        renderTuneAtStave staveNo config abcTune
+        renderTuneAtStave staveNo config renderer abcTune
       _ ->
         pure false
 
 main :: Effect Unit
 main = do
-  _ <- initialiseCanvas config
-  _ <- displayAtStave beaming44a 0
-  _ <- displayAtStave beaming44b 1
-  _ <- displayAtStave beaming44c 2
-  _ <- displayAtStave beaming44d 3
-  _ <- displayAtStave beaming44e 4
-  _ <- displayAtStave beaming44f 5
-  _ <- displayAtStave beaming44g 6
-  _ <- displayAtStave beaming44h 7
-  _ <- displayAtStave beaming32  8
-  _ <- displayAtStave beam16thInTuplet 9
+  renderer <- initialiseCanvas config
+  _ <- displayAtStave renderer beaming44a 0
+  _ <- displayAtStave renderer beaming44b 1
+  _ <- displayAtStave renderer beaming44c 2
+  _ <- displayAtStave renderer beaming44d 3
+  _ <- displayAtStave renderer beaming44e 4
+  _ <- displayAtStave renderer beaming44f 5
+  _ <- displayAtStave renderer beaming44g 6
+  _ <- displayAtStave renderer beaming44h 7
+  _ <- displayAtStave renderer beaming32  8
+  _ <- displayAtStave renderer beam16thInTuplet 9
   pure unit

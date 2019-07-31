@@ -3,8 +3,10 @@
 var wrapper = function() {
 
   var VF = null;
+  /*
   var renderer = null;
   var context = null;
+  */
 
   return {
 
@@ -14,7 +16,16 @@ var wrapper = function() {
       }
     },
 
-    clearCanvas : function () {
+    resizeCanvas : function (renderer) {
+      return function (config) {
+        return function () {
+          return wrapper.reinitCanvas(renderer, config);
+        }
+      }
+    },
+
+    clearCanvas : function (renderer) {
+      var context = renderer.getContext();
       context.clear();
     },
 
@@ -53,9 +64,11 @@ var wrapper = function() {
       }
     },
 
-    displayStave : function (stave) {
-      return function () {
-        return wrapper.drawStave(stave);
+    renderStave : function (renderer) {
+      return function (stave) {
+        return function () {
+          return wrapper.drawStave(renderer, stave);
+        }
       }
     },
 
@@ -89,12 +102,14 @@ var wrapper = function() {
       }
     },
 
-    displayBarContents : function (stave) {
-      return function (beamSpecs) {
-        return function (vexCurves) {
-          return function (musicSpec) {
-            return function () {
-              return wrapper.drawBarContents(stave, beamSpecs, vexCurves, musicSpec);
+    renderBarContents : function (renderer) {
+      return function (stave) {
+        return function (beamSpecs) {
+          return function (vexCurves) {
+            return function (musicSpec) {
+              return function () {
+                return wrapper.drawBarContents(renderer, stave, beamSpecs, vexCurves, musicSpec);
+              }
             }
           }
         }
@@ -105,15 +120,25 @@ var wrapper = function() {
       // console.log(config);
 
       VF = Vex.Flow;
-      renderer = new VF.Renderer(config.canvasDivId , VF.Renderer.Backends.SVG);
+      var renderer = new VF.Renderer(config.canvasDivId , VF.Renderer.Backends.SVG);
       // renderer = new VF.Renderer(config.canvasDivId, VF.Renderer.Backends.CANVAS);
 
       // Size our svg:
       renderer.resize(config.canvasWidth, config.canvasHeight);
 
-      context = renderer.getContext();
+      var context = renderer.getContext();
       context.scale(config.scale, config.scale);
+
+      return renderer;
     },
+
+    reinitCanvas: function (renderer, config) {
+        // Size our svg:
+        renderer.resize(config.canvasWidth, config.canvasHeight);
+
+        var context = renderer.getContext();
+        context.scale(config.scale, config.scale);
+      },
 
     makeStave: function (staveConfig, keySignature) {
 
@@ -136,7 +161,8 @@ var wrapper = function() {
       return stave;
     },
 
-    drawStave: function (stave) {
+    drawStave: function (renderer, stave) {
+      var context = renderer.getContext();
       stave.setContext(context).draw();
     },
 
@@ -180,9 +206,10 @@ var wrapper = function() {
     },
 
     /* draw the contents of the bar, using auto-beaming for the notes */
-    drawBarContents: function (stave, beamSpecs, vexCurves, musicSpec) {
+    drawBarContents: function (renderer, stave, beamSpecs, vexCurves, musicSpec) {
       // console.log("drawBarContents")
       // console.log(musicSpec);
+      var context = renderer.getContext();
       var notes = musicSpec.noteSpecs.map(wrapper.makeStaveNote);
       var tuplets = musicSpec.tuplets.map(wrapper.makeTupletLayout (notes));
       var ties = musicSpec.ties.map(wrapper.makeTie (notes));
@@ -318,14 +345,15 @@ var wrapper = function() {
 }();
 
 exports.initialiseCanvas = wrapper.initialiseCanvas;
+exports.resizeCanvas = wrapper.resizeCanvas;
 exports.clearCanvas = wrapper.clearCanvas;
 exports.newStaveImpl = wrapper.newStaveImpl;
-exports.displayStave = wrapper.displayStave;
+exports.renderStave = wrapper.renderStave;
 exports.getStaveWidth = wrapper.getStaveWidth;
 exports.displayBarBeginRepeat = wrapper.displayBarBeginRepeat;
 exports.displayBarEndRepeat = wrapper.displayBarEndRepeat;
 exports.displayBarBothRepeat = wrapper.displayBarBothRepeat;
-exports.displayBarContents = wrapper.displayBarContents;
+exports.renderBarContents = wrapper.renderBarContents;
 exports.displayVolta = wrapper.displayVolta;
 exports.addTimeSignature = wrapper.addTimeSignature;
 exports.addKeySignature = wrapper.addKeySignature;

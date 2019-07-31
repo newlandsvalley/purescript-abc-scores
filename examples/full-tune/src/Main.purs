@@ -34,7 +34,7 @@ main =
       Right abcTune -> do
         let
           config = configure abcTune
-        _ <- initialiseCanvas config
-        renderTune config abcTune
+        renderer <- initialiseCanvas config
+        renderTune config renderer abcTune
       _ ->
         pure false
