@@ -25,8 +25,10 @@ var wrapper = function() {
     },
 
     clearCanvas : function (renderer) {
-      var context = renderer.getContext();
+      return function () {
+        var context = renderer.getContext();
       context.clear();
+      }  
     },
 
     newStaveImpl : function (staveConfig) {

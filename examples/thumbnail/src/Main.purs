@@ -3,7 +3,7 @@ module Examples.Thumbnail.Main where
 import Prelude (bind, pure)
 import Effect (Effect)
 import Data.Either (Either(..))
-import VexFlow.Score (createScore, renderScore, initialiseCanvas, resizeCanvas)
+import VexFlow.Score (createScore, renderScore, clearCanvas, initialiseCanvas, resizeCanvas)
 import VexFlow.Types (Config)
 import VexFlow.Abc.Alignment (justifiedScoreConfig, rightJustify)
 import VexFlow.Abc.Utils (canvasHeight)
@@ -52,6 +52,7 @@ main =
           unjustifiedScore = createScore defaultConfig (thumbnail abcTune)
           score = rightJustify canvasWidth scale unjustifiedScore
           config = justifiedScoreConfig score defaultConfig
+        _ <- clearCanvas renderer
         _ <- resizeCanvas renderer config
         renderScore config renderer score
       _ ->
