@@ -21,20 +21,14 @@ canvasDepth = 800
 scale :: Number
 scale = 0.8
 
-configure :: AbcTune -> Config
-configure tune =
-  { canvasDivId : "canvas"
-  , canvasWidth : canvasWidth
-  , canvasHeight : canvasHeight tune
-  , scale : scale
-  }
 
 defaultConfig :: Config
 defaultConfig =
-  { canvasDivId : "canvas"
-  , canvasWidth : canvasWidth
-  , canvasHeight : canvasDepth
+  { parentElementId : "canvas"
+  , width : canvasWidth
+  , height : canvasDepth
   , scale : scale
+  , isSVG : true
   }
 
 main :: Effect Boolean
@@ -46,7 +40,6 @@ main =
       Right abcTune -> do
         renderer <- initialiseCanvas defaultConfig
         let
-          -- config = configure abcTune
           unjustifiedScore = createScore defaultConfig abcTune
           score = rightJustify canvasWidth scale unjustifiedScore
           config = justifiedScoreConfig score defaultConfig

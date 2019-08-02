@@ -24,20 +24,13 @@ canvasDepth = 200
 scale :: Number
 scale = 0.8
 
-configure :: AbcTune -> Config
-configure tune =
-  { canvasDivId : "canvas"
-  , canvasWidth : canvasWidth
-  , canvasHeight : canvasHeight tune
-  , scale : 0.8
-  }
-
 defaultConfig :: Config
 defaultConfig =
-  { canvasDivId : "canvas"
-  , canvasWidth : canvasWidth
-  , canvasHeight : canvasDepth
+  { parentElementId : "canvas"
+  , width : canvasWidth
+  , height : canvasDepth
   , scale : scale
+  , isSVG : false
   }
 
 main :: Effect Boolean

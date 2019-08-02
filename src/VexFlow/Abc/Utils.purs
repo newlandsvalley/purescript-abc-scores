@@ -178,7 +178,7 @@ initialAbcContext tune config =
         , isMidVolta : false
         , isNewTimeSignature : true  -- when we start off
         , maxWidth : Int.round $
-            (Int.toNumber (config.canvasWidth - staveIndentation)) / config.scale
+            (Int.toNumber (config.width - staveIndentation)) / config.scale
         , pendingRepeatBegin : false
         , beatDuration : beatDuration  { numerator, denominator }
         }

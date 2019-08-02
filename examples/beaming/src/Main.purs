@@ -22,10 +22,11 @@ scale = 0.8
 
 config :: Config
 config =
-  { canvasDivId : "canvas"
-  , canvasWidth : canvasWidth
-  , canvasHeight : 1600
+  { parentElementId : "canvas"
+  , width : canvasWidth
+  , height : 1600
   , scale : scale
+  , isSVG : true
   }
 
 abcContext :: MeterSignature -> KeySignature -> Int -> AbcContext

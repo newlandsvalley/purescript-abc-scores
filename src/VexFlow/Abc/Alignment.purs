@@ -50,8 +50,8 @@ justifiedScoreConfig score originalConfig =
       either (\_ -> 0) (\staves -> justifiedScoreCanvasHeight originalConfig.scale staves) score
   in
     originalConfig
-      { canvasWidth  = justifiedScoreWidth
-      , canvasHeight = justifiedScoreHeight
+      { width  = justifiedScoreWidth
+      , height = justifiedScoreHeight
       }
 
 -- | where possible, align all staves so that they are aligned at the right-hand

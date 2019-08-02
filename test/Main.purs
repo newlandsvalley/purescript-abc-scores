@@ -27,10 +27,11 @@ main = runTest do
 
 configure :: AbcTune -> Config
 configure tune =
-  { canvasDivId : "canvas"
-  , canvasWidth : 100
-  , canvasHeight : 100
+  { parentElementId : "canvas"
+  , width : 100
+  , height : 100
   , scale : 0.8
+  , isSVG : false
   }
 
 getFirstBar :: String -> Maybe BarSpec

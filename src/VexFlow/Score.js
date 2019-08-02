@@ -28,7 +28,7 @@ var wrapper = function() {
       return function () {
         var context = renderer.getContext();
       context.clear();
-      }  
+      }
     },
 
     newStaveImpl : function (staveConfig) {
@@ -122,11 +122,16 @@ var wrapper = function() {
       // console.log(config);
 
       VF = Vex.Flow;
-      var renderer = new VF.Renderer(config.canvasDivId , VF.Renderer.Backends.SVG);
-      // renderer = new VF.Renderer(config.canvasDivId, VF.Renderer.Backends.CANVAS);
+      var renderer
+
+      if (config.isSVG) {
+        renderer = new VF.Renderer(config.parentElementId , VF.Renderer.Backends.SVG);
+      } else {
+        renderer = new VF.Renderer(config.parentElementId , VF.Renderer.Backends.CANVAS);
+      }
 
       // Size our svg:
-      renderer.resize(config.canvasWidth, config.canvasHeight);
+      renderer.resize(config.width, config.height);
 
       var context = renderer.getContext();
       context.scale(config.scale, config.scale);
@@ -136,7 +141,7 @@ var wrapper = function() {
 
     reinitCanvas: function (renderer, config) {
         // Size our svg:
-        renderer.resize(config.canvasWidth, config.canvasHeight);
+        renderer.resize(config.width, config.height);
 
         var context = renderer.getContext();
         context.scale(config.scale, config.scale);

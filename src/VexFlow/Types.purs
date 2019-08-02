@@ -25,12 +25,13 @@ staveSeparation = 100
 
 type VexScore = Either String (Array (Maybe StaveSpec))
 
--- | the configuration of the VexFlow Canvas
+-- | the configuration of the VexFlow Backend (SVG is preferred, or Canvas)
 type Config =
-    { canvasDivId :: String
-    , canvasWidth :: Int
-    , canvasHeight :: Int
+    { parentElementId :: String      -- DivID (SVG) or CanvasID (Canvas)
+    , width :: Int
+    , height :: Int
     , scale :: Number
+    , isSVG :: Boolean                -- true (SVG) or false (Canvas)
     }
 
 -- | the configuration of a Stave
