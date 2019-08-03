@@ -28,7 +28,7 @@ import Data.Newtype (unwrap)
 import Prelude (bind, map, max, mempty, min, pure, ($), (*), (+), (-), (/), (<>), (>=), (/=))
 import VexFlow.Abc.BarEnd (staveWidth)
 import VexFlow.Types (BarSpec, Config, LineThickness(..), StaveSpec, VexScore,
-       scoreVerticalMargin, staveIndentation, staveSeparation)
+       scoreMarginBottom, staveIndentation, staveSeparation)
 
 type Alignment a = State Int a
 
@@ -169,6 +169,13 @@ justifiedScoreCanvasWidth scale staves =
 justifiedScoreCanvasHeight :: Number -> Array (Maybe StaveSpec) -> Int
 justifiedScoreCanvasHeight scale staves =
   let
-    staveHeight = ((length staves) * staveSeparation) + 2 * scoreVerticalMargin
+    -- we'll assume if we have just one stave, then it's a thumbnail
+    -- and we want to minimise the dimensions
+    marginBottom =
+      if (1 >= length staves) then
+        0
+      else
+        scoreMarginBottom
+    staveHeight = ((length staves) * staveSeparation) + marginBottom
   in
     floor $ (toNumber staveHeight) * scale

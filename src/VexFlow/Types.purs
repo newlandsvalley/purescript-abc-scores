@@ -15,9 +15,10 @@ type BeatNumber = Int
 staveIndentation :: Int
 staveIndentation = 10
 
--- | the margin above and below the score
-scoreVerticalMargin :: Int
-scoreVerticalMargin = 15
+-- | the margin below the score
+-- | (only used at the moment in alignment)
+scoreMarginBottom :: Int
+scoreMarginBottom = 15
 
 -- | the distance between successive staves
 staveSeparation :: Int
