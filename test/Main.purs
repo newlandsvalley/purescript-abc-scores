@@ -107,7 +107,7 @@ beamingSuite =
      let
        mFirstBar = getFirstBar "L: 1/16\r\nM: 2/4\r\nf2c2 (3d2e2c2 \r\n"
      Assert.equal (Just [[0,2], [2,5]]) $
-    map (\b -> b.beamSpecs) mFirstBar
+         map (\b -> b.beamSpecs) mFirstBar
     test "standard 3/4" do
       let
         mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\ne2c2 f2c2 B2A2\r\n"

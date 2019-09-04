@@ -129,13 +129,13 @@ music context tickablePosition noteIndex phraseDuration m =
           ')' ->
             Right $ buildMusicSpecFromSlurBracket [ RightBracket (noteIndex -1) ]
           _ ->
-            Right $ mempty :: MusicSpec
+            Right $ mempty :: Either String MusicSpec
 
       Inline header ->
         Right $ buildMusicSpecFromContextChange $ headerChange context header
 
       _ ->
-        Right $ mempty :: MusicSpec
+        Right $ mempty :: Either String MusicSpec
 
 -- | Translate an ABC graceable note to a VexFlow note
 -- | failing if the duration cannot be translated
