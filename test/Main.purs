@@ -127,7 +127,7 @@ beamingSuite =
         map (\b -> b.beamSpecs) mFirstBar
     test "split beaming in slow triplet" do
       let
-        mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\nC4 (3d2e2c4f2g2 \r\n"
+        mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\nC4 (3:2:5d2e2c4f2g2 \r\n"
       Assert.equal (Just [[1,3],[4,6]]) $
         map (\b -> b.beamSpecs) mFirstBar
     test "split beaming - tuplet before standard" do
@@ -139,7 +139,7 @@ beamingSuite =
         map (\b -> b.beamSpecs) mFirstBar
     test "rest in slow triplet" do
       let
-        mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\nC4 (3e4z4f2g2 \r\n"
+        mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\nC4 (3:2:4e4z4f2g2 \r\n"
       Assert.equal (Just [[3,5]]) $
         map (\b -> b.beamSpecs) mFirstBar
     test "standard/tuplet overlap 1" do
