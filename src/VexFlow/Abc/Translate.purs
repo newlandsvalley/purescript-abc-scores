@@ -15,7 +15,7 @@ import Data.Array (last, length, mapWithIndex, (:))
 import Data.Either (Either(..))
 import Data.List (List, foldl)
 import Data.List.NonEmpty (toUnfoldable) as Nel
-import Data.Unfoldable (fromMaybe)
+import Data.Unfoldable (fromMaybe, replicate)
 import Data.Maybe (Maybe(..), maybe)
 import Data.String.Common (toLower)
 import Data.Traversable (sequence)
@@ -84,19 +84,19 @@ music context tickablePosition noteIndex phraseDuration m =
   in
     case m of
       Note gn ->
-        buildMusicSpecFromN tickableContext noteIndex mBeatMarker gn.abcNote.tied
+        buildMusicSpecFromN tickableContext noteIndex mBeatMarker gn.abcNote.tied gn.leftSlurs gn.rightSlurs
           $ graceableNote context 0 gn
 
       Rest dur ->
         -- rests are never tied
-        buildMusicSpecFromN tickableContext noteIndex mBeatMarker false $ rest context dur
+        buildMusicSpecFromN tickableContext noteIndex mBeatMarker false 0 0 $ rest context dur
 
       Chord abcChord ->
         -- we don't support tied chords at the moment
-        buildMusicSpecFromN tickableContext noteIndex mBeatMarker false $ chord context abcChord
+        buildMusicSpecFromN tickableContext noteIndex mBeatMarker false 0 0 $ chord context abcChord
 
       BrokenRhythmPair gn1 broken gn2 ->
-        buildMusicSpecFromNs tickableContext mBeatMarker $ brokenRhythm context gn1 broken gn2
+        buildMusicSpecFromNs tickableContext noteIndex mBeatMarker gn1 gn2 $ brokenRhythm context gn1 broken gn2
 
       Tuplet mGrace signature rOrNs ->
         -- grace notes prefacing tuplets currently ignored
@@ -121,15 +121,6 @@ music context tickablePosition noteIndex phraseDuration m =
                 , beatMarkers : fromMaybe mBeatMarker
                 }
               ) eRes
-
-      Slur bracket ->
-        case bracket of
-          '(' ->
-            Right $ buildMusicSpecFromSlurBracket [ LeftBracket noteIndex ]
-          ')' ->
-            Right $ buildMusicSpecFromSlurBracket [ RightBracket (noteIndex -1) ]
-          _ ->
-            Right $ mempty :: Either String MusicSpec
 
       Inline header ->
         Right $ buildMusicSpecFromContextChange $ headerChange context header
@@ -388,20 +379,41 @@ articulations artics =
     foldl f [] artics
 
 
-buildMusicSpecFromNs :: TickableContext -> Maybe BeatMarker -> Either String (Array NoteSpec) -> Either String MusicSpec
-buildMusicSpecFromNs tCtx mBeatMarker ens =
-  map (\ns -> MusicSpec
-    { noteSpecs : ns
-    , tuplets : []
-    , ties : []
-    , tickableContext : tCtx
-    , contextChanges : []
-    , slurBrackets : mempty
-    , beatMarkers : fromMaybe mBeatMarker
-    }) ens
+buildMusicSpecFromNs ::
+     TickableContext
+  -> Int
+  -> Maybe BeatMarker
+  -> GraceableNote
+  -> GraceableNote
+  -> Either String (Array NoteSpec)
+  -> Either String MusicSpec
+buildMusicSpecFromNs tCtx noteIndex mBeatMarker gn1 gn2 ens =
+  let
+    slurBrackets =
+      buildSlurBrackets noteIndex gn1.leftSlurs gn1.rightSlurs
+        <> buildSlurBrackets (noteIndex + 1) gn2.leftSlurs gn2.rightSlurs
+  in
+    map (\ns -> MusicSpec
+      { noteSpecs : ns
+      , tuplets : []
+      , ties : []
+      , tickableContext : tCtx
+      , contextChanges : []
+      , slurBrackets : slurBrackets
+      , beatMarkers : fromMaybe mBeatMarker
+      }) ens
 
-buildMusicSpecFromN :: TickableContext -> Int -> Maybe BeatMarker -> Boolean  -> Either String NoteSpec -> Either String MusicSpec
-buildMusicSpecFromN tCtx noteIndex mBeatMarker isTied ens =
+
+buildMusicSpecFromN ::
+     TickableContext
+  -> Int
+  -> Maybe BeatMarker
+  -> Boolean
+  -> Int
+  -> Int
+  -> Either String NoteSpec
+  -> Either String MusicSpec
+buildMusicSpecFromN tCtx noteIndex mBeatMarker isTied slurStartCount slurEndCount ens =
     map (\ns -> MusicSpec
       { noteSpecs : [ns]
       , tuplets : []
@@ -410,7 +422,7 @@ buildMusicSpecFromN tCtx noteIndex mBeatMarker isTied ens =
          if isTied then [noteIndex] else []
       , tickableContext : tCtx
       , contextChanges : []
-      , slurBrackets : mempty
+      , slurBrackets : buildSlurBrackets noteIndex slurStartCount slurEndCount
       , beatMarkers : fromMaybe mBeatMarker
       }) ens
 
@@ -421,9 +433,7 @@ buildMusicSpecFromContextChange contextChanges =
   in
     MusicSpec contents { contextChanges = contextChanges }
 
-buildMusicSpecFromSlurBracket :: Array SlurBracket -> MusicSpec
-buildMusicSpecFromSlurBracket slurBrackets =
-  let
-    (MusicSpec contents) = mempty :: MusicSpec
-  in
-    MusicSpec contents { slurBrackets = slurBrackets }
+buildSlurBrackets :: Int -> Int -> Int -> Array SlurBracket
+buildSlurBrackets noteIndex startCount endCount =
+  replicate startCount (LeftBracket noteIndex)
+    <> (replicate endCount (RightBracket noteIndex))

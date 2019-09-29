@@ -29,7 +29,12 @@ To build the example showing right-alignment of staves
 To build the example showing beaming
 ------------------------------------
      bower install
-     npm run beaming     
+     npm run beaming
+
+To build the example showing slurs
+----------------------------------
+     bower install
+     npm run slurs
 
 To build the example showing a thumbnail
 ----------------------------------------

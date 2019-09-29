@@ -7,6 +7,7 @@
     "align-staves": "pulp build --main Examples.StaveAlignment.Main --include examples/align-staves/src --to examples/align-staves/dist/align-staves.js",
     "beaming": "pulp build --main Examples.Beaming.Main --include examples/beaming/src --to examples/beaming/dist/beaming.js",
     "thumbnail": "pulp build --main Examples.Thumbnail.Main --include examples/thumbnail/src --to examples/thumbnail/dist/thumbnail.js",
+    "slurs": "pulp build --main Examples.Slurs.Main --include examples/slurs/src --to examples/slurs/dist/slurs.js",
     "bugs": "pulp build --main Examples.Bugs.Main --include examples/bugs/src --to examples/bugs/dist/bugs.js",
     "debug": "pulp run --main Examples.Debug.Main --include examples/debug/src"
   },
