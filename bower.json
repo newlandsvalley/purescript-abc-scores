@@ -10,7 +10,7 @@
     "purescript-prelude": "^4.1.1",
     "purescript-console": "^4.2.0",
     "purescript-effect": "^2.0.1",
-    "purescript-abc-parser": "https://github.com/newlandsvalley/purescript-abc-parser.git#slurs"
+    "purescript-abc-parser": "https://github.com/newlandsvalley/purescript-abc-parser.git#master"
   },
   "devDependencies": {
     "purescript-psci-support": "^4.0.0",
