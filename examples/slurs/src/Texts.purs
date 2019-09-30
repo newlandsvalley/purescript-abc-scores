@@ -14,7 +14,7 @@ slurs1 =
 slurs2 :: String
 slurs2 =
     "X:1\r\n"
-    <> "T: double bar line\r\n"
+    <> "T: slurs 2\r\n"
     <> "M: 4/4\r\n"
     <> "L: 1/8\r\n"
     <> "K: D\r\n"
@@ -23,8 +23,17 @@ slurs2 =
 brokenRhythmSlurs :: String
 brokenRhythmSlurs =
     "X:1\r\n"
-    <> "T: slurs\r\n"
+    <> "T: broken rhythm slurs\r\n"
     <> "M: 3/4\r\n"
     <> "L: 1/16\r\n"
     <> "K: C\r\n"
     <> "| (A2>B2) (g4 f2>g2) |\r\n"
+
+tupletSlurs :: String
+tupletSlurs =
+    "X:1\r\n"
+    <> "T: tuplet slurs\r\n"
+    <> "M: 3/4\r\n"
+    <> "L: 1/16\r\n"
+    <> "K: C\r\n"
+    <> "| (3(A2B2C2) D4 (3:2:4D2E2(FG) |\r\n"

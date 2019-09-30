@@ -11,10 +11,10 @@ import Data.Abc
 
 import Data.Abc.Canonical (keySignatureAccidental)
 import Data.Abc.KeySignature (normaliseModalKey)
-import Data.Array (last, length, mapWithIndex, (:))
+import Data.Array (concat, last, length, mapWithIndex, (:))
 import Data.Either (Either(..))
 import Data.List (List, foldl)
-import Data.List.NonEmpty (toUnfoldable) as Nel
+import Data.List.NonEmpty (NonEmptyList, toUnfoldable) as Nel
 import Data.Unfoldable (fromMaybe, replicate)
 import Data.Maybe (Maybe(..), maybe)
 import Data.String.Common (toLower)
@@ -117,7 +117,7 @@ music context tickablePosition noteIndex phraseDuration m =
                      []
                 , tickableContext : tickableContext
                 , contextChanges : mempty
-                , slurBrackets : mempty
+                , slurBrackets : buildTupletSlurs noteIndex rOrNs
                 , beatMarkers : fromMaybe mBeatMarker
                 }
               ) eRes
@@ -433,7 +433,21 @@ buildMusicSpecFromContextChange contextChanges =
   in
     MusicSpec contents { contextChanges = contextChanges }
 
+-- | build the slur brackets from a normal note's left and right slur counts
 buildSlurBrackets :: Int -> Int -> Int -> Array SlurBracket
 buildSlurBrackets noteIndex startCount endCount =
   replicate startCount (LeftBracket noteIndex)
     <> (replicate endCount (RightBracket noteIndex))
+
+-- | build a tuplet slur bracket from the notes inside the tuplet
+buildTupletSlurs :: Int -> Nel.NonEmptyList RestOrNote -> Array SlurBracket
+buildTupletSlurs noteIndex tupletNotes =
+  let
+    f :: Int -> RestOrNote -> Array SlurBracket
+    f pos rOrN =
+      case rOrN of
+        Left _ -> []--- rest
+        Right gNote ->
+          buildSlurBrackets (noteIndex + pos) gNote.leftSlurs gNote.rightSlurs
+  in
+    concat $ mapWithIndex f (Nel.toUnfoldable tupletNotes)
