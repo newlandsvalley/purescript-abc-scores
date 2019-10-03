@@ -189,7 +189,7 @@ foreign import clearCanvas :: Renderer -> Effect Unit
 foreign import newStaveImpl :: StaveConfig -> String -> Effect Stave
 -- | get the width of a stave
 foreign import getStaveWidth :: Stave -> Effect Int
--- | display all the contents of the bar, using auto-beaming for the notes
+-- | display all the contents of the bar, using explicit beaming for the notes
 foreign import renderBarContents :: Renderer -> Stave -> Array BeamSpec -> VexCurves -> MusicSpecContents -> Effect Unit
 -- | display the (filled) bar
 foreign import renderStave :: Renderer -> Stave -> Effect Unit

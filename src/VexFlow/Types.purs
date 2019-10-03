@@ -8,6 +8,7 @@ import VexFlow.Abc.ContextChange (ContextChange)
 import VexFlow.Abc.TickableContext (TickableContext)
 import VexFlow.Abc.Volta (Volta)
 import VexFlow.Abc.Slur (SlurBracket, VexCurve)
+import VexFlow.Abc.Repetition (Repetition)
 
 type BeatNumber = Int
 
@@ -140,6 +141,7 @@ instance musicSpecMonoid:: Monoid MusicSpec where
     , contextChanges : mempty
     , slurBrackets : mempty
     , beatMarkers : mempty
+    , repetitions : mempty
     }
 
 data LineThickness =
@@ -159,6 +161,7 @@ type MusicSpecContents =
   , contextChanges :: Array ContextChange
   , slurBrackets :: Array SlurBracket  -- brackets (L and R) demarking slurs
   , beatMarkers :: Array BeatMarker    -- note indices marking exact beats
+  , repetitions :: Array Repetition    -- codas, seqnos etc from decorated spaces
   }
 
 type BarSpec =

@@ -83,6 +83,7 @@ main = do
   _ <- displayAtStave renderer crossBeatTriplet 20
   _ <- displayAtStave renderer stemDirection 21
   _ <- displayAtStave renderer tripletWithTie 22
+  _ <- displayAtStave renderer repetitions 23
   pure unit
 
 

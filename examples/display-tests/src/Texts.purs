@@ -215,3 +215,13 @@ tripletWithTie =
   <> "L: 1/16\r\n"
   <> "K: D\r\n"
   <> "| (3B2G4A6- A2G2 |\r\n"
+
+repetitions :: String
+repetitions =
+  "X:1\r\n"
+  <> "T: coda and da capo\r\n"
+  <> "M:2/4\r\n"
+  <> "L:1/16\r\n"
+  <> "R:marsch\r\n"
+  <> "K:Dmaj\r\n"
+  <> "| g3f -f2ed | c2A2 ABc2 !D.C.! y || !coda! y [| d2d2 d4 |]\r\n"

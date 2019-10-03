@@ -220,10 +220,13 @@ var wrapper = function() {
       var notes = musicSpec.noteSpecs.map(wrapper.makeStaveNote);
       var tuplets = musicSpec.tuplets.map(wrapper.makeTupletLayout (notes));
       var ties = musicSpec.ties.map(wrapper.makeTie (notes));
-      console.log("beamSpecs");
-      console.log(beamSpecs);
+      // console.log("beamSpecs");
+      // console.log(beamSpecs);
       var beams = beamSpecs.map(wrapper.makeBeam (notes));
       var curves = vexCurves.map(wrapper.makeCurve (notes));
+
+      /* add repeititions to the stave (coda, segno etc.) */
+      wrapper.addRepetitions (stave, musicSpec.repetitions);
 
       Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
       ties.forEach(function(t) {t.setContext(context).draw()})
@@ -344,6 +347,20 @@ var wrapper = function() {
     addArticulations: function (staveNote, articulations) {
       articulations.forEach (function (articulation, index) {
         staveNote.addArticulation(0, new VF.Articulation(articulation));
+      });
+    },
+
+    // add the repetitions to the stave
+    addRepetitions: function (stave, repetitions) {
+      repetitions.forEach (function (repetition, index) {
+        if (repetition.isLeft) {
+          // console.log ("repetition left:", repetition.repetitionType);
+          stave.setRepetitionTypeLeft(repetition.repetitionType, 25);
+        }
+        else {
+          // console.log ("repetition right:", repetition.repetitionType);
+          stave.setRepetitionTypeRight(repetition.repetitionType, 25);
+        }
       });
     }
 

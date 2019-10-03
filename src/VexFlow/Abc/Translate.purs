@@ -11,7 +11,7 @@ import Data.Abc
 
 import Data.Abc.Canonical (keySignatureAccidental)
 import Data.Abc.KeySignature (normaliseModalKey)
-import Data.Array (concat, last, length, mapWithIndex, (:))
+import Data.Array (concat, fromFoldable, last, length, mapWithIndex, (:))
 import Data.Either (Either(..))
 import Data.List (List, foldl)
 import Data.List.NonEmpty (NonEmptyList, toUnfoldable) as Nel
@@ -27,6 +27,7 @@ import VexFlow.Abc.TickableContext (NoteCount, TickableContext, getTickableConte
 import VexFlow.Abc.Utils (chordalNoteLength, normaliseBroken, noteDotCount, noteTicks
      , vexDuration, compoundVexDuration)
 import VexFlow.Abc.Beat (exactBeatNumber)
+import VexFlow.Abc.Repetition (buildRepetition)
 import VexFlow.Types (AbcContext, BeatMarker, NoteSpec, TupletSpec, MusicSpec(..), VexDuration)
 
 -- | generate a VexFlow indication of pitch
@@ -119,11 +120,15 @@ music context tickablePosition noteIndex phraseDuration m =
                 , contextChanges : mempty
                 , slurBrackets : buildTupletSlurs noteIndex rOrNs
                 , beatMarkers : fromMaybe mBeatMarker
+                , repetitions: mempty
                 }
               ) eRes
 
       Inline header ->
         Right $ buildMusicSpecFromContextChange $ headerChange context header
+
+      DecoratedSpace decorations ->
+        Right $ buildMusicSpecFromDecorations decorations noteIndex
 
       _ ->
         Right $ mempty :: Either String MusicSpec
@@ -401,6 +406,7 @@ buildMusicSpecFromNs tCtx noteIndex mBeatMarker gn1 gn2 ens =
       , contextChanges : []
       , slurBrackets : slurBrackets
       , beatMarkers : fromMaybe mBeatMarker
+      , repetitions : []
       }) ens
 
 
@@ -424,6 +430,7 @@ buildMusicSpecFromN tCtx noteIndex mBeatMarker isTied slurStartCount slurEndCoun
       , contextChanges : []
       , slurBrackets : buildSlurBrackets noteIndex slurStartCount slurEndCount
       , beatMarkers : fromMaybe mBeatMarker
+      , repetitions : []
       }) ens
 
 buildMusicSpecFromContextChange :: Array ContextChange -> MusicSpec
@@ -432,6 +439,14 @@ buildMusicSpecFromContextChange contextChanges =
     (MusicSpec contents) = mempty :: MusicSpec
   in
     MusicSpec contents { contextChanges = contextChanges }
+
+buildMusicSpecFromDecorations :: List String -> Int -> MusicSpec
+buildMusicSpecFromDecorations decorations noteIndex =
+  let
+    (MusicSpec contents) = mempty :: MusicSpec
+    repetitions = map (buildRepetition noteIndex) (fromFoldable decorations)
+  in
+    MusicSpec contents { repetitions = repetitions }
 
 -- | build the slur brackets from a normal note's left and right slur counts
 buildSlurBrackets :: Int -> Int -> Int -> Array SlurBracket

@@ -27,7 +27,7 @@ import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Rational (fromInt, toNumber, numerator, denominator, (%))
 import Data.Tuple (Tuple(..))
 import Data.String.CodeUnits (fromCharArray)
-import Prelude (map, show, ($), (*), (+), (-), (/), (<>), identity)
+import Prelude (map, show, ($), (*), (+), (-), (/), (<>), (&&), identity)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Beat (beatDuration)
 import VexFlow.Types (AbcContext, Config, MusicSpec(..), Tempo,
@@ -223,7 +223,7 @@ nextStaveNo (Just x) = Just (x + 1)
 -- | return true if the MusicSpec is empty
 isEmptyMusicSpec :: MusicSpec -> Boolean
 isEmptyMusicSpec (MusicSpec contents) =
-  Array.null contents.noteSpecs
+  Array.null contents.noteSpecs && Array.null contents.repetitions
 
 cMajor :: ModifiedKeySignature
 cMajor =
