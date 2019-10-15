@@ -168,7 +168,7 @@ bar staveNumber barNumber abcBar =
         , volta : volta
         , timeSignature : abcContext.timeSignature
         , beamSpecs : calculateBeams
-                        abcContext.timeSignature spec.noteSpecs spec.beatMarkers spec.tuplets
+                        abcContext.timeSignature spec.noteSpecs spec.beatMarkers 
         , curves : vexCurves spec.slurBrackets
         , musicSpec : musicSpec
         }

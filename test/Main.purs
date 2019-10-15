@@ -131,11 +131,9 @@ beamingSuite =
       Assert.equal (Just [[1,3],[4,6]]) $
         map (\b -> b.beamSpecs) mFirstBar
     test "split beaming - tuplet before standard" do
-      -- at the moment, standard beams are listed before tuplet beams
-      -- VexFlow seems not to care about the ordering
       let
         mFirstBar = getFirstBar "L: 1/16\r\nM: 3/4\r\n (3:2:4c4d4e2f2 ABcd \r\n"
-      Assert.equal (Just [[4,8],[2,4]]) $
+      Assert.equal (Just [[2,4], [4,8]]) $
         map (\b -> b.beamSpecs) mFirstBar
     test "rest in slow triplet" do
       let

@@ -195,7 +195,7 @@ crossBeatTriplet =
     "X:1\r\n"
     <> "T: triplet spanning beats\r\n"
     <> "M: 2/4\r\n"
-    <> "L: 1/16\r\n"
+    <> "L: 1/8\r\n"
     <> "K: Gm\r\n"
     <> "| d3 (3cBA F3 |\r\n"
 
