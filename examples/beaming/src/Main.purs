@@ -68,4 +68,6 @@ main = do
   _ <- displayAtStave renderer beaming44h 7
   _ <- displayAtStave renderer beaming32  8
   _ <- displayAtStave renderer beam16thInTuplet 9
+  _ <- displayAtStave renderer beamingTypesettingSpace1 10
+  _ <- displayAtStave renderer beamingTypesettingSpace2 11
   pure unit

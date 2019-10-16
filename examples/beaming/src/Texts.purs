@@ -91,3 +91,21 @@ beam16thInTuplet =
     <> "L: 1/16\r\n"
     <> "K: C\r\n"
     <> "| (3:2:4c4d4e2f2 ABcd | (3:2:5B2c2d4e2f2 ABcd |\r\n"
+
+beamingTypesettingSpace1 :: String
+beamingTypesettingSpace1 =
+    "X:1\r\n"
+    <> "T: beaming with typesetting space between beats in 4/4\r\n"
+    <> "M: 4/4\r\n"
+    <> "L: 1/16\r\n"
+    <> "K: D\r\n"
+    <> "| (3c2d2e2 y f2g2 c2f2 y (3g2a2b2 |\r\n"
+
+beamingTypesettingSpace2 :: String
+beamingTypesettingSpace2 =
+    "X:1\r\n"
+    <> "T: beaming with typesetting space within beat\r\n"
+    <> "M: 3/4\r\n"
+    <> "L: 1/16\r\n"
+    <> "K: D\r\n"
+    <> "| (3cde y fg f2g2 c2f2 |\r\n"    

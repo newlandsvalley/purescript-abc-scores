@@ -13,7 +13,7 @@ import Data.Rational ((%))
 import Control.Monad.Free (Free)
 import Data.Abc (AbcTune, PitchClass(..))
 import Data.Abc.Parser (parse)
-import VexFlow.Types (BarSpec, Config, VexScore)
+import VexFlow.Types (BarSpec, Config, VexScore, MusicSpec(..))
 import VexFlow.Score (createScore)
 import VexFlow.Abc.Beat (exactBeatNumber)
 import Test.Samples
@@ -24,6 +24,7 @@ main = runTest do
   slursSuite
   beatSuite
   beamingSuite
+  typesettingSpaceSuite
 
 configure :: AbcTune -> Config
 configure tune =
@@ -216,3 +217,19 @@ beatSuite =
     test "off beat" do
       Assert.equal Nothing
         $ exactBeatNumber (2 % 5) (1 % 4) 1
+
+typesettingSpaceSuite :: Free TestF Unit
+typesettingSpaceSuite =
+  suite "typesetting spaces" do
+    test "pair of ys" do
+      let
+        mFirstBar = getFirstBar "(3c2d2e2 y f2g2 c2f2 y (3g2a2b2 \r\n"
+      Assert.equal (Just [3,7]) $
+        map getSpaces mFirstBar
+        where
+          getSpaces :: BarSpec -> Array Int
+          getSpaces bs =
+            let
+              (MusicSpec ms) = bs.musicSpec
+            in
+              ms.typesettingSpaces

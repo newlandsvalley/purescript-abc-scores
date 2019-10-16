@@ -142,6 +142,7 @@ instance musicSpecMonoid:: Monoid MusicSpec where
     , slurBrackets : mempty
     , beatMarkers : mempty
     , repetitions : mempty
+    , typesettingSpaces : mempty
     }
 
 data LineThickness =
@@ -162,6 +163,8 @@ type MusicSpecContents =
   , slurBrackets :: Array SlurBracket  -- brackets (L and R) demarking slurs
   , beatMarkers :: Array BeatMarker    -- note indices marking exact beats
   , repetitions :: Array Repetition    -- codas, seqnos etc from decorated spaces
+  , typesettingSpaces :: Array Int     -- note index for note following any
+                                       -- 'y' typesetting space
   }
 
 type BarSpec =

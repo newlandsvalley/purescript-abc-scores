@@ -121,6 +121,7 @@ music context tickablePosition noteIndex phraseDuration m =
                 , slurBrackets : buildTupletSlurs noteIndex rOrNs
                 , beatMarkers : fromMaybe mBeatMarker
                 , repetitions: mempty
+                , typesettingSpaces : mempty
                 }
               ) eRes
 
@@ -407,6 +408,7 @@ buildMusicSpecFromNs tCtx noteIndex mBeatMarker gn1 gn2 ens =
       , slurBrackets : slurBrackets
       , beatMarkers : fromMaybe mBeatMarker
       , repetitions : []
+      , typesettingSpaces : []
       }) ens
 
 
@@ -431,6 +433,7 @@ buildMusicSpecFromN tCtx noteIndex mBeatMarker isTied slurStartCount slurEndCoun
       , slurBrackets : buildSlurBrackets noteIndex slurStartCount slurEndCount
       , beatMarkers : fromMaybe mBeatMarker
       , repetitions : []
+      , typesettingSpaces : []
       }) ens
 
 buildMusicSpecFromContextChange :: Array ContextChange -> MusicSpec
@@ -446,7 +449,7 @@ buildMusicSpecFromDecorations decorations noteIndex =
     (MusicSpec contents) = mempty :: MusicSpec
     repetitions = map (buildRepetition noteIndex) (fromFoldable decorations)
   in
-    MusicSpec contents { repetitions = repetitions }
+    MusicSpec contents { repetitions = repetitions, typesettingSpaces = [noteIndex] }
 
 -- | build the slur brackets from a normal note's left and right slur counts
 buildSlurBrackets :: Int -> Int -> Int -> Array SlurBracket
