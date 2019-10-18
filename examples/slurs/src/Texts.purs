@@ -6,10 +6,10 @@ slurs1 :: String
 slurs1 =
     "X:1\r\n"
     <> "T: slurs\r\n"
-    <> "M: 3/4\r\n"
+    <> "M: 4/4\r\n"
     <> "L: 1/16\r\n"
     <> "K: C\r\n"
-    <> "| (A2B2)c2d2 (e2f2g2a2 | (a2g2f2e2) (d2c2BA) (GF) |\r\n"
+    <> "| (A2B2)c2d2 (e2f2g2a2 | (a2g2f2e2) (d2c2BA) y (GF) |\r\n"
 
 slurs2 :: String
 slurs2 =

@@ -10,7 +10,6 @@ import Data.Tuple (snd)
 import Data.String.Utils (endsWith)
 import Data.Array.NonEmpty (NonEmptyArray, length, head, last)
 import Data.Array (concat, filter, groupBy, mapWithIndex, slice)
-import Data.Array (length) as A
 import VexFlow.Types (BeamSpec, BeatMarker, BeatNumber, NoteSpec, TimeSignature)
 
 -- | How beamable is a given rest or note
@@ -60,24 +59,7 @@ calculateBeams ::
   -> Array BeamSpec
 calculateBeams timeSignature noteSpecs beatMarkers typesettingSpaces =
   map (\r -> [r.start, r.end]) $
-    fullOrPartialBarBeams timeSignature noteSpecs beatMarkers typesettingSpaces
-
--- | decide if this is a full bar or a lead-in bar and find the beam ranges
-fullOrPartialBarBeams ::
-     TimeSignature
-  -> Array NoteSpec
-  -> Array BeatMarker
-  -> Array Int
-  -> Array BeamRange
-fullOrPartialBarBeams timeSignature noteSpecs beatMarkers typesettingSpaces =
-  let
-    actualBeatMarkers =
-      if (A.length beatMarkers > 1) then
-        beatMarkers  -- normal bar
-      else
-        [{ beatNumber : 1, noteIndex:  A.length noteSpecs }] -- lead-in bar
-   in
-     calculateStandardBeams timeSignature noteSpecs actualBeatMarkers typesettingSpaces
+    calculateStandardBeams timeSignature noteSpecs beatMarkers typesettingSpaces
 
 -- | The algorithm we use is to identify beat markers for successive
 -- | beats and to recognize places where there are at least a couple
@@ -90,7 +72,7 @@ calculateStandardBeams ::
   -> Array BeamRange
 calculateStandardBeams timeSignature noteSpecs beatMarkers typesettingSpaces =
   let
-    initialBM = { beatNumber : 0, noteIndex: 0 }
+    initialBM = { beatNumber : 0, noteIndex: 0 }   -- implict beat 0
     result = foldl (beamFunc noteSpecs typesettingSpaces)
                { beatMarker: initialBM, beams: empty }
                beatMarkers

@@ -7,7 +7,7 @@ module VexFlow.Abc.Beat (beatDuration, exactBeatNumber) where
 -- | (in fact what is recorded for the first beat is 0 as it starts and 1 as
 -- | it ends, but the end beat mark is of value).
 
-import Prelude ((/), ($))
+import Prelude ((/), ($), (==))
 import Data.Rational
 import Data.Maybe (Maybe(..))
 import VexFlow.Types (BeatMarker, TimeSignature)
@@ -32,7 +32,8 @@ beatDuration ts =
     _ ->
      (1 % ts.denominator)
 
--- | Return the beat number if we're at an exact beat multiple
+-- | Return the beat number if we're at an exact beat multiple after beat 0
+-- | (which is always implicitly present_).
 -- | phraseDur is the sum of the duration of the notes so far seen
 -- | beatDur is the duration of a beat (within the time signature):
 exactBeatNumber :: NoteDuration -> NoteDuration -> Int -> Maybe BeatMarker
@@ -40,10 +41,13 @@ exactBeatNumber phraseDur beatDur noteIndex =
   let
     beats = phraseDur / beatDur
   in
-    case (denominator beats) of
-      1 ->
-        Just $ { beatNumber: numerator beats
-               , noteIndex : noteIndex
-               }
-      _ ->
-        Nothing
+    if (noteIndex == 0) then
+      Nothing
+    else
+      case (denominator beats) of
+        1 ->
+          Just $ { beatNumber: numerator beats
+                 , noteIndex : noteIndex
+                 }
+        _ ->
+          Nothing

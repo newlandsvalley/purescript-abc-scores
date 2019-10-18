@@ -26,7 +26,7 @@ import Data.Foldable (foldM, foldl)
 import Data.List (List, toUnfoldable, length)
 import Data.Unfoldable (fromMaybe) as U
 import Data.Tuple (Tuple(..))
-import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Maybe (Maybe(..), fromMaybe, isNothing)
 import Data.Newtype (unwrap)
 import Data.Array ((..), zip)
 import Data.Array (length) as Array
@@ -221,8 +221,12 @@ music tickablePosition noteIndex phraseDuration m =
     _ <- put newContext
     either throwError pure spec
 
--- | add the final beat marker (i.e. at the end of the bar) if one exists -
--- | i.e. the note index after the final note if the bar is full
+-- | add the final beat marker
+-- | This will be the note index after the final note in the bar in the
+-- | following cases:
+-- |       the bar is full
+-- |       the bar contains only lead-in notes (less than one full beat)
+-- | otherwise no beat narker is added
 addFinalBeatMarker :: AbcContext -> MusicSpec -> MusicSpec
 addFinalBeatMarker abcContext (MusicSpec ms) =
   let
@@ -231,7 +235,13 @@ addFinalBeatMarker abcContext (MusicSpec ms) =
     mBeatMarker :: Maybe BeatMarker
     mBeatMarker = exactBeatNumber barDuration abcContext.beatDuration noteIndex
   in
-    MusicSpec $ ms { beatMarkers = ms.beatMarkers <> U.fromMaybe mBeatMarker }
+    if ((Array.length ms.beatMarkers == 0) && (isNothing mBeatMarker))
+      then
+        -- lead-in notes
+        MusicSpec $ ms { beatMarkers = [{ beatNumber : 1, noteIndex: Array.length ms.noteSpecs }] }
+      else
+        -- full bar
+        MusicSpec $ ms { beatMarkers = ms.beatMarkers <> U.fromMaybe mBeatMarker }
 
 -- | carry over any pending Repeat Begin marker that may have ended the last stave
 modifiedStartLine :: Boolean -> BarType -> BarType

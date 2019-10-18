@@ -203,8 +203,9 @@ beatSuite :: Free TestF Unit
 beatSuite =
   suite "beats" do
     test "beat 0" do
-      Assert.equal (Just { beatNumber: 0, noteIndex: 1})
-        $ exactBeatNumber (0 % 2) (1 % 4) 1
+      Assert.equal Nothing
+      -- Assert.equal (Just { beatNumber: 0, noteIndex: 0})
+        $ exactBeatNumber (0 % 2) (1 % 4) 0
     test "beat 1" do
       Assert.equal (Just { beatNumber: 1, noteIndex: 1})
         $ exactBeatNumber (1 % 4) (1 % 4) 1
