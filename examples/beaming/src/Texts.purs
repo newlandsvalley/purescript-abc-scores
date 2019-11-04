@@ -74,14 +74,23 @@ beaming44h =
     <> "K: D\r\n"
     <> "| (3c2d2e2 f2g2 c2f2 (3g2a2b2 |\r\n"
 
-beaming32 :: String
-beaming32 =
+beaming32a :: String
+beaming32a =
     "X:1\r\n"
     <> "T: Beaming in 3/2\r\n"
     <> "M: 3/2\r\n"
     <> "L: 1/8\r\n"
     <> "K: Dm\r\n"
     <> "| e2c4 de f2c2 | d3c c2BA B3A |\r\n"
+
+beaming32b :: String
+beaming32b = 
+    "X:1\r\n"
+    <> "T:3/2Hornpipe\r\n"
+    <> "M:3/2\r\n"
+    <> "L:1/8\r\n"
+    <> "K:Gm\r\n"
+    <> "G4 D4 GABG | ABcA B2d2 F2D2 |\r\n"
 
 beam16thInTuplet :: String
 beam16thInTuplet =
@@ -108,4 +117,4 @@ beamingTypesettingSpace2 =
     <> "M: 3/4\r\n"
     <> "L: 1/16\r\n"
     <> "K: D\r\n"
-    <> "| (3cde y fg f2g2 c2f2 |\r\n"    
+    <> "| (3cde y fg f2g2 c2f2 |\r\n"

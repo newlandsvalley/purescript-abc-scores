@@ -22,7 +22,7 @@ beatDuration :: TimeSignature -> NoteDuration
 beatDuration ts =
   case ts of
     { numerator: 3, denominator: 2 } ->
-      (1 % 4)
+      (1 % 2)
     { numerator: 6, denominator: 8 } ->
       (3 % 8)
     { numerator: 9, denominator: 8 } ->
