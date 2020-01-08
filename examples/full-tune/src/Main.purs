@@ -29,7 +29,7 @@ main :: Effect Boolean
 main =
   let
     -- eAbcTune = parse voltaContinuationSample
-    eAbcTune = parse ewa
+    eAbcTune = parse augustsson
   in
     case eAbcTune of
       Right abcTune -> do

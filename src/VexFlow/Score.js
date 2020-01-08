@@ -151,6 +151,7 @@ var wrapper = function() {
 
       var staveOptions = new Object();
       staveOptions.right_bar = staveConfig.hasRightBar;
+      staveOptions.fill_style = staveConfig.lineColour;
 
       // Create a stave at the required position on the canvas.
       var stave = new VF.Stave(staveConfig.x, staveConfig.y, staveConfig.width, staveOptions);

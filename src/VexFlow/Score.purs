@@ -39,6 +39,7 @@ staveConfig staveNo barSpec=
   , y : staveSeparation * staveNo
   , width : barSpec.width
   , barNo : barSpec.barNumber
+  , lineColour : "#1a1a1a"       -- vexflow default seems to be a Dark Slate Gray - #999999
   , hasRightBar : (barSpec.endLineThickness /= NoLine)
   , hasDoubleRightBar : (barSpec.endLineThickness == Double)
   }

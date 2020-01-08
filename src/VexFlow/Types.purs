@@ -42,6 +42,7 @@ type StaveConfig =
     , y :: Int
     , width :: Int
     , barNo :: Int
+    , lineColour :: String
     , hasRightBar :: Boolean
     , hasDoubleRightBar :: Boolean
   }
