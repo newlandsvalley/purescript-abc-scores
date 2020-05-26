@@ -11,10 +11,11 @@ import Data.Abc
 
 import Data.Abc.Canonical (keySignatureAccidental)
 import Data.Abc.KeySignature (normaliseModalKey)
+import Data.Abc.Metadata (normaliseChord)
 import Data.Array (concat, fromFoldable, last, length, mapWithIndex, (:))
 import Data.Either (Either(..))
 import Data.List (List, foldl)
-import Data.List.NonEmpty (NonEmptyList, toUnfoldable) as Nel
+import Data.List.NonEmpty (NonEmptyList, head, toUnfoldable) as Nel
 import Data.Unfoldable (fromMaybe, replicate)
 import Data.Maybe (Maybe(..), maybe)
 import Data.String.Common (toLower)
@@ -24,7 +25,7 @@ import Prelude ((<>), ($), (*), (+), (-), map, mempty, show)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Slur (SlurBracket(..))
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext, getTickableContext)
-import VexFlow.Abc.Utils (chordalNoteLength, normaliseBroken, noteDotCount, noteTicks
+import VexFlow.Abc.Utils (normaliseBroken, noteDotCount, noteTicks
      , vexDuration, compoundVexDuration)
 import VexFlow.Abc.Beat (exactBeatNumber)
 import VexFlow.Abc.Repetition (buildRepetition)
@@ -210,10 +211,14 @@ rest context abcRest =
 -- | n.b. in VexFlow, all notes in a chord must have the same duration
 -- | this is a mismatch with ABC.  We just take the first note as representative
 chord :: AbcContext -> AbcChord -> Either String NoteSpec
-chord context abcChord =
+chord context abcChord0 =
   let
+    abcChord = normaliseChord abcChord0
+
+    -- this isn't quite right = we'll just used the length of the first
+    -- note in the (normalised) chord
     chordLen :: NoteDuration
-    chordLen = chordalNoteLength abcChord
+    chordLen = (Nel.head abcChord.notes).duration
 
     eVexDur :: Either String VexDuration
     -- eVexDur = chordalNoteDur context abcChord.duration (Nel.head abcChord.notes)
