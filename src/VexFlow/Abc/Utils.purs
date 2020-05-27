@@ -11,7 +11,7 @@ module VexFlow.Abc.Utils
   , isEmptyMusicSpec
   , canvasHeight) where
 
-import Data.Abc (AbcChord, AbcTune, AbcNote, Broken(..), GraceableNote, KeySignature,
+import Data.Abc (AbcTune, AbcNote, Broken(..), GraceableNote, KeySignature,
   ModifiedKeySignature, Accidental(..), Mode(..), NoteDuration, PitchClass(..),
   TempoSignature)
 import Data.Abc.Metadata (dotFactor, getMeter, getKeySig, getTempoSig,
@@ -30,6 +30,7 @@ import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Beat (beatDuration)
 import VexFlow.Types (AbcContext, Config, MusicSpec(..), Tempo,
    VexDuration, staveIndentation)
+
 
 -- | build a VexDuration
 vexDuration :: NoteDuration -> NoteDuration -> Either String VexDuration

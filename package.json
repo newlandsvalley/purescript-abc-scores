@@ -2,6 +2,7 @@
   "private": true,
   "scripts": {
     "build": "pulp build",
+    "test": "pulp test --no-check-main",
     "display-tests": "pulp build --main Examples.DisplayTests.Main --include examples/display-tests/src --to examples/display-tests/dist/display-tests.js",
     "full-tune": "pulp build --main Examples.FullTune.Main --include examples/full-tune/src --to examples/full-tune/dist/full-tune.js",
     "align-staves": "pulp build --main Examples.StaveAlignment.Main --include examples/align-staves/src --to examples/align-staves/dist/align-staves.js",
