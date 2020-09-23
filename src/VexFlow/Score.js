@@ -320,7 +320,8 @@ var wrapper = function() {
     addGraceAccidentals: function (graceNotes, accidentals) {
       accidentals.forEach (function (accidentalString, index) {
         if (accidentalString) {
-          graceNotes[index].addAccidental(index, new VF.Accidental(accidentalString));
+          /* console.log("grace accidental ", accidentalString, " at ", index); */
+          graceNotes[index].addAccidental(0, new VF.Accidental(accidentalString));
         }
       });
     },

@@ -225,3 +225,12 @@ repetitions =
   <> "R:marsch\r\n"
   <> "K:Dmaj\r\n"
   <> "| g3f -f2ed | c2A2 ABc2 !D.C.! y || !coda! y [| d2d2 d4 |]\r\n"
+
+gracesWithAccidentals :: String
+gracesWithAccidentals =
+    "X:1\r\n"
+    <> "T: graces with accidentals\r\n"
+    <> "M: 4/4\r\n"
+    <> "L: 1/8\r\n"
+    <> "K: C\r\n"
+    <> "| {d^f}ga |\r\n"    

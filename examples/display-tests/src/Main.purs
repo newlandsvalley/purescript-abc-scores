@@ -24,7 +24,7 @@ config :: Config
 config =
   { parentElementId : "canvas"
   , width : canvasWidth
-  , height : 2000
+  , height : 2400
   , scale : scale
   , isSVG : true
   }
@@ -84,6 +84,7 @@ main = do
   _ <- displayAtStave renderer stemDirection 21
   _ <- displayAtStave renderer tripletWithTie 22
   _ <- displayAtStave renderer repetitions 23
+  _ <- displayAtStave renderer gracesWithAccidentals 24
   pure unit
 
 
