@@ -84,7 +84,7 @@ beaming32a =
     <> "| e2c4 de f2c2 | d3c c2BA B3A |\r\n"
 
 beaming32b :: String
-beaming32b = 
+beaming32b =
     "X:1\r\n"
     <> "T:3/2Hornpipe\r\n"
     <> "M:3/2\r\n"
@@ -101,6 +101,16 @@ beam16thInTuplet =
     <> "K: C\r\n"
     <> "| (3:2:4c4d4e2f2 ABcd | (3:2:5B2c2d4e2f2 ABcd |\r\n"
 
+
+beamingCommonTimeCoalesce :: String
+beamingCommonTimeCoalesce  =
+    "X:1\r\n"
+    <> "T: coalesce beaming incommon time\r\n"
+    <> "M: 4/4\r\n"
+    <> "L: 1/8\r\n"
+    <> "K: D\r\n"
+    <> "| DEFG GABA | DEFG GA (3BAG | DEFG GAB/A/G |\r\n"
+
 beamingTypesettingSpace1 :: String
 beamingTypesettingSpace1 =
     "X:1\r\n"
@@ -108,7 +118,7 @@ beamingTypesettingSpace1 =
     <> "M: 4/4\r\n"
     <> "L: 1/16\r\n"
     <> "K: D\r\n"
-    <> "| (3c2d2e2 y f2g2 c2f2 y (3g2a2b2 |\r\n"
+    <> "| (3c2d2e2 y f2g2 c2f2 y g2a2 |\r\n"
 
 beamingTypesettingSpace2 :: String
 beamingTypesettingSpace2 =

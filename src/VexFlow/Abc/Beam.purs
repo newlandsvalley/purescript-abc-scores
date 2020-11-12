@@ -2,14 +2,14 @@ module VexFlow.Abc.Beam (calculateBeams) where
 
 -- work out the beam groups from the time signature
 
-import Prelude (class Eq, class Show, ($), (==), (+), (>), (>=), (<>), (&&), (||), (/=), map)
-import Data.Foldable (foldl, elem)
-import Data.Maybe (fromMaybe)
-import Data.Map (Map, empty, insert, lookup, toUnfoldable)
-import Data.Tuple (snd)
-import Data.String.Utils (endsWith)
-import Data.Array.NonEmpty (NonEmptyArray, length, head, last)
 import Data.Array (concat, filter, groupBy, mapWithIndex, slice)
+import Data.Array.NonEmpty (NonEmptyArray, length, head, last)
+import Data.Foldable (foldl, elem)
+import Data.Map (Map, empty, insert, lookup, toUnfoldable)
+import Data.Maybe (fromMaybe)
+import Data.String.Utils (endsWith)
+import Data.Tuple (snd)
+import Prelude (class Eq, class Show, map, ($), (&&), (+), (-), (/=), (<>), (==),  (>), (>=), (||))
 import VexFlow.Types (BeamSpec, BeatMarker, BeatNumber, NoteSpec, TimeSignature)
 
 -- | How beamable is a given rest or note
@@ -153,13 +153,13 @@ optimiseCommonTimeBeaming bm typesettingSpaces =
   <>
   coalesce (lookupRanges 3 bm) (lookupRanges 4 bm) typesettingSpaces
 
--- | coalesce the beaming for two adjacent beats in the bar
--- | the heuristic is that we coalesce only if there is a single
--- | beam range defined and the second range isn't separated by a
--- | typesetting space (i.e. one which specifies a separation)
+-- | Coalesce the beaming for two adjacent beats in the 4/4 bar.
+-- | The heuristic is that we coalesce only if each individual beam range is
+-- | a singleton with only 2 notes with no separating typesetting space.
+-- | (i.e. range 2 doesn't specify a separation)
 coalesce :: Array BeamRange -> Array BeamRange -> Array Int -> Array BeamRange
 coalesce [ r1 ] [ r2 ] typesettingSpaces =
-  if (elem r2.start typesettingSpaces) then
+  if (elem r2.start typesettingSpaces) || (anUncoalesceableRange r1 r2) then
     [ r1 ] <> [ r2 ]
   else
     -- this is the only permitted coalesce
@@ -175,3 +175,9 @@ commonTime =
 lookupRanges :: Int -> BeamMap -> Array BeamRange
 lookupRanges idx bm =
   fromMaybe [] $ lookup idx bm
+
+-- take a pair of beam ranges that we might intend to coalesce
+-- and return uncoalexceable if either one fails to have 2 notes in the beam
+anUncoalesceableRange :: BeamRange -> BeamRange -> Boolean
+anUncoalesceableRange r1 r2 =
+  r1.end - r1.start /= 2 || r2.end - r2.start /= 2
