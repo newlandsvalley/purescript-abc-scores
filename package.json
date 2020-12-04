@@ -1,20 +1,22 @@
 {
   "private": true,
   "scripts": {
-    "build": "pulp build",
-    "test": "pulp test --no-check-main",
-    "display-tests": "pulp build --main Examples.DisplayTests.Main --include examples/display-tests/src --to examples/display-tests/dist/display-tests.js",
-    "full-tune": "pulp build --main Examples.FullTune.Main --include examples/full-tune/src --to examples/full-tune/dist/full-tune.js",
-    "align-staves": "pulp build --main Examples.StaveAlignment.Main --include examples/align-staves/src --to examples/align-staves/dist/align-staves.js",
-    "beaming": "pulp build --main Examples.Beaming.Main --include examples/beaming/src --to examples/beaming/dist/beaming.js",
-    "thumbnail": "pulp build --main Examples.Thumbnail.Main --include examples/thumbnail/src --to examples/thumbnail/dist/thumbnail.js",
-    "slurs": "pulp build --main Examples.Slurs.Main --include examples/slurs/src --to examples/slurs/dist/slurs.js",
-    "bugs": "pulp build --main Examples.Bugs.Main --include examples/bugs/src --to examples/bugs/dist/bugs.js",
-    "debug": "pulp run --main Examples.Debug.Main --include examples/debug/src"
+    "pulp-build": "pulp build",
+    "pulp-test": "pulp test",
+    "build": "apago build",
+    "test": "spago -x ./test.dhall test",
+    "display-tests": "spago bundle-app --main Examples.DisplayTests.Main --to examples/display-tests/dist/display-tests.js",
+    "full-tune": "spago bundle-app --main Examples.FullTune.Main --to examples/full-tune/dist/full-tune.js",
+    "align-staves": "spago bundle-app --main Examples.StaveAlignment.Main --to examples/align-staves/dist/align-staves.js",
+    "beaming": "spago bundle-app --main Examples.Beaming.Main --to examples/beaming/dist/beaming.js",
+    "thumbnail": "spago bundle-app --main Examples.Thumbnail.Main --to examples/thumbnail/dist/thumbnail.js",
+    "slurs": "spago bundle-app --main Examples.Slurs.Main --to examples/slurs/dist/slurs.js",
+    "bugs": "spago bundle-app --main Examples.Bugs.Main --to examples/bugs/dist/bugs.js",
+    "debug": "spago run --main Examples.Debug.Main"
   },
   "devDependencies": {
-    "pulp": "^13.0.0",
-    "purescript": "^0.13.3",
+    "pulp": "^15.0.0",
+    "purescript": "^0.13.8",
     "webpack": "^3.6.0"
   }
 }

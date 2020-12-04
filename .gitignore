@@ -2,6 +2,7 @@
 /node_modules/
 /.pulp-cache/
 /output/
+/.spago/
 /deprecated/
 /examples/display-tests/dist/display-tests.js
 /examples/full-tune/dist/full-tune.js
