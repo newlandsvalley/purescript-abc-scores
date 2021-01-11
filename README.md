@@ -5,6 +5,8 @@ This is a purescript wrapper for [VexFlow](http://www.vexflow.com/) which is des
 
 It is intended to be a replacement for [purescript-scores](https://github.com/newlandsvalley/purescript-scores) which itself was a wrapper for [VexTab](http://www.vexflow.com/vextab). i.e. the intention is to cut out the middle man (which is anyhow not regularly maintained).
 
+Currently, it uses VexFlow v3.0.9
+
 To build the library
 --------------------
 

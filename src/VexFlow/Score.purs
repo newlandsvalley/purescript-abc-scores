@@ -13,11 +13,12 @@ module VexFlow.Score
 import Data.Abc (AbcTune, KeySignature, Repeat(..))
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), maybe)
+import Data.Array (null)
 import Data.Tuple (Tuple(..))
 import Data.Traversable (traverse_)
 import Effect (Effect)
 import Effect.Console (log)
-import Prelude ((<>), (*), (==), (/=), (&&), ($), Unit, bind, discard, pure, unit)
+import Prelude ((<>), (*), (==), (/=), (&&), ($), Unit, bind, discard, not, pure, unit, when)
 import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..)
@@ -128,7 +129,9 @@ displayBarSpec renderer staveSpec barSpec =
       _ <- processBarBeginRepeat staveBar barSpec.startLine.repeat
       _ <- processBarEndRepeat staveBar barSpec.endLineRepeat
       _ <- processVolta staveBar barSpec.volta
-      renderBarContents renderer staveBar barSpec.beamSpecs barSpec.curves musicSpec
+      -- only process the notes if we have some
+      when (not $ null musicSpec.noteSpecs) $
+        renderBarContents renderer staveBar barSpec.beamSpecs barSpec.curves musicSpec
       renderStave renderer staveBar
 
 -- | display bar begin repeat markers
