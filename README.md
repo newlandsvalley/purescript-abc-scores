@@ -5,7 +5,7 @@ This is a purescript wrapper for [VexFlow](http://www.vexflow.com/) which is des
 
 It is intended to be a replacement for [purescript-scores](https://github.com/newlandsvalley/purescript-scores) which itself was a wrapper for [VexTab](http://www.vexflow.com/vextab). i.e. the intention is to cut out the middle man (which is anyhow not regularly maintained).
 
-Currently, it uses VexFlow v3.0.9
+Currently, it uses VexFlow v1.2.89
 
 To build the library
 --------------------
@@ -44,6 +44,11 @@ To build the example showing a thumbnail
 (a thumbnail of the initial part of a score for use in lists)
 
      npm run thumbnail
+
+VexFlow Version support
+-----------------------
+
+The library now works with the most recent version of VexFlow (Currently 3.09).  However, there is a [regression](https://github.com/0xfe/vexflow/issues/798) in this version of VexFlow which causes minims not to be formatted correctly. Consequently, we stay with the much earlier version which continues to work well.  We will migrate to the newer version when it is fixed or at least when the new approach to formatting is documented fully.
 
 
 Limitations
