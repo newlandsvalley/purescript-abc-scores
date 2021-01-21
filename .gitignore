@@ -12,6 +12,7 @@
 /examples/thumbnail/dist/thumbnail.js
 /examples/bugs/
 /examples/debug/
+/reference/
 /.psc*
 /.psa*
 /.purs*
