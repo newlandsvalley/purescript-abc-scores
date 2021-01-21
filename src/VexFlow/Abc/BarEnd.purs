@@ -14,7 +14,7 @@ module VexFlow.Abc.BarEnd
 import Prelude
 
 import Control.Monad.State (State, evalState, get, put)
-import Data.Abc (BarType, Repeat(..), Thickness(..))
+import Data.Abc (BarLine, Thickness(..))
 import Data.Array ((:), last, reverse, snoc)
 import Data.Foldable (foldM)
 import Data.Maybe (Maybe(..), maybe)
@@ -22,11 +22,11 @@ import VexFlow.Abc.Utils (isEmptyMusicSpec)
 import VexFlow.Abc.Volta (completeVolta, isEndVolta)
 import VexFlow.Types (BarSpec, LineThickness(..), MusicSpec)
 
--- | the state is the bar type of the last bar (moving backwards over the stave)
-type BarState = State BarType (Array BarSpec)
+-- | the state is the bar line of the last bar (moving backwards over the stave)
+type BarState = State BarLine (Array BarSpec)
 
 -- | move any bar end repeat or thickness marker to the previous bar
--- | i.e. a bar end and thiskness should belong to the bar it ends not the
+-- | i.e. a bar end and thickness should belong to the bar it ends not the
 -- | next one that it introduces.
 -- | remember we're processing the bars backwards
 shiftBarEnd :: Array BarSpec -> BarSpec -> BarState
@@ -34,8 +34,7 @@ shiftBarEnd  acc barSpec = do
   lastBarType <- get
   let
     -- does the last bar have an end repeat ?
-    isLastBarEndRepeat = (lastBarType.repeat == Just End) ||
-                          (lastBarType.repeat == Just BeginAndEnd)
+    isLastBarEndRepeat = (lastBarType.endRepeats > 0) 
     -- and its thickness
     lastLineThickness = barlineThickness lastBarType
     -- complete the volta if we detect that we've arrived at a bar
@@ -75,7 +74,7 @@ redundantBar barSpec =
 -- | as we're only allowed a foldl we need to reverse at the start
 repositionBarEndRepeats :: Array BarSpec -> Array BarSpec
 repositionBarEndRepeats bs =
-  evalState (shiftBarEnds $ reverse bs) simpleBarType
+  evalState (shiftBarEnds $ reverse bs) simpleBarLine
 
 -- | fill out the stave line to the maximum permiitted line width by specifiying
 -- | an empty final bar of the residual width
@@ -91,7 +90,7 @@ fillStaveLine maxWidth bs =
             completionBar = b { barNumber = b.barNumber + 1
                               , width = (maxWidth - currentWidth)
                               , xOffset = currentWidth
-                              , startLine = simpleBarType
+                              , startLine = simpleBarLine
                               , endLineThickness = NoLine
                               , endLineRepeat = false
                               , volta = Nothing
@@ -112,8 +111,7 @@ staveEndsWithRepeatBegin :: Array BarSpec -> Boolean
 staveEndsWithRepeatBegin bs =
   let
     isBeginVolta b =
-       ((b.startLine.repeat == Just Begin) ||
-        (b.startLine.repeat == Just BeginAndEnd))
+       (b.startLine.startRepeats > 0) 
   in
     maybe false isBeginVolta (last bs)
 
@@ -122,9 +120,9 @@ staveWidth :: Array BarSpec -> Int
 staveWidth bs =
   maybe 0 (\b -> b.xOffset + b.width) (last bs)
 
-barlineThickness :: BarType -> LineThickness
-barlineThickness barType =
-  case barType.thickness of
+barlineThickness :: BarLine -> LineThickness
+barlineThickness barLine =
+  case barLine.thickness of
     Thin ->
       Single
     Invisible ->
@@ -132,9 +130,10 @@ barlineThickness barType =
     _ ->
       Double
 
-simpleBarType :: BarType
-simpleBarType =
-  { thickness : Thin
-  , repeat : Nothing
+simpleBarLine :: BarLine
+simpleBarLine =
+  { endRepeats : 0
+  , thickness : Thin
+  , startRepeats : 0
   , iteration : Nothing
   }

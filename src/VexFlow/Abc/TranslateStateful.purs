@@ -31,8 +31,7 @@ import Data.Newtype (unwrap)
 import Data.Array ((..), zip)
 import Data.Array (length) as Array
 import Data.Traversable (traverse)
-import Data.Abc (Bar, BarType, BodyPart(..), Music, NoteDuration, Repeat(..),
-        Thickness(..))
+import Data.Abc (Bar, BarLine, BodyPart(..), Music, NoteDuration, Thickness(..))
 import Data.Abc.Metadata (isEmptyStave)
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext,
            isEmptyMusicSpec)
@@ -244,17 +243,17 @@ addFinalBeatMarker abcContext (MusicSpec ms) =
         MusicSpec $ ms { beatMarkers = ms.beatMarkers <> U.fromMaybe mBeatMarker }
 
 -- | carry over any pending Repeat Begin marker that may have ended the last stave
-modifiedStartLine :: Boolean -> BarType -> BarType
-modifiedStartLine isPendingRepeatbegin barType =
+modifiedStartLine :: Boolean -> BarLine -> BarLine
+modifiedStartLine isPendingRepeatbegin barLine =
   if isPendingRepeatbegin
     then
-      barType { repeat = Just Begin }
+      barLine { startRepeats = 1 }
     else
-      barType
+      barLine
 
-lineThickness :: BarType -> LineThickness
-lineThickness barType =
-  case barType.thickness of
+lineThickness :: BarLine -> LineThickness
+lineThickness barLine =
+  case barLine.thickness of
     Thin ->
       Single
     Invisible ->

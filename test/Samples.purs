@@ -88,17 +88,12 @@ keyChangeG =
 meterChangeTo34 :: AbcContext -> AbcContext
 meterChangeTo34 initialContext =
   let
-    barType =
-      { thickness : Thin
-      , repeat : Nothing
-      , iteration : Nothing
-      }
     bar0 =
-      { startLine : barType
+      { startLine : barLine
       , music : fromFoldable [c 4, f 4, g 4]
       }
     bar1 =
-      { startLine : barType
+      { startLine : barLine
       , music : fromFoldable [meterChange34, f 2, f 2, c 4, g 4]
       }
     bodyPart = Score $ toUnfoldable [bar0, bar1]
@@ -108,17 +103,12 @@ meterChangeTo34 initialContext =
 keyChangeToG :: AbcContext -> AbcContext
 keyChangeToG initialContext =
   let
-    barType =
-      { thickness : Thin
-      , repeat : Nothing
-      , iteration : Nothing
-      }
     bar0 =
-      { startLine : barType
+      { startLine : barLine
       , music : fromFoldable [c 4, f 4, g 4]
       }
     bar1 =
-      { startLine : barType
+      { startLine : barLine
       , music : fromFoldable [keyChangeG, f 2, f 2, c 4, g 4]
       }
     bodyPart = Score $ toUnfoldable [bar0, bar1]
@@ -130,15 +120,18 @@ keyChangeToG initialContext =
 accumulateBarWidths :: AbcContext -> AbcContext
 accumulateBarWidths initialContext =
   let
-    barType =
-      { thickness : Thin
-      , repeat : Nothing
-      , iteration : Nothing
-      }
     bar =
-      { startLine : barType
+      { startLine : barLine
       , music : fromFoldable [c 4, f 4, g 4]
       }
     bodyPart = Score $ toUnfoldable [bar, bar, bar, bar]
   in
     execBodyPart initialContext bodyPart
+
+barLine :: BarLine
+barLine = 
+  { endRepeats : 0
+  , thickness : Thin
+  , startRepeats : 0
+  , iteration : Nothing
+  }

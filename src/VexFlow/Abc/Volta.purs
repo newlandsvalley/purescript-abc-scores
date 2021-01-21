@@ -1,5 +1,5 @@
 module VexFlow.Abc.Volta
-  ( Volta
+  ( VexVolta
   , startVolta
   , completeVolta
   , isMidVolta
@@ -7,12 +7,12 @@ module VexFlow.Abc.Volta
   ) where
 
 -- | support for Voltas (repeated sections that alter with each iteration)
--- | these are simply introduced in ABC by an optional iteration number but
+-- | these are simply introduced in ABC by optional volta defintion number(s) but
 -- | in VexFlow need to be extended over all the bars in which they have an
 -- | effect
 
-import Prelude (($), (==), (/=), (&&), (||), show)
-import Data.Abc (BarType, Repeat(..), Thickness(..))
+import Prelude (($), (/=), (&&), show)
+import Data.Abc (BarLine, Thickness(..))
 import Data.Maybe (Maybe(..), isJust)
 
 {- from VexFlow StaveVolta
@@ -28,9 +28,9 @@ export class Volta extends StaveModifier {
   }
 -}
 
--- | the Volta (repeat count) data type
+-- | the Volta (repeat count) data type as passed to VexFlow
 -- | we can't really use enumerated types here because of JavaScript interop
-type Volta =
+type VexVolta =
   { voltaType :: Int     -- 1 .. 5 (see above)
   , iteration :: String  -- Ist or 2nd iteration or "" if mid-volta
   }
@@ -38,12 +38,12 @@ type Volta =
 -- | build a beginning Volta definition for a bar. When beginning, we only
 -- | recognize a new Begin Volta or a continuation of a previous bar's Volta
 -- | but the overall definition is incomplete.
-startVolta :: BarType -> Boolean -> Maybe Volta
-startVolta barType isCurrentlyMidVolta =
-  case barType.iteration of
+startVolta :: BarLine -> Boolean -> Maybe VexVolta
+startVolta barLine isCurrentlyMidVolta =
+  case barLine.iteration of
     Nothing ->
       if (isCurrentlyMidVolta) then
-        if (isEndVolta barType) then
+        if (isEndVolta barLine) then
           Nothing
         else
           Just { voltaType : 3           -- Mid (continuation)
@@ -59,7 +59,7 @@ startVolta barType isCurrentlyMidVolta =
 -- | We complete the Volta definition after the fact when we attempt to move any
 -- | bar end marker back to the preceding bar.  This gives us an opportunity
 -- | to set the Volta end charactersitics properly.
-completeVolta :: Maybe Volta -> Maybe Volta
+completeVolta :: Maybe VexVolta -> Maybe VexVolta
 completeVolta mvolta =
   case mvolta of
     Nothing ->
@@ -84,11 +84,11 @@ completeVolta mvolta =
 -- | switched on by an iteration marker
 -- | switched off by an end repeat
 -- | otherwise unchanged
-isMidVolta :: BarType -> Boolean -> Boolean
-isMidVolta barType current =
-  if (isJust barType.iteration) then
+isMidVolta :: BarLine -> Boolean -> Boolean
+isMidVolta barLine current =
+  if (isJust barLine.iteration) then
     true
-  else if (isEndVolta barType) then
+  else if (isEndVolta barLine) then
     false
   else
     current
@@ -97,9 +97,11 @@ isMidVolta barType current =
 -- | not entirely sure here what the rules should be.  We'll say a section ends
 -- | if there is a Begin, End or BeginAndEnd repeat or if there is a thick
 -- | barline
-isEndVolta :: BarType -> Boolean
-isEndVolta barType  =
-     (barType.repeat == Just End)
-  || (barType.repeat == Just BeginAndEnd)
-  || (barType.repeat == Just Begin)
-  || (barType.thickness /= Thin && barType.thickness /= Invisible)
+isEndVolta :: BarLine -> Boolean
+isEndVolta barLine  =
+  case barLine.iteration of 
+     Nothing -> 
+       (barLine.thickness /= Thin && barLine.thickness /= Invisible)
+     Just volta -> 
+       true
+   

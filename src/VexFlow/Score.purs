@@ -10,7 +10,7 @@ module VexFlow.Score
   , newStave
   , clearCanvas) where
 
-import Data.Abc (AbcTune, KeySignature, Repeat(..))
+import Data.Abc (AbcTune, BarLine, KeySignature)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), maybe)
 import Data.Array (null)
@@ -18,14 +18,14 @@ import Data.Tuple (Tuple(..))
 import Data.Traversable (traverse_)
 import Effect (Effect)
 import Effect.Console (log)
-import Prelude ((<>), (*), (==), (/=), (&&), ($), Unit, bind, discard, not, pure, unit, when)
+import Prelude ((<>), (>), (*), (==), (/=), (&&), ($), Unit, bind, discard, not, pure, unit, when)
 import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..)
          , MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec
          , Tempo, TimeSignature, VexScore, staveSeparation)
 import VexFlow.Abc.ContextChange (ContextChange(..))
-import VexFlow.Abc.Volta (Volta)
+import VexFlow.Abc.Volta (VexVolta)
 import VexFlow.Abc.Slur (VexCurves)
 import VexFlow.Abc.Utils (initialAbcContext)
 
@@ -126,7 +126,7 @@ displayBarSpec renderer staveSpec barSpec =
         else
           pure unit
 
-      _ <- processBarBeginRepeat staveBar barSpec.startLine.repeat
+      _ <- processBarBeginRepeat staveBar barSpec.startLine
       _ <- processBarEndRepeat staveBar barSpec.endLineRepeat
       _ <- processVolta staveBar barSpec.volta
       -- only process the notes if we have some
@@ -135,6 +135,26 @@ displayBarSpec renderer staveSpec barSpec =
       renderStave renderer staveBar
 
 -- | display bar begin repeat markers
+
+processBarBeginRepeat :: Stave -> BarLine -> Effect Unit
+processBarBeginRepeat staveBar barLine =
+  if barLine.startRepeats > 0 then
+    displayBarBeginRepeat staveBar
+  else 
+    pure unit
+
+{-}
+  case barLine.endRepeats, barLine.startRepeats of
+    0, 0 -> 
+      pure unit 
+    _, 0 ->
+      displayBarBeginRepeat staveBar
+    _, _ -> 
+      pure unit
+-}
+
+
+{-}
 processBarBeginRepeat :: Stave -> Maybe Repeat -> Effect Unit
 processBarBeginRepeat staveBar mRepeat =
   case mRepeat of
@@ -148,6 +168,7 @@ processBarBeginRepeat staveBar mRepeat =
       displayBarBeginRepeat staveBar
     _ ->
       pure unit
+-}
 
 -- | display bar end repeat markers
 processBarEndRepeat :: Stave -> Boolean -> Effect Unit
@@ -158,7 +179,7 @@ processBarEndRepeat staveBar isRepeat =
     pure unit
 
 
-processVolta :: Stave -> Maybe Volta -> Effect Unit
+processVolta :: Stave -> Maybe VexVolta -> Effect Unit
 processVolta staveBar mVolta =
   case mVolta of
     Just volta ->
@@ -204,7 +225,7 @@ foreign import displayBarEndRepeat :: Stave -> Effect Unit
 -- | dispay a bar begin-and-end repeat
 foreign import displayBarBothRepeat :: Stave -> Effect Unit
 -- | display a Volta
-foreign import displayVolta :: Stave -> Volta -> Effect Unit
+foreign import displayVolta :: Stave -> VexVolta -> Effect Unit
 -- | add the time signature
 foreign import addTimeSignature :: Stave -> TimeSignature -> Effect Unit
 -- | add the key signature

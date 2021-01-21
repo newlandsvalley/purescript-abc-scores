@@ -1,12 +1,12 @@
 module VexFlow.Types where
 
-import Data.Abc (BarType, NoteDuration, KeySignature)
+import Data.Abc (BarLine, NoteDuration, KeySignature)
 import Data.Either (Either)
 import Data.Maybe (Maybe)
 import Prelude (class Eq, class Monoid, class Semigroup, mempty, (<>))
 import VexFlow.Abc.ContextChange (ContextChange)
 import VexFlow.Abc.TickableContext (TickableContext)
-import VexFlow.Abc.Volta (Volta)
+import VexFlow.Abc.Volta (VexVolta)
 import VexFlow.Abc.Slur (SlurBracket, VexCurve)
 import VexFlow.Abc.Repetition (Repetition)
 
@@ -172,10 +172,10 @@ type BarSpec =
   { barNumber :: Int
   , width  :: Int
   , xOffset :: Int
-  , startLine :: BarType                  -- the Left bar line (always present)
+  , startLine :: BarLine                  -- the Left bar line (always present)
   , endLineThickness :: LineThickness     -- right bar line type (default Single)?
   , endLineRepeat :: Boolean              -- does it have an end repeat? important for end repeat markers
-  , volta :: Maybe Volta
+  , volta :: Maybe VexVolta
   , timeSignature :: TimeSignature
   , beamSpecs :: Array BeamSpec
   , curves :: Array VexCurve              --  curves representing slurs

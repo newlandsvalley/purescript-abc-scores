@@ -109,3 +109,5 @@ let upstream =
       https://github.com/purescript/package-sets/releases/download/psc-0.13.8-20201206/packages.dhall sha256:c9ffd7577fb8ee2197309591d7ccc0f506ee37b9078866f0ef159f5abbb1b32b
 
 in  upstream
+  with abc-parser.repo = "https://github.com/newlandsvalley/purescript-abc-parser.git"
+  with abc-parser.version = "d7e6996cec3b109746df51c1d39975b5b3e12f57"
