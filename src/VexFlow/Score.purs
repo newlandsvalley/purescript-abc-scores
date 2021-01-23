@@ -11,23 +11,22 @@ module VexFlow.Score
   , clearCanvas) where
 
 import Data.Abc (AbcTune, BarLine, KeySignature)
+import Data.Array (null)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), maybe)
-import Data.Array (null)
-import Data.Tuple (Tuple(..))
 import Data.Traversable (traverse_)
+import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
-import Prelude ((<>), (>), (*), (==), (/=), (&&), ($), Unit, bind, discard, not, pure, unit, when)
+import Prelude ((<>), (*), (==), (/=), (&&), ($), (+), Unit, bind, discard, not, 
+                 pure, show, unit, when)
+import VexFlow.Abc.ContextChange (ContextChange(..))
+import VexFlow.Abc.Slur (VexCurves)
 import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runTuneBody)
-import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..)
-         , MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec
-         , Tempo, TimeSignature, VexScore, staveSeparation)
-import VexFlow.Abc.ContextChange (ContextChange(..))
-import VexFlow.Abc.Volta (VexVolta)
-import VexFlow.Abc.Slur (VexCurves)
 import VexFlow.Abc.Utils (initialAbcContext)
+import VexFlow.Abc.Volta (VexVolta)
+import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..), MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec, Tempo, TimeSignature, VexScore, staveSeparation)
 
 -- | the Vex renderer
 foreign import data Renderer :: Type
@@ -138,37 +137,13 @@ displayBarSpec renderer staveSpec barSpec =
 
 processBarBeginRepeat :: Stave -> BarLine -> Effect Unit
 processBarBeginRepeat staveBar barLine =
-  if barLine.startRepeats > 0 then
-    displayBarBeginRepeat staveBar
-  else 
-    pure unit
-
-{-}
-  case barLine.endRepeats, barLine.startRepeats of
-    0, 0 -> 
-      pure unit 
-    _, 0 ->
-      displayBarBeginRepeat staveBar
-    _, _ -> 
+  case barLine.startRepeats of 
+    0 -> 
       pure unit
--}
-
-
-{-}
-processBarBeginRepeat :: Stave -> Maybe Repeat -> Effect Unit
-processBarBeginRepeat staveBar mRepeat =
-  case mRepeat of
-    Just Begin ->
-      displayBarBeginRepeat staveBar
-    Just End ->
-      -- we ignore this because we now record bar end repeat separately
-      pure unit
-    Just BeginAndEnd ->
-      -- just show begin because we now record bar end repeat separately
-      displayBarBeginRepeat staveBar
-    _ ->
-      pure unit
--}
+    1 -> 
+      displayBarBeginRepeat staveBar ""
+    n -> 
+      displayBarBeginRepeat staveBar ("play " <> show (n + 1) <> " times")
 
 -- | display bar end repeat markers
 processBarEndRepeat :: Stave -> Boolean -> Effect Unit
@@ -219,7 +194,7 @@ foreign import renderBarContents :: Renderer -> Stave -> Array BeamSpec -> VexCu
 -- | display the (filled) bar
 foreign import renderStave :: Renderer -> Stave -> Effect Unit
 -- | dispay a bar begin repeat
-foreign import displayBarBeginRepeat :: Stave -> Effect Unit
+foreign import displayBarBeginRepeat :: Stave -> String -> Effect Unit
 -- | dispay a bar begin repeat
 foreign import displayBarEndRepeat :: Stave -> Effect Unit
 -- | dispay a bar begin-and-end repeat

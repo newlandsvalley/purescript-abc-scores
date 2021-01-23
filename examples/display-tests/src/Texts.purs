@@ -234,3 +234,13 @@ gracesWithAccidentals =
     <> "L: 1/8\r\n"
     <> "K: C\r\n"
     <> "| {d^f}ga |\r\n"    
+
+multipleRepeats :: String
+multipleRepeats =
+    "X:1\r\n"
+    <> "T: volta\r\n"
+    <> "M: 4/4\r\n"
+    <> "L: 1/16\r\n"
+    <> "K: C\r\n"
+    <> "|:: C4F4 G4G4 | G8 C8 | F8 F8 ::|8\r\n"
+

@@ -40,8 +40,14 @@ var wrapper = function() {
     },
 
     displayBarBeginRepeat : function (stave) {
-      return function () {
-        stave.setBegBarType(VF.Barline.type.REPEAT_BEGIN);
+      return function (message) {
+        return function () {
+          stave.setBegBarType(VF.Barline.type.REPEAT_BEGIN);
+          if (message) {
+            stave.setText(message, VF.Modifier.Position.ABOVE, 
+                           { shift_y: 5, justification: VF.TextNote.Justification.LEFT });
+            }
+        }
       }
     },
 

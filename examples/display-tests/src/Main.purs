@@ -85,6 +85,7 @@ main = do
   _ <- displayAtStave renderer tripletWithTie 22
   _ <- displayAtStave renderer repetitions 23
   _ <- displayAtStave renderer gracesWithAccidentals 24
+  _ <- displayAtStave renderer multipleRepeats 25
   pure unit
 
 
