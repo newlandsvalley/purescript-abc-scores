@@ -6,6 +6,7 @@ import Data.Abc
 import Data.Tuple (Tuple(..))
 import Data.Rational ((%), fromInt)
 import Data.Maybe (Maybe(..))
+import Data.Map (empty)
 import Data.List (List(..), fromFoldable)
 import Data.Array (toUnfoldable)
 import VexFlow.Abc.TranslateStateful (execBodyPart)
@@ -83,7 +84,7 @@ meterChange34 =
 -- sample key change (to G)
 keyChangeG :: Music
 keyChangeG =
-  Inline $ Key gMajorM
+  Inline $ Key gMajorM empty
 
 meterChangeTo34 :: AbcContext -> AbcContext
 meterChangeTo34 initialContext =

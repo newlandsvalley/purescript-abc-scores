@@ -314,7 +314,7 @@ restOrNote context noteIndex rOrn =
 headerChange :: AbcContext -> Header -> Array ContextChange
 headerChange ctx h =
   case h of
-    Key mks ->
+    Key mks _->
       [KeyChange mks]
 
     UnitNoteLength dur ->
