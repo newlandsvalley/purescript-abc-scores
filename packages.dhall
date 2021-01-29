@@ -110,4 +110,4 @@ let upstream =
 
 in  upstream
   with abc-parser.repo = "https://github.com/newlandsvalley/purescript-abc-parser.git"
-  with abc-parser.version = "df1e982218002eb4153e97d12fb714b41401fd43"
+  with abc-parser.version = "ba18fe734d72c36558052dd9d70f8941b2f25d22"
