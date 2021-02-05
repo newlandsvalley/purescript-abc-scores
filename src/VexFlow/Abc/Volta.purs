@@ -14,6 +14,7 @@ module VexFlow.Abc.Volta
 import Prelude (($), (/=), (&&), (||), (>), (+), show)
 import Data.Abc (BarLine, Thickness(..))
 import Data.Maybe (Maybe(..), isJust)
+import Data.Semigroup.Foldable (intercalateMap)
 
 {- from VexFlow StaveVolta
 export class Volta extends StaveModifier {
@@ -51,9 +52,9 @@ startVolta barLine isCurrentlyMidVolta =
                 }
       else
         Nothing
-    Just i ->
+    Just voltas ->
       Just { voltaType : 2               -- Begin
-           , iteration : show i
+           , iteration : intercalateMap "," show voltas
            }
 
 -- | We complete the Volta definition after the fact when we attempt to move any
