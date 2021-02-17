@@ -90,11 +90,13 @@ meterChangeTo34 :: AbcContext -> AbcContext
 meterChangeTo34 initialContext =
   let
     bar0 =
-      { startLine : barLine
+      { decorations : Nil
+      , startLine : barLine
       , music : fromFoldable [c 4, f 4, g 4]
       }
     bar1 =
-      { startLine : barLine
+      { decorations : Nil
+      , startLine : barLine
       , music : fromFoldable [meterChange34, f 2, f 2, c 4, g 4]
       }
     bodyPart = Score $ toUnfoldable [bar0, bar1]
@@ -105,11 +107,13 @@ keyChangeToG :: AbcContext -> AbcContext
 keyChangeToG initialContext =
   let
     bar0 =
-      { startLine : barLine
+      { decorations : Nil
+      , startLine : barLine
       , music : fromFoldable [c 4, f 4, g 4]
       }
     bar1 =
-      { startLine : barLine
+      { decorations : Nil
+      , startLine : barLine
       , music : fromFoldable [keyChangeG, f 2, f 2, c 4, g 4]
       }
     bodyPart = Score $ toUnfoldable [bar0, bar1]
@@ -122,7 +126,8 @@ accumulateBarWidths :: AbcContext -> AbcContext
 accumulateBarWidths initialContext =
   let
     bar =
-      { startLine : barLine
+      { decorations : Nil
+      , startLine : barLine
       , music : fromFoldable [c 4, f 4, g 4]
       }
     bodyPart = Score $ toUnfoldable [bar, bar, bar, bar]

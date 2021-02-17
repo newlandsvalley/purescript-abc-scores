@@ -224,7 +224,7 @@ repetitions =
   <> "L:1/16\r\n"
   <> "R:marsch\r\n"
   <> "K:Dmaj\r\n"
-  <> "| g3f -f2ed | c2A2 ABc2 !D.C.! y || !coda! y [| d2d2 d4 |]\r\n"
+  <> "| g3f -f2ed | c2A2 ABc2 !D.C.! || A4 B4 !coda! [| d2d2 d4 |]\r\n"
 
 gracesWithAccidentals :: String
 gracesWithAccidentals =

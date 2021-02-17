@@ -17,7 +17,7 @@ module VexFlow.Abc.TranslateStateful
 --     and meter) because we can't represent it using the score's 'dotted'
 --     conventions.
 
-import Prelude (($), (<>), (+), (*), (==), (&&), bind, mempty, pure, show)
+import Prelude (($), (<>), (+), (*), (==), (&&), bind, map, mempty, pure, show)
 import Control.Monad.Except.Trans
 import Control.Monad.State (State, evalStateT, execStateT, get, put)
 import VexFlow.Abc.Translate (headerChange, music) as Trans
@@ -28,7 +28,7 @@ import Data.Unfoldable (fromMaybe) as U
 import Data.Tuple (Tuple(..))
 import Data.Maybe (Maybe(..), fromMaybe, isNothing)
 import Data.Newtype (unwrap)
-import Data.Array ((..), zip)
+import Data.Array ((..), fromFoldable, zip)
 import Data.Array (length) as Array
 import Data.Traversable (traverse)
 import Data.Abc (Bar, BarLine, BodyPart(..), Music, NoteDuration, Thickness(..))
@@ -44,6 +44,7 @@ import VexFlow.Abc.Volta (startVolta, isMidVolta)
 import VexFlow.Abc.Beam (calculateBeams)
 import VexFlow.Abc.Slur (vexCurves)
 import VexFlow.Abc.Beat (exactBeatNumber)
+import VexFlow.Abc.Repetition (buildRepetition)
 
 type Translation a = ExceptT String (State AbcContext) a
 
@@ -132,7 +133,7 @@ bars staveNumber bs =
 bar :: Int -> Int -> Bar -> Translation BarSpec
 bar staveNumber barNumber abcBar =
   do
-    musicSpec0 <- foldOverMusics $ toUnfoldable abcBar.music
+    musicSpec0 <- foldOverMusics abcBar.decorations $ toUnfoldable abcBar.music
     -- we must get the context AFTER iterating through the music
     -- because the fold can chenge the context
     abcContext <- get
@@ -188,9 +189,17 @@ bar staveNumber barNumber abcBar =
     withExceptT (\err -> err <> ": bar " <> show barNumber) $ pure barSpec
 
 
-foldOverMusics :: Array Music -> Translation MusicSpec
-foldOverMusics =
-  foldM foldMusicsFunction mempty
+foldOverMusics :: List String -> Array Music -> Translation MusicSpec
+foldOverMusics barDecorations =
+  let 
+    -- our initial MusicSpec is empty, apart from the fact that we need to 
+    -- start off with any decorations against the bar
+    (MusicSpec emptySpec) = mempty :: MusicSpec 
+    repetitions = map (buildRepetition 0) (fromFoldable barDecorations)
+    initialSpec = emptySpec { repetitions = repetitions }
+  in
+    -- we then fold over all the bar contents, building the VexFlow spec as we go
+    foldM foldMusicsFunction (MusicSpec initialSpec)
 
 -- | fold the music function over the array of music.
 -- | the monoidal behaviour of TickableContext within MusicSpec
