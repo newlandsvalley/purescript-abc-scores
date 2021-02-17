@@ -93,9 +93,9 @@ music context tickablePosition noteIndex phraseDuration m =
         -- rests are never tied
         buildMusicSpecFromN tickableContext noteIndex mBeatMarker false 0 0 $ rest context dur
 
-      Chord abcChord ->
+      Chord c ->
         -- we don't support tied chords at the moment
-        buildMusicSpecFromN tickableContext noteIndex mBeatMarker false 0 0 $ chord context abcChord
+        buildMusicSpecFromN tickableContext noteIndex mBeatMarker false c.leftSlurs c.rightSlurs $ chord context c
 
       BrokenRhythmPair gn1 broken gn2 ->
         buildMusicSpecFromNs tickableContext noteIndex mBeatMarker gn1 gn2 $ brokenRhythm context gn1 broken gn2

@@ -37,3 +37,12 @@ tupletSlurs =
     <> "L: 1/16\r\n"
     <> "K: C\r\n"
     <> "| (3(A2B2C2) D4 (3:2:4D2E2(FG) |\r\n"
+
+chordSlurs :: String
+chordSlurs =
+    "X:1\r\n"
+    <> "T: chord slurs\r\n"
+    <> "M: 3/4\r\n"
+    <> "L: 1/8\r\n"
+    <> "K: C\r\n"
+    <> "| ([GB] c) dd (e [gb]) |\r\n"
