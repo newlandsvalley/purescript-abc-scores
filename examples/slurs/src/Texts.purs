@@ -37,6 +37,15 @@ tupletSlurs =
     <> "L: 1/16\r\n"
     <> "K: C\r\n"
     <> "| (3(A2B2C2) D4 (3:2:4D2E2(FG) |\r\n"
+        
+tupletPrefaceSlurs :: String
+tupletPrefaceSlurs =
+    "X:1\r\n"
+    <> "T: tuplet preface slurs\r\n"
+    <> "M: 3/4\r\n"
+    <> "L: 1/16\r\n"
+    <> "K: C\r\n"
+    <> "| ((3A2B2C2 D4) ((3:2:4D2E2FG) |\r\n"
 
 chordSlurs :: String
 chordSlurs =

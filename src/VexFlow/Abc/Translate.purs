@@ -119,7 +119,7 @@ music context tickablePosition noteIndex phraseDuration m =
                      []
                 , tickableContext : tickableContext
                 , contextChanges : mempty
-                , slurBrackets : buildTupletSlurs noteIndex t.restsOrNotes
+                , slurBrackets : buildTupletSlurs noteIndex t.leftSlurs t.restsOrNotes
                 , beatMarkers : fromMaybe mBeatMarker
                 , repetitions: mempty
                 , typesettingSpaces : mempty
@@ -462,9 +462,15 @@ buildSlurBrackets noteIndex startCount endCount =
   replicate startCount (LeftBracket noteIndex)
     <> (replicate endCount (RightBracket noteIndex))
 
+
+-- | build any left-slur brackets that immediately preface the tuplet
+buildTupletPrefaceSlurs :: Int -> Int -> Array SlurBracket
+buildTupletPrefaceSlurs noteIndex startCount  = 
+  buildSlurBrackets noteIndex startCount 0    
+
 -- | build a tuplet slur bracket from the notes inside the tuplet
-buildTupletSlurs :: Int -> Nel.NonEmptyList RestOrNote -> Array SlurBracket
-buildTupletSlurs noteIndex tupletNotes =
+buildInterTupletSlurs :: Int -> Nel.NonEmptyList RestOrNote -> Array SlurBracket
+buildInterTupletSlurs noteIndex tupletNotes =
   let
     f :: Int -> RestOrNote -> Array SlurBracket
     f pos rOrN =
@@ -474,3 +480,9 @@ buildTupletSlurs noteIndex tupletNotes =
           buildSlurBrackets (noteIndex + pos) gNote.leftSlurs gNote.rightSlurs
   in
     concat $ mapWithIndex f (Nel.toUnfoldable tupletNotes)
+
+-- | build all the slurs associated with a tuplet
+buildTupletSlurs :: Int -> Int -> Nel.NonEmptyList RestOrNote -> Array SlurBracket
+buildTupletSlurs noteIndex prefaceSlurCount tupletNotes = 
+  buildTupletPrefaceSlurs noteIndex prefaceSlurCount <> 
+    (buildInterTupletSlurs noteIndex tupletNotes)

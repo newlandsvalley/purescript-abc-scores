@@ -62,5 +62,6 @@ main = do
   _ <- displayAtStave renderer slurs2 1
   _ <- displayAtStave renderer brokenRhythmSlurs 2
   _ <- displayAtStave renderer tupletSlurs 3
-  _ <- displayAtStave renderer chordSlurs 4
+  _ <- displayAtStave renderer tupletPrefaceSlurs 4
+  _ <- displayAtStave renderer chordSlurs 5
   pure unit
