@@ -100,10 +100,10 @@ music context tickablePosition noteIndex phraseDuration m =
       BrokenRhythmPair gn1 broken gn2 ->
         buildMusicSpecFromNs tickableContext noteIndex mBeatMarker gn1 gn2 $ brokenRhythm context gn1 broken gn2
 
-      Tuplet mGrace signature rOrNs ->
+      Tuplet t {- mGrace signature rOrNs -} ->
         -- grace notes prefacing tuplets currently ignored
         let
-          eRes = tuplet context tickablePosition signature (Nel.toUnfoldable rOrNs)
+          eRes = tuplet context tickablePosition t.signature (Nel.toUnfoldable t.restsOrNotes)
         in
           -- we don't support tied tuplets at the moment
           map (\tupletSpec ->
@@ -119,7 +119,7 @@ music context tickablePosition noteIndex phraseDuration m =
                      []
                 , tickableContext : tickableContext
                 , contextChanges : mempty
-                , slurBrackets : buildTupletSlurs noteIndex rOrNs
+                , slurBrackets : buildTupletSlurs noteIndex t.restsOrNotes
                 , beatMarkers : fromMaybe mBeatMarker
                 , repetitions: mempty
                 , typesettingSpaces : mempty

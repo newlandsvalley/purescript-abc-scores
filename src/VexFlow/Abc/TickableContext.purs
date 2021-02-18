@@ -59,14 +59,14 @@ getTickableContext m =
         (graceLength gn1.maybeGrace + graceLength gn2.maybeGrace)
         (gn1.abcNote.duration + gn2.abcNote.duration)
 
-    Tuplet mGrace signature rOrNs ->
+    Tuplet t ->
       -- grace notes prefacing tuplets are currently ignored
       let
-        reduction = signature.q % signature.p
-        graceNoteLength = getRorNsGraceLength (Nel.toUnfoldable rOrNs)
-        duration = reduction * (getRorNsDuration (Nel.toUnfoldable rOrNs))
+        reduction = t.signature.q % t.signature.p
+        graceNoteLength = getRorNsGraceLength (Nel.toUnfoldable t.restsOrNotes)
+        duration = reduction * (getRorNsDuration (Nel.toUnfoldable t.restsOrNotes))
       in
-        TickableContext signature.r graceNoteLength duration
+        TickableContext t.signature.r graceNoteLength duration
 
     _ ->
       mempty
