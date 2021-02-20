@@ -8,25 +8,28 @@ module VexFlow.Score
   , initialiseCanvas
   , resizeCanvas
   , newStave
-  , clearCanvas) where
+  , clearCanvas
+  , setCanvasDepthToTune) where
 
-import Data.Abc (AbcTune, BarLine, KeySignature)
+import Data.Abc (AbcTune, BarLine, BodyPart(..), KeySignature)
+import Data.Abc.Metadata (isEmptyStave)
 import Data.Array (null)
 import Data.Either (Either(..))
+import Data.Int (floor, toNumber)
+import Data.List (filter, length)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Traversable (traverse_)
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
-import Prelude ((<>), (*), (==), (/=), (&&), ($), (+), Unit, bind, discard, not, 
-                 pure, show, unit, when)
+import Prelude ((<>), (*), (==), (/=), (&&), ($), (+), Unit, bind, discard, not, pure, show, unit, when)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Slur (VexCurves)
 import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Abc.Utils (initialAbcContext)
 import VexFlow.Abc.Volta (VexVolta)
-import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..), MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec, Tempo, TimeSignature, VexScore, staveSeparation)
+import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..), MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec, Tempo, TimeSignature, VexScore, scoreMarginBottom, staveSeparation)
 
 -- | the Vex renderer
 foreign import data Renderer :: Type
@@ -179,10 +182,25 @@ addTempoMarking :: Stave -> Maybe Tempo -> Effect Unit
 addTempoMarking stave mTempo =
   maybe (pure unit) (addTempoMarkingImpl stave) mTempo
 
+-- | set the canvas depth used by the renderer to an appropriate amount 
+-- | governed by the number of (non-empty) score lines in the tune
+setCanvasDepthToTune :: AbcTune -> Config -> Renderer -> Effect Renderer
+setCanvasDepthToTune tune config renderer =
+  let 
+    f :: BodyPart -> Boolean 
+    f = case _ of 
+      Score bars -> not $ isEmptyStave bars
+      BodyInfo _ -> false
+    scoreLines = length $ filter f tune.body
+    pixels = floor $ toNumber ((scoreLines * staveSeparation) + scoreMarginBottom) * config.scale
+  in 
+    resizeCanvas renderer config { height = pixels }
+
 -- | initialise VexFlow against the canvas where it renders
 foreign import initialiseCanvas :: Config -> Effect Renderer
 -- | resize the canvas
-foreign import resizeCanvas :: Renderer -> Config -> Effect Unit
+-- | we return the renderer to give the illusion that it's not operating by side-effect
+foreign import resizeCanvas :: Renderer -> Config -> Effect Renderer
 -- | clear the score from the canvas
 foreign import clearCanvas :: Renderer -> Effect Unit
 -- | create a new stave bar

@@ -3,7 +3,7 @@
   "scripts": {
     "pulp-build": "pulp build",
     "pulp-test": "pulp test",
-    "build": "apago build",
+    "build": "spago build",
     "test": "spago -x ./test.dhall test",
     "display-tests": "spago -x ./display-tests.dhall bundle-app --main Examples.DisplayTests.Main --to examples/display-tests/dist/display-tests.js",
     "full-tune": "spago -x ./full-tune.dhall bundle-app --main Examples.FullTune.Main --to examples/full-tune/dist/full-tune.js",

@@ -151,6 +151,7 @@ var wrapper = function() {
 
         var context = renderer.getContext();
         context.scale(config.scale, config.scale);
+        return renderer;
       },
 
     makeStave: function (staveConfig, keySignature) {
