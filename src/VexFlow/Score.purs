@@ -9,7 +9,9 @@ module VexFlow.Score
   , resizeCanvas
   , newStave
   , clearCanvas
-  , setCanvasDepthToTune) where
+  , setCanvasDepthToTune
+  , setCanvasDimensionsToScore
+  , module Exports) where
 
 import Data.Abc (AbcTune, BarLine, BodyPart(..), KeySignature)
 import Data.Abc.Metadata (isEmptyStave)
@@ -23,6 +25,8 @@ import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
 import Prelude ((<>), (*), (==), (/=), (&&), ($), (+), Unit, bind, discard, not, pure, show, unit, when)
+import VexFlow.Abc.Alignment (justifiedScoreConfig)
+import VexFlow.Abc.Alignment (rightJustify) as Exports
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Slur (VexCurves)
 import VexFlow.Abc.Translate (keySignature) as Translate
@@ -195,6 +199,15 @@ setCanvasDepthToTune tune config renderer =
     pixels = floor $ toNumber ((scoreLines * staveSeparation) + scoreMarginBottom) * config.scale
   in 
     resizeCanvas renderer config { height = pixels }
+
+-- | set the canvas dimensions used by the renderer to an appropriate depth and width
+-- | (this requires us to have first generated the score from the tune)
+setCanvasDimensionsToScore :: VexScore -> Config -> Renderer -> Effect Renderer 
+setCanvasDimensionsToScore score config renderer = 
+  let 
+    justifiedConfig = justifiedScoreConfig score config 
+  in 
+    resizeCanvas renderer justifiedConfig
 
 -- | initialise VexFlow against the canvas where it renders
 foreign import initialiseCanvas :: Config -> Effect Renderer
