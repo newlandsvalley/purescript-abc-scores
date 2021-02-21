@@ -1,6 +1,6 @@
 module Test.Samples where
 
-import Prelude (($))
+import Prelude (($), (<>))
 import VexFlow.Types (AbcContext, staveIndentation)
 import Data.Abc
 import Data.Tuple (Tuple(..))
@@ -141,3 +141,16 @@ barLine =
   , startRepeats : 0
   , iteration : Nothing
   }
+
+borddajnsijn :: String
+borddajnsijn =
+  "X: 1\r\n" 
+  <> "T: Borddajnsijn\r\n"
+  <> "R: polka\r\n"
+  <> "L: 1/8\r\n"
+  <> "Q: 1/4=150\r\n"
+  <> "K: GMajor\r\n"
+  <> "|: d2 d2 | d3 B | dc AF | GA Bc | d2 g2 | d3 B | dc AF | G2 z2 :|\r\n"
+  <> "|: DF AF | DG Bd | dc AF | GB d2 | DF AF | DG Bd | dc AF | G2 z2 :|\r\n" 
+  <> "\r\n"
+  <> "\r\n"

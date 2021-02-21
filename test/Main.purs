@@ -1,22 +1,24 @@
 module Test.Main where
 
-import Prelude (($), Unit, discard, map)
-import Effect (Effect)
-import Test.Unit (TestF, suite, test)
-import Test.Unit.Assert as Assert
-import Test.Unit.Main (runTest)
-import Data.Maybe (Maybe(..))
-import Data.Tuple (Tuple(..))
+import Test.Samples
+
+import Control.Monad.Free (Free)
+import Data.Abc (PitchClass(..))
+import Data.Abc.Parser (parse)
 import Data.Array (head)
 import Data.Either (Either(..))
+import Data.Maybe (Maybe(..))
 import Data.Rational ((%))
-import Control.Monad.Free (Free)
-import Data.Abc (AbcTune, PitchClass(..))
-import Data.Abc.Parser (parse)
-import VexFlow.Types (BarSpec, Config, VexScore, MusicSpec(..))
-import VexFlow.Score (createScore)
+import Data.Tuple (Tuple(..))
+import Effect (Effect)
+import Prelude (($), (<>), Unit, discard, map, show)
+import Test.Unit (Test, TestF, suite, test, failure)
+import Test.Unit.Assert as Assert
+import Test.Unit.Main (runTest)
+import VexFlow.Abc.Alignment (justifiedScoreConfig)
 import VexFlow.Abc.Beat (exactBeatNumber)
-import Test.Samples
+import VexFlow.Score (createScore)
+import VexFlow.Types (BarSpec, Config, VexScore, MusicSpec(..))
 
 main :: Effect Unit
 main = runTest do
@@ -25,9 +27,10 @@ main = runTest do
   beatSuite
   beamingSuite
   typesettingSpaceSuite
+  alignmentSuite
 
-configure :: AbcTune -> Config
-configure tune =
+initialConfig :: Config
+initialConfig =
   { parentElementId : "canvas"
   , width : 100
   , height : 100
@@ -35,13 +38,26 @@ configure tune =
   , isSVG : false
   }
 
+assertScoreDepth :: String -> Int -> Test
+assertScoreDepth s expected =
+  case parse s of
+    Right tune ->
+      let 
+        score = createScore initialConfig tune
+        newConfig = justifiedScoreConfig score initialConfig
+      in
+        Assert.equal expected newConfig.height
+
+    Left err ->
+      failure ("parse failed: " <> (show err))
+
+
 getFirstBar :: String -> Maybe BarSpec
 getFirstBar s =
   case parse s of
     Right abcTune ->
       let
-        config = configure abcTune
-        vexScore = createScore config abcTune
+        vexScore = createScore initialConfig abcTune
       in
         firstBarOfScore vexScore
     _ ->
@@ -234,3 +250,13 @@ typesettingSpaceSuite =
               (MusicSpec ms) = bs.musicSpec
             in
               ms.typesettingSpaces
+
+
+alignmentSuite :: Free TestF Unit
+alignmentSuite =
+  suite "alignment" do
+    test "borddajnsijn" do
+      assertScoreDepth borddajnsijn 172
+
+
+

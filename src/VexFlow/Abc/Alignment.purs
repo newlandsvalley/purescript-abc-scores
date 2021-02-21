@@ -19,10 +19,10 @@ module VexFlow.Abc.Alignment
 -- | the canvas.
 
 import Control.Monad.State (State, evalStateT, get, put)
-import Data.Array (length, singleton, takeWhile)
+import Data.Array (filter, length, singleton, takeWhile)
 import Data.Foldable (foldl, foldM)
 import Data.Int (floor, toNumber)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), isJust)
 import Data.Either (Either(..), either)
 import Data.Newtype (unwrap)
 import Prelude (bind, map, max, mempty, min, pure, ($), (*), (+), (-), (/), (<>), (>=), (/=))
@@ -169,13 +169,14 @@ justifiedScoreCanvasWidth scale staves =
 justifiedScoreCanvasHeight :: Number -> Array (Maybe StaveSpec) -> Int
 justifiedScoreCanvasHeight scale staves =
   let
+    staveCount = length $ filter (isJust) staves
     -- we'll assume if we have just one stave, then it's a thumbnail
     -- and we want to minimise the dimensions
     marginBottom =
-      if (1 >= length staves) then
+      if (1 >= staveCount) then
         0
       else
         scoreMarginBottom
-    staveHeight = ((length staves) * staveSeparation) + marginBottom
+    staveHeight = (staveCount * staveSeparation) + marginBottom
   in
     floor $ (toNumber staveHeight) * scale
