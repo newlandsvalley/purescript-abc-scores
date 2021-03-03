@@ -104,10 +104,47 @@ in  upstream
       }
 -------------------------------
 -}
-
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.13.8-20201206/packages.dhall sha256:c9ffd7577fb8ee2197309591d7ccc0f506ee37b9078866f0ef159f5abbb1b32b
+      https://github.com/purescript/package-sets/releases/download/psc-0.14.0-20210302/packages.dhall sha256:20cc5b89cf15433623ad6f250f112bf7a6bd82b5972363ecff4abf1febb02c50
 
 in  upstream
-  with abc-parser.repo = "https://github.com/newlandsvalley/purescript-abc-parser.git"
-  with abc-parser.version = "v1.9.3"
+  with abc-parser =
+    { dependencies = [ "bifunctors"
+    , "effect"
+    , "either"
+    , "foldable-traversable"
+    , "maybe"
+    , "midi"
+    , "ordered-collections"
+    , "rationals"
+    , "strings"
+    , "stringutils"
+    , "string-parsers"
+    , "transformers"
+    , "tuples"
+    ]
+    , repo = "https://github.com/newlandsvalley/purescript-abc-parser.git"
+    , version = "ps014"
+    }
+  with stringutils =
+    { dependencies =
+      [ "arrays"
+      , "assert"
+      , "console"
+      , "effect"
+      , "either"
+      , "functions"
+      , "integers"
+      , "lists"
+      , "maybe"
+      , "partial"
+      , "prelude"
+      , "psci-support"
+      , "quickcheck"
+      , "strings"
+      , "unsafe-coerce"
+      ]
+    , repo = "https://github.com/menelaos/purescript-stringutils.git"
+    , version = "e149d04cd5bcc25222c1807f2e1edafb36b5f70e"
+    }
+
