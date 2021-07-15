@@ -44,6 +44,6 @@ main =
           score = rightJustify canvasWidth scale unjustifiedScore
           config = justifiedScoreConfig score defaultConfig
         _ <- resizeCanvas renderer config
-        renderScore config renderer score
+        renderScore renderer score
       _ ->
         pure false

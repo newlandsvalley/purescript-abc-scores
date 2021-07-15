@@ -38,7 +38,7 @@ data SlurStack = SlurStack (List SlurBracket) VexCurves
 vexCurves :: Array SlurBracket -> VexCurves
 vexCurves brackets =
   let
-    (SlurStack stack curves) = -- balance brackets
+    (SlurStack _ curves) = -- balance brackets
       foldl push empty brackets
   in
     reverse curves

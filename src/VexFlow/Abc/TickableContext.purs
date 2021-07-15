@@ -54,7 +54,7 @@ getTickableContext m =
       in
         TickableContext 1 0 duration
 
-    BrokenRhythmPair gn1 broken gn2 ->
+    BrokenRhythmPair gn1 _ gn2 ->
       TickableContext 2
         (graceLength gn1.maybeGrace + graceLength gn2.maybeGrace)
         (gn1.abcNote.duration + gn2.abcNote.duration)
@@ -90,8 +90,8 @@ getRorNsGraceLength rOrNs =
   let
     f acc rOrN =
       case rOrN of
-        Left rest -> 0 + acc
-        Right graceableNote ->
+        Left _ -> 0 + acc            -- rest
+        Right graceableNote ->       -- note
           graceLength graceableNote.maybeGrace + acc
   in
     foldl f 0 rOrNs
@@ -101,7 +101,7 @@ getRorNsGraceLength rOrNs =
 estimateBarWidth :: Boolean -> Boolean -> Maybe KeySignature -> Bar -> Int
 estimateBarWidth hasClef hasTimeSig maybeKeySig abcBar =
   let
-    (TickableContext noteCount graceCount duration) =
+    (TickableContext noteCount graceCount _) =   -- (_ is duration)
       foldMap getTickableContext abcBar.music
     clefCount =
       if hasClef then 1.0 else 0.0

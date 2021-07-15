@@ -87,7 +87,7 @@ music context tickablePosition noteIndex phraseDuration m =
     case m of
       Note gn ->
         buildMusicSpecFromN tickableContext noteIndex mBeatMarker gn.abcNote.tied gn.leftSlurs gn.rightSlurs
-          $ graceableNote context 0 gn
+          $ graceableNote context gn
 
       Rest dur ->
         -- rests are never tied
@@ -127,7 +127,7 @@ music context tickablePosition noteIndex phraseDuration m =
               ) eRes
 
       Inline header ->
-        Right $ buildMusicSpecFromContextChange $ headerChange context header
+        Right $ buildMusicSpecFromContextChange $ headerChange header
 
       DecoratedSpace decorations ->
         Right $ buildMusicSpecFromDecorations decorations noteIndex
@@ -137,10 +137,8 @@ music context tickablePosition noteIndex phraseDuration m =
 
 -- | Translate an ABC graceable note to a VexFlow note
 -- | failing if the duration cannot be translated
--- | noteIndex is the index of the note within any bigger structure such as
--- | a tuplet or broken rhythm pair and is 0 for a note on its own
-graceableNote :: AbcContext -> Int -> GraceableNote-> Either String NoteSpec
-graceableNote context noteIndex gn  =
+graceableNote :: AbcContext -> GraceableNote-> Either String NoteSpec
+graceableNote context gn  =
   let
     graceNotes :: Array AbcNote
     graceNotes = maybe [] (\grace -> Nel.toUnfoldable grace.notes) gn.maybeGrace
@@ -261,8 +259,8 @@ brokenRhythm :: AbcContext -> GraceableNote -> Broken -> GraceableNote -> Either
 brokenRhythm context gn1 broken gn2 =
   let
     (Tuple n1 n2) = normaliseBroken broken gn1 gn2
-    enote1 = graceableNote context 0 n1
-    enote2 =graceableNote context 1 n2
+    enote1 = graceableNote context n1
+    enote2 = graceableNote context n2
   in
     case (Tuple enote1 enote2) of
       (Tuple (Right note1) (Right note2)) ->
@@ -277,7 +275,7 @@ brokenRhythm context gn1 broken gn2 =
 tuplet :: AbcContext -> Int -> TupletSignature -> Array RestOrNote -> Either String TupletSpec
 tuplet context startOffset signature rns =
   let
-    enoteSpecs = sequence $ mapWithIndex (restOrNote context) rns
+    enoteSpecs = sequence $ map (restOrNote context) rns
     isTied = case last rns of
       Just (Right gNote) ->
         gNote.abcNote.tied
@@ -300,19 +298,19 @@ tuplet context startOffset signature rns =
       Left x ->
         Left x
 
-restOrNote :: AbcContext -> Int -> RestOrNote -> Either String NoteSpec
-restOrNote context noteIndex rOrn =
+restOrNote :: AbcContext -> RestOrNote -> Either String NoteSpec
+restOrNote context rOrn =
   case rOrn of
     Left abcRest ->
       rest context abcRest
     Right gn ->
-      graceableNote context noteIndex gn
+      graceableNote context gn
 
 -- | cater for an inline header (within a stave)
 -- |   we need to cater for changes in key signature, meter or unit note length
 -- | which all alter the translation context.  All other headers may be ignored
-headerChange :: AbcContext -> Header -> Array ContextChange
-headerChange ctx h =
+headerChange :: Header -> Array ContextChange
+headerChange h =
   case h of
     Key mks _->
       [KeyChange mks]

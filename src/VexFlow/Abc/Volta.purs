@@ -104,6 +104,6 @@ isEndVolta barLine  =
      Nothing -> 
        (barLine.thickness /= Thin && barLine.thickness /= Invisible)
          || (barLine.endRepeats + barLine.startRepeats > 0)
-     Just volta -> 
+     Just _ -> -- Just Volta
        true
    

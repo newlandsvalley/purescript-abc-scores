@@ -31,7 +31,7 @@ import Data.Newtype (unwrap)
 import Data.Array ((..), fromFoldable, zip)
 import Data.Array (length) as Array
 import Data.Traversable (traverse)
-import Data.Abc (Bar, BarLine, BodyPart(..), Music, NoteDuration, Thickness(..))
+import Data.Abc (Bar, BarLine, BodyPart(..), Music, NoteDuration)
 import Data.Abc.Metadata (isEmptyStave)
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext,
            isEmptyMusicSpec)
@@ -95,7 +95,7 @@ bodyPart bp =
                              , accumulatedStaveWidth = staveIndentation
                              })
         -- then translate the bars
-        staveBars <- bars staveNo bs
+        staveBars <- bars bs
         -- reget the state after processing the bars
         abcContext' <- get
         let
@@ -118,20 +118,20 @@ bodyPart bp =
         -- save the new Abc context to state governed by any header change
         abcContext <- get
         let
-          contextChanges = Trans.headerChange abcContext header
+          contextChanges = Trans.headerChange header
           newAbcContext = foldl updateAbcContext abcContext contextChanges
         _ <- put newAbcContext
         pure Nothing
 
-bars :: Int -> List Bar -> Translation (Array BarSpec)
-bars staveNumber bs =
+bars :: List Bar -> Translation (Array BarSpec)
+bars bs =
   let
     tupleArray = zipBars bs
   in
-    traverse (\(Tuple index b) -> bar staveNumber index b) tupleArray
+    traverse (\(Tuple index b) -> bar index b) tupleArray
 
-bar :: Int -> Int -> Bar -> Translation BarSpec
-bar staveNumber barNumber abcBar =
+bar :: Int -> Bar -> Translation BarSpec
+bar barNumber abcBar =
   do
     musicSpec0 <- foldOverMusics abcBar.decorations $ toUnfoldable abcBar.music
     -- we must get the context AFTER iterating through the music
@@ -260,6 +260,8 @@ modifiedStartLine isPendingRepeatbegin barLine =
     else
       barLine
 
+
+{-
 lineThickness :: BarLine -> LineThickness
 lineThickness barLine =
   case barLine.thickness of
@@ -269,3 +271,4 @@ lineThickness barLine =
       NoLine
     _ ->
       Double
+-}

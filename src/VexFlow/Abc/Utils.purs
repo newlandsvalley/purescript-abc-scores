@@ -156,7 +156,7 @@ initialAbcContext tune config =
     modifiedKeySignature =
       fromMaybe cMajor $ map identity (getKeySig tune)
     mTempo =
-      maybe Nothing (tempoMarking unitNoteLength) (getTempoSig tune)
+      maybe Nothing tempoMarking (getTempoSig tune)
   in
     if (null modifiedKeySignature.modifications) then
       Right
@@ -231,8 +231,8 @@ cMajor =
     }
 
 -- | convert an ABC tempo signature to a VexFlow tempo marker
-tempoMarking :: NoteDuration -> TempoSignature -> Maybe Tempo
-tempoMarking unitNoteLength tempoSig =
+tempoMarking :: TempoSignature -> Maybe Tempo
+tempoMarking tempoSig =
   let
     tempoNoteLength = foldl (+) (fromInt 0) tempoSig.noteLengths
   in

@@ -47,6 +47,6 @@ main =
           config = justifiedScoreConfig score defaultConfig
         _ <- clearCanvas renderer
         _ <- resizeCanvas renderer config
-        renderScore config renderer score
+        renderScore renderer score
       _ ->
         pure false

@@ -58,13 +58,13 @@ newStave staveCnfg ks =
 -- | render the ABC tune
 renderTune :: Config -> Renderer -> AbcTune -> Effect Boolean
 renderTune config renderer abcTune =
-  renderScore config renderer $ createScore config abcTune
+  renderScore renderer $ createScore config abcTune
 
 -- | render the tune but at the required stave number
 -- | useful for examples
 renderTuneAtStave :: Int -> Config -> Renderer -> AbcTune -> Effect Boolean
 renderTuneAtStave staveNo config renderer abcTune =
-  renderScore config renderer $ createScoreAtStave staveNo config abcTune
+  renderScore renderer $ createScoreAtStave staveNo config abcTune
 
 -- | create a Vex Score from the ABC tune
 createScore :: Config -> AbcTune -> VexScore
@@ -86,8 +86,8 @@ createScoreAtStave staveNo config abcTune  =
       runTuneBody (abcContext { staveNo = Just staveNo }) abcTune.body
 
 -- | render the Vex Score to the HTML score div
-renderScore :: Config -> Renderer -> VexScore -> Effect Boolean
-renderScore config renderer eStaveSpecs  =
+renderScore :: Renderer -> VexScore -> Effect Boolean
+renderScore renderer eStaveSpecs  =
   case eStaveSpecs of
     Right staveSpecs -> do
       _ <- traverse_ (displayStaveSpec renderer) staveSpecs
