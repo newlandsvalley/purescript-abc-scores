@@ -3,7 +3,7 @@ module Examples.Thumbnail.Main where
 import Prelude (bind, pure)
 import Effect (Effect)
 import Data.Either (Either(..))
-import VexFlow.Score (createScore, renderScore, clearCanvas, initialiseCanvas, resizeCanvas)
+import VexFlow.Score (createScore, renderUntitledScore, clearCanvas, initialiseCanvas, resizeCanvas)
 import VexFlow.Types (Config)
 import VexFlow.Abc.Alignment (justifiedScoreConfig, rightJustify)
 import VexFlow.Abc.Utils (canvasHeight)
@@ -31,6 +31,7 @@ defaultConfig =
   , height : canvasDepth
   , scale : scale
   , isSVG : false
+  , titled : false -- thumbnails are never titled so this is ignored
   }
 
 main :: Effect Boolean
@@ -47,6 +48,6 @@ main =
           config = justifiedScoreConfig score defaultConfig
         _ <- clearCanvas renderer
         _ <- resizeCanvas renderer config
-        renderScore renderer score
+        renderUntitledScore renderer score
       _ ->
         pure false

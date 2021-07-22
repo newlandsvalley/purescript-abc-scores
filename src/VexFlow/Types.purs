@@ -25,6 +25,10 @@ scoreMarginBottom = 15
 staveSeparation :: Int
 staveSeparation = 100
 
+-- | the depth of a title (when present)
+titleDepth :: Int 
+titleDepth = 48
+
 type VexScore = Either String (Array (Maybe StaveSpec))
 
 -- | the configuration of the VexFlow Backend (SVG is preferred, or Canvas)
@@ -33,7 +37,8 @@ type Config =
     , width :: Int
     , height :: Int
     , scale :: Number
-    , isSVG :: Boolean                -- true (SVG) or false (Canvas)
+    , isSVG :: Boolean               -- true (SVG) or false (Canvas)
+    , titled :: Boolean              -- true if we are displaying a tune title   
     }
 
 -- | the configuration of a Stave

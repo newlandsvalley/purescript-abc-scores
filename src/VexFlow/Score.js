@@ -1,5 +1,7 @@
 "use strict";
 
+/* const exports = require("webpack"); */
+
 var wrapper = function() {
 
   var VF = null;
@@ -68,6 +70,18 @@ var wrapper = function() {
       return function (volta) {
         return function () {
           return wrapper.drawVolta(stave, volta);
+        }
+      }
+    },
+
+    renderTuneTitle : function (renderer) { 
+      return function (title) {
+        return function (x) {
+          return function (y) {
+            return function () {
+              return wrapper.drawTitle(renderer, title, x, y);
+            }
+          }
         }
       }
     },
@@ -207,6 +221,14 @@ var wrapper = function() {
           voltaType = VF.Volta.type.NONE;
       }
       stave.setVoltaType(voltaType, volta.iteration, 30);
+    },
+
+    drawTitle: function (renderer, title, x, y) {
+      console.log("title:");
+      console.log(title); 
+      var context = renderer.getContext();
+      context.setRawFont(' 25pt Arial');
+      context.fillText (title, x, y);
     },
 
     drawKeySignature: function (stave, keySignature, withClef) {
@@ -382,6 +404,7 @@ exports.resizeCanvas = wrapper.resizeCanvas;
 exports.clearCanvas = wrapper.clearCanvas;
 exports.newStaveImpl = wrapper.newStaveImpl;
 exports.renderStave = wrapper.renderStave;
+exports.renderTuneTitle = wrapper.renderTuneTitle;
 exports.getStaveWidth = wrapper.getStaveWidth;
 exports.displayBarBeginRepeat = wrapper.displayBarBeginRepeat;
 exports.displayBarEndRepeat = wrapper.displayBarEndRepeat;

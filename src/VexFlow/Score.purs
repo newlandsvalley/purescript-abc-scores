@@ -2,8 +2,10 @@ module VexFlow.Score
   ( Renderer
   , Stave
   , createScore
-  , renderScore
+  , renderUntitledScore
+  , renderTitledScore
   , renderTune
+  , renderFinalTune
   , renderTuneAtStave
   , initialiseCanvas
   , resizeCanvas
@@ -14,7 +16,7 @@ module VexFlow.Score
   , module Exports) where
 
 import Data.Abc (AbcTune, BarLine, BodyPart(..), KeySignature)
-import Data.Abc.Metadata (isEmptyStave)
+import Data.Abc.Metadata (getTitle, isEmptyStave)
 import Data.Array (null)
 import Data.Either (Either(..))
 import Data.Int (floor, toNumber)
@@ -24,7 +26,7 @@ import Data.Traversable (traverse_)
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
-import Prelude ((<>), (*), (==), (/=), (&&), ($), (+), Unit, bind, discard, not, pure, show, unit, when)
+import Prelude ((<>), (*), (==), (/=), (&&), ($), (+), Unit, bind, discard, div, identity, not, pure, show, unit, when)
 import VexFlow.Abc.Alignment (justifiedScoreConfig)
 import VexFlow.Abc.Alignment (rightJustify) as Exports
 import VexFlow.Abc.ContextChange (ContextChange(..))
@@ -33,38 +35,65 @@ import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Abc.Utils (initialAbcContext)
 import VexFlow.Abc.Volta (VexVolta)
-import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..), MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec, Tempo, TimeSignature, VexScore, scoreMarginBottom, staveSeparation)
+import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..), MusicSpec(..), 
+       MusicSpecContents, StaveConfig, StaveSpec, Tempo, TimeSignature, VexScore, 
+       scoreMarginBottom, staveIndentation, staveSeparation, titleDepth)
 
 -- | the Vex renderer
 foreign import data Renderer :: Type
 -- | a stave
 foreign import data Stave :: Type
 
-staveConfig :: Int -> BarSpec -> StaveConfig
-staveConfig staveNo barSpec=
-  { x : barSpec.xOffset
-  , y : staveSeparation * staveNo
-  , width : barSpec.width
-  , barNo : barSpec.barNumber
-  , lineColour : "#1a1a1a"       -- vexflow default seems to be a Dark Slate Gray - #999999
-  , hasRightBar : (barSpec.endLineThickness /= NoLine)
-  , hasDoubleRightBar : (barSpec.endLineThickness == Double)
-  }
+staveConfig :: Int -> Boolean -> BarSpec -> StaveConfig
+staveConfig staveNo isTitled barSpec=
+  let 
+    titleVerticalDepth =  
+      if isTitled then titleDepth else 0
+  in
+    { x : barSpec.xOffset
+    , y : (staveSeparation * staveNo) + titleVerticalDepth
+    , width : barSpec.width
+    , barNo : barSpec.barNumber
+    , lineColour : "#1a1a1a"       -- vexflow default seems to be a Dark Slate Gray - #999999
+    , hasRightBar : (barSpec.endLineThickness /= NoLine)
+    , hasDoubleRightBar : (barSpec.endLineThickness == Double)
+    }
 
 newStave :: StaveConfig -> KeySignature -> Effect Stave
 newStave staveCnfg ks =
   newStaveImpl staveCnfg (Translate.keySignature ks)
 
--- | render the ABC tune
+-- | render the ABC tune, possibly titled, but unjustified and with an expansive canvas
 renderTune :: Config -> Renderer -> AbcTune -> Effect Boolean
 renderTune config renderer abcTune =
-  renderScore renderer $ createScore config abcTune
+  if (config.titled) then
+    let
+      title = maybe "Untitled" identity $ getTitle abcTune 
+    in
+      renderTitledScore renderer title $ createScore config abcTune
+  else
+    renderUntitledScore renderer $ createScore config abcTune
+
+-- | render the final ABC tune, possibly titled, justified and with canvas clipped to tune size
+renderFinalTune :: Config -> Renderer -> AbcTune -> Effect Boolean
+renderFinalTune config renderer abcTune = 
+  let 
+    unjustifiedScore = createScore config abcTune
+    score = Exports.rightJustify config.width config.scale unjustifiedScore
+    config' = justifiedScoreConfig score config
+    title = maybe "Untitled" identity $ getTitle abcTune 
+  in 
+    do
+      _ <- resizeCanvas renderer config'
+      if (config.titled)
+        then renderTitledScore renderer title score
+        else renderUntitledScore renderer score
 
 -- | render the tune but at the required stave number
 -- | useful for examples
 renderTuneAtStave :: Int -> Config -> Renderer -> AbcTune -> Effect Boolean
 renderTuneAtStave staveNo config renderer abcTune =
-  renderScore renderer $ createScoreAtStave staveNo config abcTune
+  renderUntitledScore renderer $ createScoreAtStave staveNo config abcTune
 
 -- | create a Vex Score from the ABC tune
 createScore :: Config -> AbcTune -> VexScore
@@ -85,34 +114,50 @@ createScoreAtStave staveNo config abcTune  =
     Right abcContext ->
       runTuneBody (abcContext { staveNo = Just staveNo }) abcTune.body
 
--- | render the Vex Score to the HTML score div
-renderScore :: Renderer -> VexScore -> Effect Boolean
-renderScore renderer eStaveSpecs  =
+-- | render the untitled Vex Score to the HTML score div
+renderUntitledScore :: Renderer -> VexScore -> Effect Boolean
+renderUntitledScore renderer eStaveSpecs = 
   case eStaveSpecs of
     Right staveSpecs -> do
-      _ <- traverse_ (displayStaveSpec renderer) staveSpecs
+      _ <- traverse_ (displayStaveSpec renderer false) staveSpecs
       pure true
     Left err -> do
       _ <- log ("error in producing score: " <> err)
       pure false
 
-displayStaveSpec :: Renderer -> Maybe StaveSpec -> Effect Unit
-displayStaveSpec renderer mStaveSpec =
+
+-- | render the Vex Score to the HTML score div
+renderTitledScore :: Renderer -> String -> VexScore -> Effect Boolean
+renderTitledScore renderer title eStaveSpecs =
+  case eStaveSpecs of
+    Right staveSpecs -> do
+      let  
+        yPos :: Int
+        yPos = div (titleDepth * 3) 4
+      _ <- renderTuneTitle renderer title staveIndentation yPos
+      _ <- traverse_ (displayStaveSpec renderer true) staveSpecs
+      pure true
+    Left err -> do
+      _ <- log ("error in producing score: " <> err)
+      pure false      
+
+displayStaveSpec :: Renderer -> Boolean -> Maybe StaveSpec -> Effect Unit
+displayStaveSpec renderer isTitled mStaveSpec =
   case mStaveSpec of
     (Just staveSpec) ->
-      traverse_ (displayBarSpec renderer staveSpec) staveSpec.barSpecs
+      traverse_ (displayBarSpec renderer staveSpec isTitled) staveSpec.barSpecs
     _ ->
       -- the body part is merely a header - no display needed
       pure unit
 
 -- | display a single bar from the (translated) BarSpec
-displayBarSpec :: Renderer -> StaveSpec -> BarSpec -> Effect Unit
-displayBarSpec renderer staveSpec barSpec =
+displayBarSpec :: Renderer -> StaveSpec -> Boolean ->  BarSpec -> Effect Unit
+displayBarSpec renderer staveSpec isTitled barSpec =
   let
     (MusicSpec musicSpec) = barSpec.musicSpec
   in
     do
-      staveBar <- newStave (staveConfig staveSpec.staveNo barSpec) staveSpec.keySignature
+      staveBar <- newStave (staveConfig staveSpec.staveNo isTitled barSpec) staveSpec.keySignature
 
       -- add any inline meter or key change markers
       traverse_ (displayContextChange staveBar) musicSpec.contextChanges
@@ -220,6 +265,8 @@ foreign import clearCanvas :: Renderer -> Effect Unit
 foreign import newStaveImpl :: StaveConfig -> String -> Effect Stave
 -- | get the width of a stave
 foreign import getStaveWidth :: Stave -> Effect Int
+-- | display the tune title
+foreign import renderTuneTitle :: Renderer -> String -> Int -> Int -> Effect Unit
 -- | display all the contents of the bar, using explicit beaming for the notes
 foreign import renderBarContents :: Renderer -> Stave -> Array BeamSpec -> VexCurves -> MusicSpecContents -> Effect Unit
 -- | display the (filled) bar

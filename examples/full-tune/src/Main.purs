@@ -18,12 +18,16 @@ canvasWidth = 1500
 
 configure :: AbcTune -> Config
 configure tune =
-  { parentElementId : "canvas"
-  , width : canvasWidth
-  , height : canvasHeight tune
-  , scale : 0.8
-  , isSVG : true
-  }
+  let  
+    titled = true 
+  in
+    { parentElementId : "canvas"
+    , width : canvasWidth
+    , height : canvasHeight tune titled
+    , scale : 0.8
+    , isSVG : true
+    , titled : titled
+    }
 
 main :: Effect Boolean
 main =

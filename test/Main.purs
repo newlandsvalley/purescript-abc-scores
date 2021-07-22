@@ -36,6 +36,7 @@ initialConfig =
   , height : 100
   , scale : 0.8
   , isSVG : false
+  , titled : false
   }
 
 assertScoreDepth :: String -> Int -> Test

@@ -1,14 +1,14 @@
 module Examples.StaveAlignment.Main where
 
+-- This example shows the final version of a tune, with staves right-aligned,
+-- canvasd clipped to the tune dimensions and a tune title present. 
+
 import Prelude (bind, pure)
 import Effect (Effect)
 import Data.Either (Either(..))
-import VexFlow.Score (createScore, renderScore, initialiseCanvas, resizeCanvas)
+import VexFlow.Score (renderFinalTune, initialiseCanvas)
 import VexFlow.Types (Config)
-import VexFlow.Abc.Alignment (justifiedScoreConfig, rightJustify)
-import VexFlow.Abc.Utils (canvasHeight)
 import Data.Abc.Parser (parse)
-import Data.Abc (AbcTune)
 import Examples.StaveAlignment.Texts (augustsson, blomgren, cig, ewa, fastan,
                           smalandPolska,keyChangeSample, meterChangeSample)
 
@@ -29,6 +29,7 @@ defaultConfig =
   , height : canvasDepth
   , scale : scale
   , isSVG : true
+  , titled : true
   }
 
 main :: Effect Boolean
@@ -39,11 +40,6 @@ main =
     case eAbcTune of
       Right abcTune -> do
         renderer <- initialiseCanvas defaultConfig
-        let
-          unjustifiedScore = createScore defaultConfig abcTune
-          score = rightJustify canvasWidth scale unjustifiedScore
-          config = justifiedScoreConfig score defaultConfig
-        _ <- resizeCanvas renderer config
-        renderScore renderer score
+        renderFinalTune defaultConfig renderer abcTune
       _ ->
         pure false

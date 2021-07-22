@@ -27,6 +27,7 @@ config =
   , height : 2400
   , scale : scale
   , isSVG : true
+  , titled : false
   }
 
 abcContext :: MeterSignature -> KeySignature -> Int -> AbcContext

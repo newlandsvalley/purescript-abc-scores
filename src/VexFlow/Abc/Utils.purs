@@ -29,7 +29,7 @@ import Prelude (map, show, ($), (*), (+), (-), (/), (<>), (&&), identity)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Beat (beatDuration)
 import VexFlow.Types (AbcContext, Config, MusicSpec(..), Tempo,
-   VexDuration, staveIndentation)
+   VexDuration, staveIndentation, titleDepth)
 
 
 -- | build a VexDuration
@@ -240,6 +240,11 @@ tempoMarking tempoSig =
 
 
 -- | Heuristic to measure the canvas height needed to display a tune
-canvasHeight :: AbcTune -> Int
-canvasHeight tune =
-  (length tune.body) * 100
+canvasHeight :: AbcTune -> Boolean -> Int
+canvasHeight tune titled =
+  if titled 
+    then 
+      (length tune.body) * 100 + titleDepth
+    else
+      (length tune.body) * 100
+

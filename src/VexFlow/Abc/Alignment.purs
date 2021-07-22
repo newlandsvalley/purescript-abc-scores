@@ -28,7 +28,7 @@ import Data.Newtype (unwrap)
 import Prelude (bind, map, max, mempty, min, pure, ($), (*), (+), (-), (/), (<>), (>=), (/=))
 import VexFlow.Abc.BarEnd (staveWidth)
 import VexFlow.Types (BarSpec, Config, LineThickness(..), StaveSpec, VexScore,
-       scoreMarginBottom, staveIndentation, staveSeparation)
+       scoreMarginBottom, staveIndentation, staveSeparation, titleDepth)
 
 type Alignment a = State Int a
 
@@ -39,17 +39,17 @@ rightJustify maxCanvasWidth scale score =
 
 -- | recalculate the canvas config based on the dimensions of the justified score
 justifiedScoreConfig :: VexScore -> Config -> Config
-justifiedScoreConfig score originalConfig =
+justifiedScoreConfig score config =
   let
     justifiedScoreWidth :: Int
     justifiedScoreWidth =
-      either (\_ -> 0) (\staves -> justifiedScoreCanvasWidth originalConfig.scale staves) score
+      either (\_ -> 0) (\staves -> justifiedScoreCanvasWidth config.scale staves) score
 
     justifiedScoreHeight :: Int
     justifiedScoreHeight =
-      either (\_ -> 0) (\staves -> justifiedScoreCanvasHeight originalConfig.scale staves) score
+      either (\_ -> 0) (\staves -> justifiedScoreCanvasHeight config.scale config.titled staves) score
   in
-    originalConfig
+    config
       { width  = justifiedScoreWidth
       , height = justifiedScoreHeight
       }
@@ -166,8 +166,8 @@ justifiedScoreCanvasWidth scale staves =
     floor $ (toNumber staveWidth) * scale
 
 -- | the canvas height that contains the justified score
-justifiedScoreCanvasHeight :: Number -> Array (Maybe StaveSpec) -> Int
-justifiedScoreCanvasHeight scale staves =
+justifiedScoreCanvasHeight :: Number -> Boolean -> Array (Maybe StaveSpec) -> Int
+justifiedScoreCanvasHeight scale titled staves =
   let
     staveCount = length $ filter (isJust) staves
     -- we'll assume if we have just one stave, then it's a thumbnail
@@ -177,6 +177,8 @@ justifiedScoreCanvasHeight scale staves =
         0
       else
         scoreMarginBottom
-    staveHeight = (staveCount * staveSeparation) + marginBottom
+    titleSeparation = 
+       if titled then titleDepth else 0
+    staveHeight = (staveCount * staveSeparation) + marginBottom + titleSeparation
   in
     floor $ (toNumber staveHeight) * scale
