@@ -3,13 +3,9 @@ module Examples.Thumbnail.Main where
 import Prelude (bind, pure)
 import Effect (Effect)
 import Data.Either (Either(..))
-import VexFlow.Score (createScore, renderUntitledScore, clearCanvas, initialiseCanvas, resizeCanvas)
+import VexFlow.Score (renderThumbnail, initialiseCanvas)
 import VexFlow.Types (Config)
-import VexFlow.Abc.Alignment (justifiedScoreConfig, rightJustify)
-import VexFlow.Abc.Utils (canvasHeight)
 import Data.Abc.Parser (parse)
-import Data.Abc.Metadata (thumbnail)
-import Data.Abc (AbcTune)
 import Examples.Thumbnail.Texts (augustsson, cig, ewa, fastan, smalandPolska,
                                 gustavPersson, voltaContinuationSample,
                                 keyChangeSample, meterChangeSample,
@@ -42,12 +38,6 @@ main =
     case eAbcTune of
       Right abcTune -> do
         renderer <- initialiseCanvas defaultConfig
-        let
-          unjustifiedScore = createScore defaultConfig (thumbnail abcTune)
-          score = rightJustify canvasWidth scale unjustifiedScore
-          config = justifiedScoreConfig score defaultConfig
-        _ <- clearCanvas renderer
-        _ <- resizeCanvas renderer config
-        renderUntitledScore renderer score
+        renderThumbnail defaultConfig renderer abcTune 
       _ ->
         pure false

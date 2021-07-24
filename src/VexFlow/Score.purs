@@ -6,6 +6,7 @@ module VexFlow.Score
   , renderTitledScore
   , renderTune
   , renderFinalTune
+  , renderThumbnail
   , renderTuneAtStave
   , initialiseCanvas
   , resizeCanvas
@@ -16,7 +17,7 @@ module VexFlow.Score
   , module Exports) where
 
 import Data.Abc (AbcTune, BarLine, BodyPart(..), KeySignature)
-import Data.Abc.Metadata (getTitle, isEmptyStave)
+import Data.Abc.Metadata (getTitle, isEmptyStave, thumbnail)
 import Data.Array (null)
 import Data.Either (Either(..))
 import Data.Int (floor, toNumber)
@@ -63,7 +64,8 @@ newStave :: StaveConfig -> KeySignature -> Effect Stave
 newStave staveCnfg ks =
   newStaveImpl staveCnfg (Translate.keySignature ks)
 
--- | render the ABC tune, possibly titled, but unjustified and with an expansive canvas
+-- | render the ABC tune, possibly titled (if indicated by the config), 
+-- | but unjustified and with an expansive canvas
 renderTune :: Config -> Renderer -> AbcTune -> Effect Boolean
 renderTune config renderer abcTune =
   if (config.titled) then
@@ -74,7 +76,8 @@ renderTune config renderer abcTune =
   else
     renderUntitledScore renderer $ createScore config abcTune
 
--- | render the final ABC tune, possibly titled, justified and with canvas clipped to tune size
+-- | render the final ABC tune, possibly titled( if indicated by the config),
+-- | justified and with canvas clipped to tune size
 renderFinalTune :: Config -> Renderer -> AbcTune -> Effect Boolean
 renderFinalTune config renderer abcTune = 
   let 
@@ -89,12 +92,24 @@ renderFinalTune config renderer abcTune =
         then renderTitledScore renderer title score
         else renderUntitledScore renderer score
 
+renderThumbnail :: Config -> Renderer -> AbcTune -> Effect Boolean
+renderThumbnail config renderer abcTune =   
+  let
+    unjustifiedScore = createScore config (thumbnail abcTune)
+    score = Exports.rightJustify config.width config.scale unjustifiedScore
+    config' = justifiedScoreConfig score config
+  in do
+    _ <- clearCanvas renderer
+    _ <- resizeCanvas renderer config'
+    renderUntitledScore renderer score     
+
 -- | render the tune but at the required stave number
 -- | useful for examples
 renderTuneAtStave :: Int -> Config -> Renderer -> AbcTune -> Effect Boolean
 renderTuneAtStave staveNo config renderer abcTune =
   renderUntitledScore renderer $ createScoreAtStave staveNo config abcTune
 
+-- | @deprecated in favour of renderTune, renderFinalTune or renderThumbnail
 -- | create a Vex Score from the ABC tune
 createScore :: Config -> AbcTune -> VexScore
 createScore config abcTune  =
@@ -114,6 +129,7 @@ createScoreAtStave staveNo config abcTune  =
     Right abcContext ->
       runTuneBody (abcContext { staveNo = Just staveNo }) abcTune.body
 
+-- | @deprecated in favour of renderTune, renderFinalTune or renderThumbnail
 -- | render the untitled Vex Score to the HTML score div
 renderUntitledScore :: Renderer -> VexScore -> Effect Boolean
 renderUntitledScore renderer eStaveSpecs = 
@@ -125,7 +141,7 @@ renderUntitledScore renderer eStaveSpecs =
       _ <- log ("error in producing score: " <> err)
       pure false
 
-
+-- | @deprecated in favour of renderTune, renderFinalTune or renderThumbnail
 -- | render the Vex Score to the HTML score div
 renderTitledScore :: Renderer -> String -> VexScore -> Effect Boolean
 renderTitledScore renderer title eStaveSpecs =
