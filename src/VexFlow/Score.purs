@@ -6,6 +6,7 @@ module VexFlow.Score
   , renderTitledScore
   , renderTune
   , renderFinalTune
+  , renderRightAlignedTune
   , renderThumbnail
   , renderTuneAtStave
   , initialiseCanvas
@@ -76,6 +77,20 @@ renderTune config renderer abcTune =
   else
     renderUntitledScore renderer $ createScore config abcTune
 
+-- | render the final ABC tune, possibly titled( if indicated by the config)
+-- | and with the staves aligned at the right hand side.
+-- | There is no change to the canvas dimensions themselves
+renderRightAlignedTune :: Config -> Renderer -> AbcTune -> Effect Boolean
+renderRightAlignedTune config renderer abcTune = 
+  let 
+    unjustifiedScore = createScore config abcTune
+    score = Exports.rightJustify config.width config.scale unjustifiedScore
+    title = maybe "Untitled" identity $ getTitle abcTune 
+  in 
+    if (config.titled)
+      then renderTitledScore renderer title score
+      else renderUntitledScore renderer score            
+
 -- | render the final ABC tune, possibly titled( if indicated by the config),
 -- | justified and with canvas clipped to tune size
 renderFinalTune :: Config -> Renderer -> AbcTune -> Effect Boolean
@@ -92,6 +107,8 @@ renderFinalTune config renderer abcTune =
         then renderTitledScore renderer title score
         else renderUntitledScore renderer score
 
+-- | render a thumbnail of the first few bars of the tune with the canvas 
+-- | clipped to the thumbnail boundary.
 renderThumbnail :: Config -> Renderer -> AbcTune -> Effect Boolean
 renderThumbnail config renderer abcTune =   
   let
