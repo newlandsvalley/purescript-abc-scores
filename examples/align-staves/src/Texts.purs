@@ -91,6 +91,24 @@ blomgren =
   <> "GFGA B4 A4 | G2g2 bagf g2d2 | edcB dcBA cBAG | FAdF G4 G,4 :: \r\n"
   <> "BdBG BdBG BdBG | c2cd e2d2 c2B2 | AcAF AcAF AcAF | BABc d2B2 A2F2 | \r\n"
   <> "GFGA B4 A4 | G2g2 bagf g2d2 | edcB dcBA cBAG | FAdF G4 G,4 :|\r\n"
+    
+-- this sample shows helps debug title centering
+titled :: String
+titled =
+  "X:1\r\n"
+  -- <> "T:01234567890123456789012345678901234567890123456789\r\n"
+  <> "T:0123456789012345678901234567890123456789\r\n"
+  <> "R:Slängpolska\r\n"
+  <> "M:3/4\r\n"
+  <> "L:1/16\r\n"
+  <> "Q:1/4=120\r\n"
+  <> "K:Gm\r\n"
+  <> "GFGA B4 A4 | G2g2 bagf g2d2 | \\\r\n"
+  <> "edcB dcBA cBAG | F2G2 A2d2 D4 | \r\n"
+  <> "GFGA B4 A4 | G2g2 bagf g2d2 | edcB dcBA cBAG | FAdF G4 G,4 :: \r\n"
+  <> "BdBG BdBG BdBG | c2cd e2d2 c2B2 | AcAF AcAF AcAF | BABc d2B2 A2F2 | \r\n"
+  <> "GFGA B4 A4 | G2g2 bagf g2d2 | edcB dcBA cBAG | FAdF G4 G,4 :|\r\n"
+
 
 
 keyChangeSample :: String

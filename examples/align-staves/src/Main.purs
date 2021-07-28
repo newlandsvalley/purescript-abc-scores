@@ -10,7 +10,7 @@ import VexFlow.Score (renderFinalTune, initialiseCanvas)
 import VexFlow.Types (Config)
 import Data.Abc.Parser (parse)
 import Examples.StaveAlignment.Texts (augustsson, blomgren, cig, ewa, fastan,
-                          smalandPolska,keyChangeSample, meterChangeSample)
+                          smalandPolska,keyChangeSample, meterChangeSample, titled)
 
 canvasWidth :: Int
 canvasWidth = 1600

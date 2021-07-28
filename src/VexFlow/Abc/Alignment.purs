@@ -1,5 +1,6 @@
 module VexFlow.Abc.Alignment
-  ( justifiedScoreConfig
+  ( centeredTitleXPos
+  , justifiedScoreConfig
   , rightJustify) where
 
 -- | align the staves on the right hand side
@@ -25,7 +26,7 @@ import Data.Int (floor, toNumber)
 import Data.Maybe (Maybe(..), isJust)
 import Data.Either (Either(..), either)
 import Data.Newtype (unwrap)
-import Prelude (bind, map, max, mempty, min, pure, ($), (*), (+), (-), (/), (<>), (>=), (/=))
+import Prelude (bind, map, max, mempty, min, pure, show, ($), (*), (+), (-), (/), (<>), (>=), (/=))
 import VexFlow.Abc.BarEnd (staveWidth)
 import VexFlow.Types (BarSpec, Config, LineThickness(..), StaveSpec, VexScore,
        scoreMarginBottom, staveIndentation, staveSeparation, titleDepth)
@@ -182,3 +183,18 @@ justifiedScoreCanvasHeight scale titled staves =
     staveHeight = (staveCount * staveSeparation) + marginBottom + titleSeparation
   in
     floor $ (toNumber staveHeight) * scale
+
+centeredTitleXPos :: Config -> Int -> Int 
+centeredTitleXPos config titleLength = 
+  let
+    -- we use 24pt font size == 18px 
+    -- px = pt * ( 72pt / 96 ) = 24 * 72 / 96 = 18
+    titlePixelWidth = floor $ toNumber titleLength * 18.0 
+    staveWidth = floor $ (toNumber config.width) / config.scale
+    {-
+    _ = spy "title pixel width" (show titlePixelWidth)
+    _ = spy "canvas width" (show config.width)
+    _ = spy "stave width" (show staveWidth)    
+    -}
+  in
+    (staveWidth - titlePixelWidth) / 2

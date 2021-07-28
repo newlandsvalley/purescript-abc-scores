@@ -24,12 +24,13 @@ import Data.Either (Either(..))
 import Data.Int (floor, toNumber)
 import Data.List (filter, length)
 import Data.Maybe (Maybe(..), maybe)
+import Data.String (length) as String
 import Data.Traversable (traverse_)
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
 import Prelude ((<>), (*), (==), (/=), (&&), ($), (+), Unit, bind, discard, div, identity, not, pure, show, unit, when)
-import VexFlow.Abc.Alignment (justifiedScoreConfig)
+import VexFlow.Abc.Alignment (centeredTitleXPos, justifiedScoreConfig)
 import VexFlow.Abc.Alignment (rightJustify) as Exports
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Slur (VexCurves)
@@ -37,9 +38,7 @@ import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Abc.Utils (initialAbcContext)
 import VexFlow.Abc.Volta (VexVolta)
-import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..), MusicSpec(..), 
-       MusicSpecContents, StaveConfig, StaveSpec, Tempo, TimeSignature, VexScore, 
-       scoreMarginBottom, staveIndentation, staveSeparation, titleDepth)
+import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..), MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec, Tempo, TimeSignature, VexScore, scoreMarginBottom, staveIndentation, staveSeparation, titleDepth)
 
 -- | the Vex renderer
 foreign import data Renderer :: Type
@@ -73,7 +72,7 @@ renderTune config renderer abcTune =
     let
       title = maybe "Untitled" identity $ getTitle abcTune 
     in
-      renderTitledScore renderer title $ createScore config abcTune
+      renderTitledScore config renderer title $ createScore config abcTune
   else
     renderUntitledScore renderer $ createScore config abcTune
 
@@ -88,7 +87,7 @@ renderRightAlignedTune config renderer abcTune =
     title = maybe "Untitled" identity $ getTitle abcTune 
   in 
     if (config.titled)
-      then renderTitledScore renderer title score
+      then renderTitledScore config renderer title score
       else renderUntitledScore renderer score            
 
 -- | render the final ABC tune, possibly titled( if indicated by the config),
@@ -103,8 +102,8 @@ renderFinalTune config renderer abcTune =
   in 
     do
       _ <- resizeCanvas renderer config'
-      if (config.titled)
-        then renderTitledScore renderer title score
+      if (config'.titled)
+        then renderTitledScore config' renderer title score
         else renderUntitledScore renderer score
 
 -- | render a thumbnail of the first few bars of the tune with the canvas 
@@ -160,14 +159,16 @@ renderUntitledScore renderer eStaveSpecs =
 
 -- | @deprecated in favour of renderTune, renderFinalTune or renderThumbnail
 -- | render the Vex Score to the HTML score div
-renderTitledScore :: Renderer -> String -> VexScore -> Effect Boolean
-renderTitledScore renderer title eStaveSpecs =
+renderTitledScore :: Config -> Renderer -> String -> VexScore -> Effect Boolean
+renderTitledScore config renderer title eStaveSpecs =
   case eStaveSpecs of
     Right staveSpecs -> do
       let  
         yPos :: Int
         yPos = div (titleDepth * 3) 4
-      _ <- renderTuneTitle renderer title staveIndentation yPos
+        xPos :: Int 
+        xPos = centeredTitleXPos config (String.length title)
+      _ <- renderTuneTitle renderer title xPos yPos
       _ <- traverse_ (displayStaveSpec renderer true) staveSpecs
       pure true
     Left err -> do
