@@ -312,7 +312,7 @@ restOrNote context rOrn =
 headerChange :: Header -> Array ContextChange
 headerChange h =
   case h of
-    Key mks _->
+    Key mks ->
       [KeyChange mks]
 
     UnitNoteLength dur ->

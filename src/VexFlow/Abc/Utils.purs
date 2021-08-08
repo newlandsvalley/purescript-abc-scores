@@ -11,16 +11,16 @@ module VexFlow.Abc.Utils
   , isEmptyMusicSpec
   , canvasHeight) where
 
-import Data.Abc (AbcTune, AbcNote, Broken(..), GraceableNote, KeySignature,
-  ModifiedKeySignature, Accidental(..), Mode(..), NoteDuration, PitchClass(..),
-  TempoSignature)
+import Data.Abc (AbcTune, AbcNote, Broken(..), GraceableNote, 
+  ModifiedKeySignature,  NoteDuration, TempoSignature)
+import Data.Abc.KeySignature (defaultKey)
 import Data.Abc.Metadata (dotFactor, getMeter, getKeySig, getTempoSig,
        getUnitNoteLength)
 import Data.Array (null, replicate) as Array
 import Data.Either (Either(..), hush)
 import Data.Foldable (foldl)
 import Data.Int (round, toNumber) as Int
-import Data.List (List(..), length, null)
+import Data.List (length, null)
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Rational (fromInt, toNumber, numerator, denominator, (%))
 import Data.Tuple (Tuple(..))
@@ -218,6 +218,9 @@ isEmptyMusicSpec (MusicSpec contents) =
 
 cMajor :: ModifiedKeySignature
 cMajor =
+  defaultKey
+
+{-}
   let
     ks :: KeySignature
     ks =
@@ -229,6 +232,7 @@ cMajor =
     { keySignature  : ks
     , modifications : Nil
     }
+-}
 
 -- | convert an ABC tempo signature to a VexFlow tempo marker
 tempoMarking :: TempoSignature -> Maybe Tempo

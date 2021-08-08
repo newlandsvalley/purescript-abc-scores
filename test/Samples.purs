@@ -73,7 +73,7 @@ gMajor =
 
 gMajorM :: ModifiedKeySignature
 gMajorM =
-    { keySignature : gMajor, modifications : Nil }
+    { keySignature : gMajor, modifications : Nil, properties: empty }
 
 
 -- sample meter change (to 3/4)
@@ -84,7 +84,7 @@ meterChange34 =
 -- sample key change (to G)
 keyChangeG :: Music
 keyChangeG =
-  Inline $ Key gMajorM empty
+  Inline $ Key gMajorM
 
 meterChangeTo34 :: AbcContext -> AbcContext
 meterChangeTo34 initialContext =

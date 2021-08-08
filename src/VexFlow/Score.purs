@@ -38,7 +38,7 @@ import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Abc.Utils (initialAbcContext)
 import VexFlow.Abc.Volta (VexVolta)
-import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..), MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec, Tempo, TimeSignature, VexScore, scoreMarginBottom, staveIndentation, staveSeparation, titleDepth)
+import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..), MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec, Tempo, TimeSignature, VexScore, scoreMarginBottom, staveSeparation, titleDepth)
 
 -- | the Vex renderer
 foreign import data Renderer :: Type

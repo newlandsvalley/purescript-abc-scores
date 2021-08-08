@@ -26,7 +26,7 @@ import Data.Int (floor, toNumber)
 import Data.Maybe (Maybe(..), isJust)
 import Data.Either (Either(..), either)
 import Data.Newtype (unwrap)
-import Prelude (bind, map, max, mempty, min, pure, show, ($), (*), (+), (-), (/), (<>), (>=), (/=))
+import Prelude (bind, map, max, mempty, min, pure, ($), (*), (+), (-), (/), (<>), (>=), (/=))
 import VexFlow.Abc.BarEnd (staveWidth)
 import VexFlow.Types (BarSpec, Config, LineThickness(..), StaveSpec, VexScore,
        scoreMarginBottom, staveIndentation, staveSeparation, titleDepth)
