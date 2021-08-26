@@ -74,17 +74,19 @@ var wrapper = function() {
       }
     },
 
-    renderTuneTitle : function (renderer) { 
+    renderText : function (renderer) { 
       return function (title) {
-        return function (x) {
-          return function (y) {
-            return function () {
-              return wrapper.drawTitle(renderer, title, x, y);
+        return function (font) {
+          return function (x) {
+            return function (y) {
+              return function () {
+                return wrapper.drawText(renderer, title, font, x, y);
+              }
             }
           }
         }
       }
-    },
+    },    
 
     renderStave : function (renderer) {
       return function (stave) {
@@ -223,11 +225,11 @@ var wrapper = function() {
       stave.setVoltaType(voltaType, volta.iteration, 30);
     },
 
-    drawTitle: function (renderer, title, x, y) {
+    drawText: function (renderer, title, font, x, y) {
       console.log("title:");
       console.log(title); 
       var context = renderer.getContext();
-      context.setRawFont(' 25pt Arial');
+      context.setRawFont(font);
       context.fillText (title, x, y);
     },
 
@@ -404,7 +406,7 @@ exports.resizeCanvas = wrapper.resizeCanvas;
 exports.clearCanvas = wrapper.clearCanvas;
 exports.newStaveImpl = wrapper.newStaveImpl;
 exports.renderStave = wrapper.renderStave;
-exports.renderTuneTitle = wrapper.renderTuneTitle;
+exports.renderText = wrapper.renderText;
 exports.getStaveWidth = wrapper.getStaveWidth;
 exports.displayBarBeginRepeat = wrapper.displayBarBeginRepeat;
 exports.displayBarEndRepeat = wrapper.displayBarEndRepeat;

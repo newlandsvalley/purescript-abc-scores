@@ -288,6 +288,16 @@ setCanvasDimensionsToScore score config renderer =
   in 
     resizeCanvas renderer justifiedConfig
 
+renderTuneTitle :: Renderer -> String -> Int -> Int -> Effect Unit
+renderTuneTitle renderer title x y = 
+  renderText renderer title " 25pt Arial" x y
+
+{-}
+renderChordSymbol :: Renderer -> String -> Int -> Int -> Effect Unit
+renderChordSymbol renderer symbol x y = 
+  renderText renderer symbol " 12pt Arial" x y
+-}
+
 -- | initialise VexFlow against the canvas where it renders
 foreign import initialiseCanvas :: Config -> Effect Renderer
 -- | resize the canvas
@@ -299,8 +309,8 @@ foreign import clearCanvas :: Renderer -> Effect Unit
 foreign import newStaveImpl :: StaveConfig -> String -> Effect Stave
 -- | get the width of a stave
 foreign import getStaveWidth :: Stave -> Effect Int
--- | display the tune title
-foreign import renderTuneTitle :: Renderer -> String -> Int -> Int -> Effect Unit
+-- | display text on the canvas, but bypassing the VexFlow API
+foreign import renderText :: Renderer -> String -> String -> Int -> Int -> Effect Unit
 -- | display all the contents of the bar, using explicit beaming for the notes
 foreign import renderBarContents :: Renderer -> Stave -> Array BeamSpec -> VexCurves -> MusicSpecContents -> Effect Unit
 -- | display the (filled) bar
