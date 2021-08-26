@@ -9,7 +9,7 @@ module VexFlow.Abc.ContextChange where
 
 import Data.Abc (ModifiedKeySignature, MeterSignature, NoteDuration)
 
-data ContextChange =
-    MeterChange MeterSignature
+data ContextChange
+  = MeterChange MeterSignature
   | KeyChange ModifiedKeySignature
   | UnitNoteChange NoteDuration

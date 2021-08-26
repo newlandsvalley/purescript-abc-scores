@@ -32,8 +32,8 @@ export class Volta extends StaveModifier {
 -- | the Volta (repeat count) data type as passed to VexFlow
 -- | we can't really use enumerated types here because of JavaScript interop
 type VexVolta =
-  { voltaType :: Int     -- 1 .. 5 (see above)
-  , iteration :: String  -- Ist or 2nd iteration or "" if mid-volta
+  { voltaType :: Int -- 1 .. 5 (see above)
+  , iteration :: String -- Ist or 2nd iteration or "" if mid-volta
   }
 
 -- | build a beginning Volta definition for a bar. When beginning, we only
@@ -47,15 +47,17 @@ startVolta barLine isCurrentlyMidVolta =
         if (isEndVolta barLine) then
           Nothing
         else
-          Just { voltaType : 3           -- Mid (continuation)
-                , iteration : ""
-                }
+          Just
+            { voltaType: 3 -- Mid (continuation)
+            , iteration: ""
+            }
       else
         Nothing
     Just voltas ->
-      Just { voltaType : 2               -- Begin
-           , iteration : intercalateMap "," show voltas
-           }
+      Just
+        { voltaType: 2 -- Begin
+        , iteration: intercalateMap "," show voltas
+        }
 
 -- | We complete the Volta definition after the fact when we attempt to move any
 -- | bar end marker back to the preceding bar.  This gives us an opportunity
@@ -71,15 +73,15 @@ completeVolta mvolta =
         newVoltaType =
           case volta.voltaType of
             2 ->
-              5                  -- Begin -> Begin_End
+              5 -- Begin -> Begin_End
             3 ->
-              4                  -- Mid -> End
+              4 -- Mid -> End
             5 ->
-              4                  -- Begin_End -> End
+              4 -- Begin_End -> End
             x ->
               x
       in
-        Just $ volta {voltaType = newVoltaType}
+        Just $ volta { voltaType = newVoltaType }
 
 -- | detect whether the current bar is currently within a volta
 -- | switched on by an iteration marker
@@ -99,11 +101,11 @@ isMidVolta barLine current =
 -- | if there is a Begin, End or BeginAndEnd repeat or if there is a thick
 -- | barline
 isEndVolta :: BarLine -> Boolean
-isEndVolta barLine  =
-  case barLine.iteration of 
-     Nothing -> 
-       (barLine.thickness /= Thin && barLine.thickness /= Invisible)
-         || (barLine.endRepeats + barLine.startRepeats > 0)
-     Just _ -> -- Just Volta
-       true
-   
+isEndVolta barLine =
+  case barLine.iteration of
+    Nothing ->
+      (barLine.thickness /= Thin && barLine.thickness /= Invisible)
+        || (barLine.endRepeats + barLine.startRepeats > 0)
+    Just _ -> -- Just Volta
+      true
+

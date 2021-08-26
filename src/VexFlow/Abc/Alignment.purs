@@ -1,7 +1,8 @@
 module VexFlow.Abc.Alignment
   ( centeredTitleXPos
   , justifiedScoreConfig
-  , rightJustify) where
+  , rightJustify
+  ) where
 
 -- | align the staves on the right hand side
 -- |
@@ -28,8 +29,17 @@ import Data.Either (Either(..), either)
 import Data.Newtype (unwrap)
 import Prelude (bind, map, max, mempty, min, pure, ($), (*), (+), (-), (/), (<>), (>=), (/=))
 import VexFlow.Abc.BarEnd (staveWidth)
-import VexFlow.Types (BarSpec, Config, LineThickness(..), StaveSpec, VexScore,
-       scoreMarginBottom, staveIndentation, staveSeparation, titleDepth)
+import VexFlow.Types
+  ( BarSpec
+  , Config
+  , LineThickness(..)
+  , StaveSpec
+  , VexScore
+  , scoreMarginBottom
+  , staveIndentation
+  , staveSeparation
+  , titleDepth
+  )
 
 type Alignment a = State Int a
 
@@ -51,7 +61,7 @@ justifiedScoreConfig score config =
       either (\_ -> 0) (\staves -> justifiedScoreCanvasHeight config.scale config.titled staves) score
   in
     config
-      { width  = justifiedScoreWidth
+      { width = justifiedScoreWidth
       , height = justifiedScoreHeight
       }
 
@@ -80,7 +90,7 @@ alignStaves maxCanvasWidth scale staves =
     map mapf newStaves
 
 -- | remove the empty stave bar extension that may occur at the end of a stave
-removeStaveExtension  :: Maybe StaveSpec -> Maybe StaveSpec
+removeStaveExtension :: Maybe StaveSpec -> Maybe StaveSpec
 removeStaveExtension mss =
   case mss of
     Nothing ->
@@ -108,7 +118,6 @@ alignmentStaveWidth maxWidth mss =
   in
     foldl staveWidthf 0 mss
 
-
 -- | find the increase required to grow each bar in a stave so that
 -- | it reaches the required alignment width
 incrementFactor :: Int -> Int -> Maybe Number
@@ -116,8 +125,8 @@ incrementFactor alignmentWidth staveWidth =
   if (staveWidth >= alignmentWidth) then
     Nothing
   else
-    Just $ (toNumber (alignmentWidth-staveIndentation)) /
-           (toNumber (staveWidth-staveIndentation))
+    Just $ (toNumber (alignmentWidth - staveIndentation)) /
+      (toNumber (staveWidth - staveIndentation))
 
 -- | grow the stave spec to make the stave fit the alignment width
 growStaveSpec :: Number -> StaveSpec -> StaveSpec
@@ -126,9 +135,10 @@ growStaveSpec enlargement staveSpec =
     barSpecs =
       unwrap $ evalStateT (growStaveSpecDefn enlargement staveSpec) staveIndentation
   in
-    staveSpec { barSpecs = barSpecs
-              , staveWidth = staveWidth barSpecs
-              }
+    staveSpec
+      { barSpecs = barSpecs
+      , staveWidth = staveWidth barSpecs
+      }
 
 growStaveSpecDefn :: Number -> StaveSpec -> Alignment (Array BarSpec)
 growStaveSpecDefn enlargement ss =
@@ -149,9 +159,10 @@ growStaveBar enlargement barSpec =
     do
       xOffset <- get
       _ <- put $ xOffset + width
-      pure $ barSpec { xOffset = xOffset
-                     , width = width
-                     }
+      pure $ barSpec
+        { xOffset = xOffset
+        , width = width
+        }
 
 -- | the maximum stave width depends on the max canvas width and the scale
 maxStaveWidth :: Int -> Number -> Int
@@ -178,23 +189,23 @@ justifiedScoreCanvasHeight scale titled staves =
         0
       else
         scoreMarginBottom
-    titleSeparation = 
-       if titled then titleDepth else 0
+    titleSeparation =
+      if titled then titleDepth else 0
     staveHeight = (staveCount * staveSeparation) + marginBottom + titleSeparation
   in
     floor $ (toNumber staveHeight) * scale
 
-centeredTitleXPos :: Config -> Int -> Int 
-centeredTitleXPos config titleLength = 
+centeredTitleXPos :: Config -> Int -> Int
+centeredTitleXPos config titleLength =
   let
     -- we use 24pt font size == 18px 
     -- px = pt * ( 72pt / 96 ) = 24 * 72 / 96 = 18
-    titlePixelWidth = floor $ toNumber titleLength * 18.0 
+    titlePixelWidth = floor $ toNumber titleLength * 18.0
     staveWidth = floor $ (toNumber config.width) / config.scale
-    {-
-    _ = spy "title pixel width" (show titlePixelWidth)
-    _ = spy "canvas width" (show config.width)
-    _ = spy "stave width" (show staveWidth)    
-    -}
+  {-
+  _ = spy "title pixel width" (show titlePixelWidth)
+  _ = spy "canvas width" (show config.width)
+  _ = spy "stave width" (show staveWidth)    
+  -}
   in
     (staveWidth - titlePixelWidth) / 2

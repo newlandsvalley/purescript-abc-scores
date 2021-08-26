@@ -5,8 +5,14 @@ module VexFlow.Abc.TickableContext where
 -- | We need to take account of these in each bar ( for instance, to determine
 -- | the start position amongst the tickables of any tuplet)
 
-import Data.Abc (Bar, Music(..), Grace, KeySignature,
-  NoteDuration, RestOrNote)
+import Data.Abc
+  ( Bar
+  , Music(..)
+  , Grace
+  , KeySignature
+  , NoteDuration
+  , RestOrNote
+  )
 import Data.Abc.KeySignature (keySet)
 import Data.Either (Either(..))
 import Data.Foldable (foldl, foldMap)
@@ -27,7 +33,7 @@ pixelsPerItem = 35.0
 type NoteCount = Int
 type GraceCount = Int
 
-data  TickableContext = TickableContext NoteCount GraceCount NoteDuration
+data TickableContext = TickableContext NoteCount GraceCount NoteDuration
 
 instance tickableSemigroupCtx :: Semigroup TickableContext where
   append (TickableContext n1 g1 d1) (TickableContext n2 g2 d2) =
@@ -90,31 +96,32 @@ getRorNsGraceLength rOrNs =
   let
     f acc rOrN =
       case rOrN of
-        Left _ -> 0 + acc            -- rest
-        Right graceableNote ->       -- note
+        Left _ -> 0 + acc -- rest
+        Right graceableNote -> -- note
           graceLength graceableNote.maybeGrace + acc
   in
     foldl f 0 rOrNs
-
 
 -- | heuristic to estimate the width of a bar
 estimateBarWidth :: Boolean -> Boolean -> Maybe KeySignature -> Bar -> Int
 estimateBarWidth hasClef hasTimeSig maybeKeySig abcBar =
   let
-    (TickableContext noteCount graceCount _) =   -- (_ is duration)
+    (TickableContext noteCount graceCount _) = -- (_ is duration)
       foldMap getTickableContext abcBar.music
     clefCount =
       if hasClef then 1.0 else 0.0
     timeSigCount =
-        if hasTimeSig then 1.0 else 0.0
+      if hasTimeSig then 1.0 else 0.0
     keySigCount =
       maybe 0.0 keySignatureWidth maybeKeySig
   in
-    round $ ( clefCount
-            + timeSigCount
-            + keySigCount
-            + (tickableCountWidth noteCount)
-            + (0.5 * toNumber graceCount)) * pixelsPerItem
+    round $
+      ( clefCount
+          + timeSigCount
+          + keySigCount
+          + (tickableCountWidth noteCount)
+          + (0.5 * toNumber graceCount)
+      ) * pixelsPerItem
 
 -- heuristic to decide how much width to dedicate to a key signature
 -- by counting the number of sharps and flats
@@ -134,6 +141,6 @@ keySignatureWidth keySignature =
 tickableCountWidth :: Int -> Number
 tickableCountWidth n =
   case n of
-    1 -> 1.5   -- just 1.0 is too small
-    2 -> 2.5   -- just 2.0 is too small
+    1 -> 1.5 -- just 1.0 is too small
+    2 -> 2.5 -- just 2.0 is too small
     _ -> toNumber n

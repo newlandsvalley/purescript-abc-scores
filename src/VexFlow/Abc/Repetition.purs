@@ -1,9 +1,9 @@
 module VexFlow.Abc.Repetition
   ( Repetition
-  , buildRepetition) where
+  , buildRepetition
+  ) where
 
 import Prelude ((==))
-
 
 {- from VexFlow Staverepetition
 export class Repetition extends StaveModifier {
@@ -78,36 +78,34 @@ export class Repetition extends StaveModifier {
 !shortphrase!          vertical line on the upper part of the staff
 !mediumphrase!         same, but extending down to the centre line
 !longphrase!           same, but extending 3/4 of the way down
-
 -}
-
 
 -- | the Repetitiom data type
 -- | we can't really use enumerated types here because of JavaScript interop
 type Repetition =
-  { repetitionType :: Int     -- 1 .. 12 (see above)
-  , isLeft :: Boolean         -- repetitionLeft or repetitionRight
+  { repetitionType :: Int -- 1 .. 12 (see above)
+  , isLeft :: Boolean -- repetitionLeft or repetitionRight
   }
 
 -- | Build the repetition (if it exists) from the decoration and its position
 -- | in the bar. note: decorations are not yet type-safe in the ABC parser
 buildRepetition :: Int -> String -> Repetition
-buildRepetition noteIndex decoration  =
+buildRepetition noteIndex decoration =
   let
     isLeft = noteIndex == 0
   in
     case decoration of
       "segno" ->
-         case isLeft of
-           true  ->  { repetitionType: 4, isLeft }
-           false -> { repetitionType: 5, isLeft }
+        case isLeft of
+          true -> { repetitionType: 4, isLeft }
+          false -> { repetitionType: 5, isLeft }
       "coda" ->
-         case isLeft of
-           true  ->  { repetitionType: 2, isLeft }
-           false -> { repetitionType: 3, isLeft }
-      "D.S." ->   { repetitionType: 9, isLeft }
-      "D.C." ->   { repetitionType: 6, isLeft }
+        case isLeft of
+          true -> { repetitionType: 2, isLeft }
+          false -> { repetitionType: 3, isLeft }
+      "D.S." -> { repetitionType: 9, isLeft }
+      "D.C." -> { repetitionType: 6, isLeft }
       "dacoda" -> { repetitionType: 7, isLeft }
       "dacopo" -> { repetitionType: 8, isLeft }
-      "fine" ->   { repetitionType: 12, isLeft }
+      "fine" -> { repetitionType: 12, isLeft }
       _ -> { repetitionType: 1, isLeft }

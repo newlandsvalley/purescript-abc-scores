@@ -2,7 +2,8 @@ module VexFlow.Abc.BarEnd
   ( repositionBarEndRepeats
   , fillStaveLine
   , staveEndsWithRepeatBegin
-  , staveWidth) where
+  , staveWidth
+  ) where
 
 -- | Routines to handle the disparity between the manner in which ABC descibes
 -- | bars and the manner in which VexFlow does so.  In the former, bars hold a
@@ -30,11 +31,11 @@ type BarState = State BarLine (Array BarSpec)
 -- | next one that it introduces.
 -- | remember we're processing the bars backwards
 shiftBarEnd :: Array BarSpec -> BarSpec -> BarState
-shiftBarEnd  acc barSpec = do
+shiftBarEnd acc barSpec = do
   lastBarType <- get
   let
     -- does the last bar have an end repeat ?
-    isLastBarEndRepeat = (lastBarType.endRepeats > 0) 
+    isLastBarEndRepeat = (lastBarType.endRepeats > 0)
     -- and its thickness
     lastLineThickness = barlineThickness lastBarType
     -- complete the volta if we detect that we've arrived at a bar
@@ -47,18 +48,18 @@ shiftBarEnd  acc barSpec = do
         barSpec.volta
     -- carry over the bar repeat marker and line thickness from the last bar to
     -- this where it now decorates the right-hand bar line of the bar.
-    newBarSpec = barSpec { endLineRepeat = isLastBarEndRepeat
-                         , endLineThickness = lastLineThickness
-                         , volta = newVolta
-                         }
-    -- save the end bar repeat of the current bar to state
+    newBarSpec = barSpec
+      { endLineRepeat = isLastBarEndRepeat
+      , endLineThickness = lastLineThickness
+      , volta = newVolta
+      }
+  -- save the end bar repeat of the current bar to state
   _ <- put barSpec.startLine
   -- if we come across a bar empty of music (always the case in the final bar
   -- of the stave) then we can now ignore it.
-  if (redundantBar barSpec)
-    then
-      pure acc
-    else pure $ newBarSpec : acc
+  if (redundantBar barSpec) then
+    pure acc
+  else pure $ newBarSpec : acc
 
 shiftBarEnds :: Array BarSpec -> BarState
 shiftBarEnds =
@@ -87,21 +88,22 @@ fillStaveLine maxWidth bs =
       in
         if (currentWidth <= maxWidth) then
           let
-            completionBar = b { barNumber = b.barNumber + 1
-                              , width = (maxWidth - currentWidth)
-                              , xOffset = currentWidth
-                              , startLine = simpleBarLine
-                              , endLineThickness = NoLine
-                              , endLineRepeat = false
-                              , volta = Nothing
-                              , beamSpecs = []
-                              , curves = []
-                              , musicSpec = mempty :: MusicSpec
-                              }
+            completionBar = b
+              { barNumber = b.barNumber + 1
+              , width = (maxWidth - currentWidth)
+              , xOffset = currentWidth
+              , startLine = simpleBarLine
+              , endLineThickness = NoLine
+              , endLineRepeat = false
+              , volta = Nothing
+              , beamSpecs = []
+              , curves = []
+              , musicSpec = mempty :: MusicSpec
+              }
           in
             snoc bs completionBar
-      else
-        bs
+        else
+          bs
     Nothing ->
       bs
 
@@ -111,7 +113,7 @@ staveEndsWithRepeatBegin :: Array BarSpec -> Boolean
 staveEndsWithRepeatBegin bs =
   let
     isBeginVolta b =
-       (b.startLine.startRepeats > 0) 
+      (b.startLine.startRepeats > 0)
   in
     maybe false isBeginVolta (last bs)
 
@@ -132,8 +134,8 @@ barlineThickness barLine =
 
 simpleBarLine :: BarLine
 simpleBarLine =
-  { endRepeats : 0
-  , thickness : Thin
-  , startRepeats : 0
-  , iteration : Nothing
+  { endRepeats: 0
+  , thickness: Thin
+  , startRepeats: 0
+  , iteration: Nothing
   }

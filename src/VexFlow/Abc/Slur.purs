@@ -1,5 +1,9 @@
 module VexFlow.Abc.Slur
-   (VexCurve, VexCurves, SlurBracket(..), vexCurves) where
+  ( VexCurve
+  , VexCurves
+  , SlurBracket(..)
+  , vexCurves
+  ) where
 
 -- | Slur representation in terms of balanced left and right brackets
 -- | within a bar together with their note indices
@@ -21,14 +25,14 @@ type VexCurve =
 type VexCurves = Array VexCurve
 
 -- | A Slur Bracket
-data SlurBracket =
-    LeftBracket Int    -- note index at '('
-  | RightBracket Int   -- note index at ')'
+data SlurBracket
+  = LeftBracket Int -- note index at '('
+  | RightBracket Int -- note index at ')'
 
 derive instance eqSlurBracket :: Eq SlurBracket
 
 instance showSlurBracket :: Show SlurBracket where
-  show (LeftBracket i)  = "L:" <> show i
+  show (LeftBracket i) = "L:" <> show i
   show (RightBracket i) = "R:" <> show i
 
 data SlurStack = SlurStack (List SlurBracket) VexCurves
@@ -58,7 +62,7 @@ push slurStack new =
       in
         case head of
           (Just (LeftBracket from)) ->
-            SlurStack stack (cons { from, to} curves)
+            SlurStack stack (cons { from, to } curves)
           (Just rightBracket) ->
             SlurStack (new : rightBracket : stack) curves
           Nothing ->
@@ -72,4 +76,4 @@ push slurStack new =
 -- | pop a bracket from the stack
 pop :: SlurStack -> Tuple (Maybe SlurBracket) SlurStack
 pop (SlurStack Nil curves) = Tuple Nothing (SlurStack Nil curves)
-pop (SlurStack (x:xs) curves) = Tuple (Just x) (SlurStack xs curves)
+pop (SlurStack (x : xs) curves) = Tuple (Just x) (SlurStack xs curves)

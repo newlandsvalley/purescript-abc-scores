@@ -2,7 +2,8 @@ module VexFlow.Abc.Translate
   ( keySignature
   , headerChange
   , notePitch
-  , music) where
+  , music
+  ) where
 
 -- | Translate between low-level leaves of the Abc data structure  and VexFlow types
 -- | At the leaves, we don't need to thread context through the translation
@@ -25,8 +26,13 @@ import Prelude ((<>), ($), (*), (+), (-), map, mempty, show)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Slur (SlurBracket(..))
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext, getTickableContext)
-import VexFlow.Abc.Utils (normaliseBroken, noteDotCount, noteTicks
-     , vexDuration, compoundVexDuration)
+import VexFlow.Abc.Utils
+  ( normaliseBroken
+  , noteDotCount
+  , noteTicks
+  , vexDuration
+  , compoundVexDuration
+  )
 import VexFlow.Abc.Beat (exactBeatNumber)
 import VexFlow.Abc.Repetition (buildRepetition)
 import VexFlow.Types (AbcContext, BeatMarker, NoteSpec, TupletSpec, MusicSpec(..), VexDuration)
@@ -34,7 +40,7 @@ import VexFlow.Types (AbcContext, BeatMarker, NoteSpec, TupletSpec, MusicSpec(..
 -- | generate a VexFlow indication of pitch
 pitch :: PitchClass -> Accidental -> Int -> String
 pitch pc acc oct =
-  toLower (show  pc) <> accidental acc <> "/" <> show oct
+  toLower (show pc) <> accidental acc <> "/" <> show oct
 
 -- | return the VexFlow pitch of a note
 notePitch :: AbcNote -> String
@@ -44,7 +50,7 @@ notePitch abcNote =
 
 accidental :: Accidental -> String
 accidental Sharp = "#"
-accidental Flat =  "b"
+accidental Flat = "b"
 accidental DoubleSharp = "##"
 accidental DoubleFlat = "bb"
 accidental Natural = "n"
@@ -106,25 +112,28 @@ music context tickablePosition noteIndex phraseDuration m =
           eRes = tuplet context tickablePosition t.signature (Nel.toUnfoldable t.restsOrNotes)
         in
           -- we don't support tied tuplets at the moment
-          map (\tupletSpec ->
-             MusicSpec
-                { noteSpecs : tupletSpec.noteSpecs
-                , tuplets : [tupletSpec.vexTuplet]
-                , ties :
-                   -- if the note is tied then save the index into the note array
-                   -- of the final note in the tuplet
-                   if tupletSpec.tied then
-                     [noteIndex + length tupletSpec.noteSpecs -1]
-                   else
-                     []
-                , tickableContext : tickableContext
-                , contextChanges : mempty
-                , slurBrackets : buildTupletSlurs noteIndex t.leftSlurs t.restsOrNotes
-                , beatMarkers : fromMaybe mBeatMarker
-                , repetitions: mempty
-                , typesettingSpaces : mempty
-                }
-              ) eRes
+          map
+            ( \tupletSpec ->
+                MusicSpec
+                  { noteSpecs: tupletSpec.noteSpecs
+                  , tuplets: [ tupletSpec.vexTuplet ]
+                  , ties:
+                      -- if the note is tied then save the index into the note array
+                      -- of the final note in the tuplet
+                      if tupletSpec.tied then
+                        [ noteIndex + length tupletSpec.noteSpecs - 1 ]
+                      else
+                        []
+                  , tickableContext: tickableContext
+                  , contextChanges: mempty
+                  , slurBrackets: buildTupletSlurs noteIndex t.leftSlurs t.restsOrNotes
+                  , beatMarkers: fromMaybe mBeatMarker
+                  , repetitions: mempty
+                  , typesettingSpaces: mempty
+                  , chordSymbols: mempty
+                  }
+            )
+            eRes
 
       Inline header ->
         Right $ buildMusicSpecFromContextChange $ headerChange header
@@ -137,8 +146,8 @@ music context tickablePosition noteIndex phraseDuration m =
 
 -- | Translate an ABC graceable note to a VexFlow note
 -- | failing if the duration cannot be translated
-graceableNote :: AbcContext -> GraceableNote-> Either String NoteSpec
-graceableNote context gn  =
+graceableNote :: AbcContext -> GraceableNote -> Either String NoteSpec
+graceableNote context gn =
   let
     graceNotes :: Array AbcNote
     graceNotes = maybe [] (\grace -> Nel.toUnfoldable grace.notes) gn.maybeGrace
@@ -154,23 +163,23 @@ graceableNote context gn  =
       Right vexDur ->
         let
           vexNote =
-            { clef : "treble"
-            , keys : [key]
-            , duration : compoundVexDuration vexDur
-            , auto_stem : true
+            { clef: "treble"
+            , keys: [ key ]
+            , duration: compoundVexDuration vexDur
+            , auto_stem: true
             }
-        in Right
-          { vexNote : vexNote
-          , accidentals : [accidental gn.abcNote.accidental]
-          , dots : [vexDur.dots]
-          , graceKeys : graceKeys
-          , graceAccidentals : graceAccidentals
-          , ornaments : ornaments gn.decorations
-          , articulations : articulations gn.decorations
-          , noteTicks : noteTicks context.unitNoteLength gn.abcNote.duration
-          }
+        in
+          Right
+            { vexNote: vexNote
+            , accidentals: [ accidental gn.abcNote.accidental ]
+            , dots: [ vexDur.dots ]
+            , graceKeys: graceKeys
+            , graceAccidentals: graceAccidentals
+            , ornaments: ornaments gn.decorations
+            , articulations: articulations gn.decorations
+            , noteTicks: noteTicks context.unitNoteLength gn.abcNote.duration
+            }
       Left x -> Left x
-
 
 -- | translate an ABC rest to a VexFlow note
 -- | which we'll position on the B stave line
@@ -186,23 +195,23 @@ rest context abcRest =
       Right vexDur ->
         let
           vexNote =
-            { clef : "treble"
-            , keys : [key]
-            , duration : (compoundVexDuration vexDur <> "r")
-            , auto_stem : true
+            { clef: "treble"
+            , keys: [ key ]
+            , duration: (compoundVexDuration vexDur <> "r")
+            , auto_stem: true
             }
-        in Right
-          { vexNote : vexNote
-          , accidentals : []
-          , dots : [vexDur.dots]
-          , graceKeys : []
-          , graceAccidentals : []
-          , ornaments : []
-          , articulations : []
-          , noteTicks : noteTicks context.unitNoteLength abcRest.duration
-          }
+        in
+          Right
+            { vexNote: vexNote
+            , accidentals: []
+            , dots: [ vexDur.dots ]
+            , graceKeys: []
+            , graceAccidentals: []
+            , ornaments: []
+            , articulations: []
+            , noteTicks: noteTicks context.unitNoteLength abcRest.duration
+            }
       Left x -> Left x
-
 
 -- | translate an ABC chord to a VexFlow note
 -- | failing if the durations cannot be translated
@@ -235,21 +244,22 @@ chord context abcChord0 =
       Right vexDur ->
         let
           vexNote =
-            { clef : "treble"
-            , keys : keys
-            , duration : compoundVexDuration vexDur
-            , auto_stem : true
+            { clef: "treble"
+            , keys: keys
+            , duration: compoundVexDuration vexDur
+            , auto_stem: true
             }
-        in Right
-          { vexNote : vexNote
-          , accidentals : accidentals
-          , dots : dotCounts   -- we need to apply dots to each note in the chord
-          , graceKeys : []
-          , graceAccidentals : []
-          , ornaments : []
-          , articulations : []
-          , noteTicks : noteTicks context.unitNoteLength chordLen
-          }
+        in
+          Right
+            { vexNote: vexNote
+            , accidentals: accidentals
+            , dots: dotCounts -- we need to apply dots to each note in the chord
+            , graceKeys: []
+            , graceAccidentals: []
+            , ornaments: []
+            , articulations: []
+            , noteTicks: noteTicks context.unitNoteLength chordLen
+            }
       Left x -> Left x
 
 -- | translate an ABC broken note pair to a VexFlow note pair
@@ -264,10 +274,10 @@ brokenRhythm context gn1 broken gn2 =
   in
     case (Tuple enote1 enote2) of
       (Tuple (Right note1) (Right note2)) ->
-        Right [note1, note2]
+        Right [ note1, note2 ]
       (Tuple (Left e1) _) ->
         Left e1
-      (Tuple _ (Left e2) ) ->
+      (Tuple _ (Left e2)) ->
         Left e2
 
 -- | translate an ABC tuplet to a VexFlow tuplet spec
@@ -282,18 +292,18 @@ tuplet context startOffset signature rns =
       _ ->
         false
     vexTuplet =
-      { p : signature.p
-      , q : signature.q
-      , startPos : startOffset
-      , endPos : startOffset + (length rns)
+      { p: signature.p
+      , q: signature.q
+      , startPos: startOffset
+      , endPos: startOffset + (length rns)
       }
   in
     case enoteSpecs of
       Right noteSpecs ->
         Right
-          { vexTuplet : vexTuplet
-          , noteSpecs : noteSpecs
-          , tied : isTied
+          { vexTuplet: vexTuplet
+          , noteSpecs: noteSpecs
+          , tied: isTied
           }
       Left x ->
         Left x
@@ -313,15 +323,15 @@ headerChange :: Header -> Array ContextChange
 headerChange h =
   case h of
     Key mks ->
-      [KeyChange mks]
+      [ KeyChange mks ]
 
     UnitNoteLength dur ->
-      [UnitNoteChange dur]
+      [ UnitNoteChange dur ]
 
     Meter maybeSignature ->
       case maybeSignature of
         Just meterSignature ->
-          [MeterChange meterSignature]
+          [ MeterChange meterSignature ]
         _ ->
           []
     _ ->
@@ -360,36 +370,35 @@ articulations artics =
     f :: Array String -> String -> Array String
     f acc decoration =
       case decoration of
-        "." ->          -- staccato
+        "." -> -- staccato
           "a." : acc
-        "upbow" ->      -- up bow
+        "upbow" -> -- up bow
           "a|" : acc
-        "u" ->          -- up bow
+        "u" -> -- up bow
           "a|" : acc
-        "downbow" ->    -- down bow
+        "downbow" -> -- down bow
           "am" : acc
-        "v" ->          -- down bow
+        "v" -> -- down bow
           "am" : acc
-        "L" ->          -- accent
+        "L" -> -- accent
           "a>" : acc
-        "accent" ->     -- accent
+        "accent" -> -- accent
           "a>" : acc
-        "emphasis" ->   -- accent
+        "emphasis" -> -- accent
           "a>" : acc
-        "H" ->          -- fermata  (above)
+        "H" -> -- fermata  (above)
           "a@a" : acc
-        "fermata" ->    -- fermata  (above)
+        "fermata" -> -- fermata  (above)
           "a@a" : acc
-        "tenuto" ->     -- tenuto
+        "tenuto" -> -- tenuto
           "a-" : acc
         _ ->
           acc
   in
     foldl f [] artics
 
-
-buildMusicSpecFromNs ::
-     TickableContext
+buildMusicSpecFromNs
+  :: TickableContext
   -> Int
   -> Maybe BeatMarker
   -> GraceableNote
@@ -402,21 +411,24 @@ buildMusicSpecFromNs tCtx noteIndex mBeatMarker gn1 gn2 ens =
       buildSlurBrackets noteIndex gn1.leftSlurs gn1.rightSlurs
         <> buildSlurBrackets (noteIndex + 1) gn2.leftSlurs gn2.rightSlurs
   in
-    map (\ns -> MusicSpec
-      { noteSpecs : ns
-      , tuplets : []
-      , ties : []
-      , tickableContext : tCtx
-      , contextChanges : []
-      , slurBrackets : slurBrackets
-      , beatMarkers : fromMaybe mBeatMarker
-      , repetitions : []
-      , typesettingSpaces : []
-      }) ens
+    map
+      ( \ns -> MusicSpec
+          { noteSpecs: ns
+          , tuplets: []
+          , ties: []
+          , tickableContext: tCtx
+          , contextChanges: []
+          , slurBrackets: slurBrackets
+          , beatMarkers: fromMaybe mBeatMarker
+          , repetitions: []
+          , typesettingSpaces: []
+          , chordSymbols: []
+          }
+      )
+      ens
 
-
-buildMusicSpecFromN ::
-     TickableContext
+buildMusicSpecFromN
+  :: TickableContext
   -> Int
   -> Maybe BeatMarker
   -> Boolean
@@ -425,19 +437,24 @@ buildMusicSpecFromN ::
   -> Either String NoteSpec
   -> Either String MusicSpec
 buildMusicSpecFromN tCtx noteIndex mBeatMarker isTied slurStartCount slurEndCount ens =
-    map (\ns -> MusicSpec
-      { noteSpecs : [ns]
-      , tuplets : []
-      , ties :
-         -- if the note is tied then save its index into the note array
-         if isTied then [noteIndex] else []
-      , tickableContext : tCtx
-      , contextChanges : []
-      , slurBrackets : buildSlurBrackets noteIndex slurStartCount slurEndCount
-      , beatMarkers : fromMaybe mBeatMarker
-      , repetitions : []
-      , typesettingSpaces : []
-      }) ens
+  map
+    ( \ns -> MusicSpec
+        { noteSpecs: [ ns ]
+        , tuplets: []
+        , ties:
+            -- if the note is tied then save its index into the note array
+            if isTied then [ noteIndex ]
+            else []
+        , tickableContext: tCtx
+        , contextChanges: []
+        , slurBrackets: buildSlurBrackets noteIndex slurStartCount slurEndCount
+        , beatMarkers: fromMaybe mBeatMarker
+        , repetitions: []
+        , typesettingSpaces: []
+        , chordSymbols: []
+        }
+    )
+    ens
 
 buildMusicSpecFromContextChange :: Array ContextChange -> MusicSpec
 buildMusicSpecFromContextChange contextChanges =
@@ -452,7 +469,7 @@ buildMusicSpecFromDecorations decorations noteIndex =
     (MusicSpec contents) = mempty :: MusicSpec
     repetitions = map (buildRepetition noteIndex) (fromFoldable decorations)
   in
-    MusicSpec contents { repetitions = repetitions, typesettingSpaces = [noteIndex] }
+    MusicSpec contents { repetitions = repetitions, typesettingSpaces = [ noteIndex ] }
 
 -- | build the slur brackets from a normal note's left and right slur counts
 buildSlurBrackets :: Int -> Int -> Int -> Array SlurBracket
@@ -460,11 +477,10 @@ buildSlurBrackets noteIndex startCount endCount =
   replicate startCount (LeftBracket noteIndex)
     <> (replicate endCount (RightBracket noteIndex))
 
-
 -- | build any left-slur brackets that immediately preface the tuplet
 buildTupletPrefaceSlurs :: Int -> Int -> Array SlurBracket
-buildTupletPrefaceSlurs noteIndex startCount  = 
-  buildSlurBrackets noteIndex startCount 0    
+buildTupletPrefaceSlurs noteIndex startCount =
+  buildSlurBrackets noteIndex startCount 0
 
 -- | build a tuplet slur bracket from the notes inside the tuplet
 buildInterTupletSlurs :: Int -> Nel.NonEmptyList RestOrNote -> Array SlurBracket
@@ -473,7 +489,7 @@ buildInterTupletSlurs noteIndex tupletNotes =
     f :: Int -> RestOrNote -> Array SlurBracket
     f pos rOrN =
       case rOrN of
-        Left _ -> []--- rest
+        Left _ -> [] --- rest
         Right gNote ->
           buildSlurBrackets (noteIndex + pos) gNote.leftSlurs gNote.rightSlurs
   in
@@ -481,6 +497,6 @@ buildInterTupletSlurs noteIndex tupletNotes =
 
 -- | build all the slurs associated with a tuplet
 buildTupletSlurs :: Int -> Int -> Nel.NonEmptyList RestOrNote -> Array SlurBracket
-buildTupletSlurs noteIndex prefaceSlurCount tupletNotes = 
-  buildTupletPrefaceSlurs noteIndex prefaceSlurCount <> 
+buildTupletSlurs noteIndex prefaceSlurCount tupletNotes =
+  buildTupletPrefaceSlurs noteIndex prefaceSlurCount <>
     (buildInterTupletSlurs noteIndex tupletNotes)

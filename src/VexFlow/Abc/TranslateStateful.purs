@@ -1,7 +1,8 @@
 module VexFlow.Abc.TranslateStateful
   ( runBodyPart
   , runTuneBody
-  , execBodyPart)  where
+  , execBodyPart
+  ) where
 
 -- The stateful part of translation
 -- The translation wrapped in a State Monad which is inside ExceptT.
@@ -33,13 +34,28 @@ import Data.Array (length) as Array
 import Data.Traversable (traverse)
 import Data.Abc (Bar, BarLine, BodyPart(..), Music, NoteDuration)
 import Data.Abc.Metadata (isEmptyStave)
-import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext,
-           isEmptyMusicSpec)
-import VexFlow.Types (AbcContext, BarSpec, BeatMarker,  LineThickness(..),
-         MusicSpec(..), StaveSpec, staveIndentation)
+import VexFlow.Abc.Utils
+  ( applyContextChanges
+  , nextStaveNo
+  , updateAbcContext
+  , isEmptyMusicSpec
+  )
+import VexFlow.Types
+  ( AbcContext
+  , BarSpec
+  , BeatMarker
+  , LineThickness(..)
+  , MusicSpec(..)
+  , StaveSpec
+  , staveIndentation
+  )
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarWidth)
-import VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine, staveWidth,
-         staveEndsWithRepeatBegin)
+import VexFlow.Abc.BarEnd
+  ( repositionBarEndRepeats
+  , fillStaveLine
+  , staveWidth
+  , staveEndsWithRepeatBegin
+  )
 import VexFlow.Abc.Volta (startVolta, isMidVolta)
 import VexFlow.Abc.Beam (calculateBeams)
 import VexFlow.Abc.Slur (vexCurves)
@@ -47,7 +63,6 @@ import VexFlow.Abc.Beat (exactBeatNumber)
 import VexFlow.Abc.Repetition (buildRepetition)
 
 type Translation a = ExceptT String (State AbcContext) a
-
 
 runBodyPart :: AbcContext -> BodyPart -> Either String (Maybe StaveSpec)
 runBodyPart abcContext bp =
@@ -89,11 +104,14 @@ bodyPart bp =
           -- (this is set true in the context at the start of the module)
           -- and get this before we process the bars
           isNewTimeSignature = abcContext.isNewTimeSignature
-          -- reset the stave offset to be just the margin
-          -- and reset the flag for any new time signature
-        _ <- put (abcContext { staveNo = mStaveNo
-                             , accumulatedStaveWidth = staveIndentation
-                             })
+        -- reset the stave offset to be just the margin
+        -- and reset the flag for any new time signature
+        _ <- put
+          ( abcContext
+              { staveNo = mStaveNo
+              , accumulatedStaveWidth = staveIndentation
+              }
+          )
         -- then translate the bars
         staveBars <- bars bs
         -- reget the state after processing the bars
@@ -106,13 +124,14 @@ bodyPart bp =
         -- save to state whether we need to carry over a Begin Volta from the last stave
         _ <- put (abcContext' { pendingRepeatBegin = pendingRepeatBegin })
         -- return the stave specification
-        pure $ Just { staveNo : staveNo
-                    , staveWidth : accumulatedStaveWidth
-                    , keySignature : abcContext.keySignature
-                    , isNewTimeSignature : isNewTimeSignature
-                    , mTempo : abcContext.mTempo
-                    , barSpecs : filledStaveLine
-                    }
+        pure $ Just
+          { staveNo: staveNo
+          , staveWidth: accumulatedStaveWidth
+          , keySignature: abcContext.keySignature
+          , isNewTimeSignature: isNewTimeSignature
+          , mTempo: abcContext.mTempo
+          , barSpecs: filledStaveLine
+          }
     BodyInfo header ->
       do
         -- save the new Abc context to state governed by any header change
@@ -147,7 +166,9 @@ bar barNumber abcBar =
           Nothing
       width =
         estimateBarWidth (barNumber == 0)
-           abcContext.isNewTimeSignature displayedKeySig abcBar
+          abcContext.isNewTimeSignature
+          displayedKeySig
+          abcBar
       -- continue any volta from the previous bar.  However, the first bar
       -- in a new stave may jusg be empty of notes, merely displaying the key
       -- signature, in which case we don't display the volta
@@ -159,18 +180,21 @@ bar barNumber abcBar =
 
       barSpec :: BarSpec
       barSpec =
-        { barNumber : barNumber
-        , width : width
-        , xOffset : abcContext.accumulatedStaveWidth
-        , startLine : modifiedStartLine abcContext.pendingRepeatBegin abcBar.startLine
-        , endLineThickness : Single        -- not yet known
-        , endLineRepeat : false            -- not yet known
-        , volta : volta
-        , timeSignature : abcContext.timeSignature
-        , beamSpecs : calculateBeams
-                        abcContext.timeSignature spec.noteSpecs spec.beatMarkers spec.typesettingSpaces
-        , curves : vexCurves spec.slurBrackets
-        , musicSpec : musicSpec
+        { barNumber: barNumber
+        , width: width
+        , xOffset: abcContext.accumulatedStaveWidth
+        , startLine: modifiedStartLine abcContext.pendingRepeatBegin abcBar.startLine
+        , endLineThickness: Single -- not yet known
+        , endLineRepeat: false -- not yet known
+        , volta: volta
+        , timeSignature: abcContext.timeSignature
+        , beamSpecs: calculateBeams
+            abcContext.timeSignature
+            spec.noteSpecs
+            spec.beatMarkers
+            spec.typesettingSpaces
+        , curves: vexCurves spec.slurBrackets 
+        , musicSpec: musicSpec
         }
       -- check if we're in the midst of a volta
       newIsMidVolta = isMidVolta abcBar.startLine abcContext.isMidVolta
@@ -179,22 +203,22 @@ bar barNumber abcBar =
       newWidth = abcContext.accumulatedStaveWidth + barSpec.width
       -- set the new state.  We must reset isNewTimeSignature here which is only
       -- set after a BodyPart new time signature header
-      newAbcContext = abcContext { accumulatedStaveWidth = newWidth
-                                 , isMidVolta = newIsMidVolta
-                                 , isNewTimeSignature = false
-                                 , pendingRepeatBegin = false
-                                 }
+      newAbcContext = abcContext
+        { accumulatedStaveWidth = newWidth
+        , isMidVolta = newIsMidVolta
+        , isNewTimeSignature = false
+        , pendingRepeatBegin = false
+        }
 
     _ <- put newAbcContext
     withExceptT (\err -> err <> ": bar " <> show barNumber) $ pure barSpec
 
-
 foldOverMusics :: List String -> Array Music -> Translation MusicSpec
 foldOverMusics barDecorations =
-  let 
+  let
     -- our initial MusicSpec is empty, apart from the fact that we need to 
     -- start off with any decorations against the bar
-    (MusicSpec emptySpec) = mempty :: MusicSpec 
+    (MusicSpec emptySpec) = mempty :: MusicSpec
     repetitions = map (buildRepetition 0) (fromFoldable barDecorations)
     initialSpec = emptySpec { repetitions = repetitions }
   in
@@ -204,19 +228,18 @@ foldOverMusics barDecorations =
 -- | fold the music function over the array of music.
 -- | the monoidal behaviour of TickableContext within MusicSpec
 -- | accumulates this context by threading through the fold
-foldMusicsFunction ::
-  MusicSpec ->
-  Music ->
-  Translation MusicSpec
+foldMusicsFunction
+  :: MusicSpec
+  -> Music
+  -> Translation MusicSpec
 foldMusicsFunction eacc m = do
   let
     (MusicSpec acc) = eacc
-     -- find the position of the next note in the bar
+    -- find the position of the next note in the bar
     (TickableContext position _ phraseDuration) = acc.tickableContext
     noteIndex = Array.length acc.noteSpecs
   (MusicSpec enext) <- music position noteIndex phraseDuration m
   pure $ MusicSpec (acc <> enext)
-
 
 music :: NoteCount -> Int -> NoteDuration -> Music -> Translation MusicSpec
 music tickablePosition noteIndex phraseDuration m =
@@ -243,23 +266,20 @@ addFinalBeatMarker abcContext (MusicSpec ms) =
     mBeatMarker :: Maybe BeatMarker
     mBeatMarker = exactBeatNumber barDuration abcContext.beatDuration noteIndex
   in
-    if ((Array.length ms.beatMarkers == 0) && (isNothing mBeatMarker))
-      then
-        -- lead-in notes
-        MusicSpec $ ms { beatMarkers = [{ beatNumber : 1, noteIndex: Array.length ms.noteSpecs }] }
-      else
-        -- full bar
-        MusicSpec $ ms { beatMarkers = ms.beatMarkers <> U.fromMaybe mBeatMarker }
+    if ((Array.length ms.beatMarkers == 0) && (isNothing mBeatMarker)) then
+      -- lead-in notes
+      MusicSpec $ ms { beatMarkers = [ { beatNumber: 1, noteIndex: Array.length ms.noteSpecs } ] }
+    else
+      -- full bar
+      MusicSpec $ ms { beatMarkers = ms.beatMarkers <> U.fromMaybe mBeatMarker }
 
 -- | carry over any pending Repeat Begin marker that may have ended the last stave
 modifiedStartLine :: Boolean -> BarLine -> BarLine
 modifiedStartLine isPendingRepeatbegin barLine =
-  if isPendingRepeatbegin
-    then
-      barLine { startRepeats = 1 }
-    else
-      barLine
-
+  if isPendingRepeatbegin then
+    barLine { startRepeats = 1 }
+  else
+    barLine
 
 {-
 lineThickness :: BarLine -> LineThickness

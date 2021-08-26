@@ -9,21 +9,21 @@ import Data.Map (Map, empty, insert, lookup, toUnfoldable)
 import Data.Maybe (fromMaybe)
 import Data.String.Utils (endsWith)
 import Data.Tuple (snd)
-import Prelude (class Eq, class Show, map, ($), (&&), (+), (-), (/=), (<>), (==),  (>), (>=), (||))
+import Prelude (class Eq, class Show, map, ($), (&&), (+), (-), (/=), (<>), (==), (>), (>=), (||))
 import VexFlow.Types (BeamSpec, BeatMarker, BeatNumber, NoteSpec, TimeSignature)
 
 -- | How beamable is a given rest or note
-data Beamability =
-    Beamable           -- Any note that is sufficently small to beam
-  | Unbeamable         -- a rest or else a note too large to beam
-  | StartOnly          -- a note prefaced by a 'y' typesetting space
+data Beamability
+  = Beamable -- Any note that is sufficently small to beam
+  | Unbeamable -- a rest or else a note too large to beam
+  | StartOnly -- a note prefaced by a 'y' typesetting space
 
 derive instance eqBeamability :: Eq Beamability
 
 instance showBeamability :: Show Beamability where
-    show Beamable = "Beamable"
-    show Unbeamable = "Unbeamable"
-    show StartOnly = "StartOnly"
+  show Beamable = "Beamable"
+  show Unbeamable = "Unbeamable"
+  show StartOnly = "StartOnly"
 
 -- | a note or rest defined by its note index and associated with its beamability
 type BeamableNote =
@@ -43,39 +43,39 @@ type BeamMap = Map BeatNumber (Array BeamRange)
 
 -- | just an accumulator for the fold
 type BeamAcc =
-   { beatMarker :: BeatMarker
-   , beams :: BeamMap
-   }
+  { beatMarker :: BeatMarker
+  , beams :: BeamMap
+  }
 
 quarterNoteTicks :: Int
 quarterNoteTicks = 32
 
 -- | Calculate the beams for the bar in question
-calculateBeams ::
-     TimeSignature
+calculateBeams
+  :: TimeSignature
   -> Array NoteSpec
   -> Array BeatMarker
   -> Array Int
   -> Array BeamSpec
 calculateBeams timeSignature noteSpecs beatMarkers typesettingSpaces =
-  map (\r -> [r.start, r.end]) $
+  map (\r -> [ r.start, r.end ]) $
     calculateStandardBeams timeSignature noteSpecs beatMarkers typesettingSpaces
 
 -- | The algorithm we use is to identify beat markers for successive
 -- | beats and to recognize places where there are at least a couple
 -- | of successive notes within a beat which can be beamed
-calculateStandardBeams ::
-     TimeSignature
+calculateStandardBeams
+  :: TimeSignature
   -> Array NoteSpec
   -> Array BeatMarker
   -> Array Int
   -> Array BeamRange
 calculateStandardBeams timeSignature noteSpecs beatMarkers typesettingSpaces =
   let
-    initialBM = { beatNumber : 0, noteIndex: 0 }   -- implict beat 0
+    initialBM = { beatNumber: 0, noteIndex: 0 } -- implict beat 0
     result = foldl (beamFunc noteSpecs typesettingSpaces)
-               { beatMarker: initialBM, beams: empty }
-               beatMarkers
+      { beatMarker: initialBM, beams: empty }
+      beatMarkers
   in
     if (commonTime == timeSignature) then
       optimiseCommonTimeBeaming result.beams typesettingSpaces
@@ -97,18 +97,20 @@ beamFunc noteSpecs typesettingSpaces acc beatMarker =
     beamRanges :: Array BeamRange
     beamRanges = getBeamRanges beamables
   in
-     { beatMarker : beatMarker
-     , beams : insert beatMarker.beatNumber beamRanges acc.beams
-     }
+    { beatMarker: beatMarker
+    , beams: insert beatMarker.beatNumber beamRanges acc.beams
+    }
 
 -- calculate the beamability of a note or rest
-beamableNote ::  Array Int -> Int -> Int -> NoteSpec -> BeamableNote
+beamableNote :: Array Int -> Int -> Int -> NoteSpec -> BeamableNote
 beamableNote typesettingSpaces offset idx noteSpec =
   let
     noteIndex = offset + idx
     beamability =
-      if (noteSpec.noteTicks >= quarterNoteTicks
-          || (endsWith "r" noteSpec.vexNote.duration)) then
+      if
+        ( noteSpec.noteTicks >= quarterNoteTicks
+            || (endsWith "r" noteSpec.vexNote.duration)
+        ) then
         Unbeamable
       else if (elem noteIndex typesettingSpaces) then
         StartOnly
@@ -136,13 +138,13 @@ getBeamRanges bns =
   map createBeamRange $ groupBeamableNotes bns
 
   where
-    createBeamRange :: NonEmptyArray BeamableNote -> BeamRange
-    createBeamRange bg =
-      let
-        start = head bg
-        end = last bg
-      in
-        { start : start.noteIndex, end : end.noteIndex + 1}
+  createBeamRange :: NonEmptyArray BeamableNote -> BeamRange
+  createBeamRange bg =
+    let
+      start = head bg
+      end = last bg
+    in
+      { start: start.noteIndex, end: end.noteIndex + 1 }
 
 -- | Optimisations in common time which, wherever possible, allow
 -- | the beams for the first two beats in the bar to be coalesced
@@ -150,8 +152,8 @@ getBeamRanges bns =
 optimiseCommonTimeBeaming :: BeamMap -> Array Int -> Array BeamRange
 optimiseCommonTimeBeaming bm typesettingSpaces =
   coalesce (lookupRanges 1 bm) (lookupRanges 2 bm) typesettingSpaces
-  <>
-  coalesce (lookupRanges 3 bm) (lookupRanges 4 bm) typesettingSpaces
+    <>
+      coalesce (lookupRanges 3 bm) (lookupRanges 4 bm) typesettingSpaces
 
 -- | Coalesce the beaming for two adjacent beats in the 4/4 bar.
 -- | The heuristic is that we coalesce only if each individual beam range is
@@ -163,13 +165,13 @@ coalesce [ r1 ] [ r2 ] typesettingSpaces =
     [ r1 ] <> [ r2 ]
   else
     -- this is the only permitted coalesce
-    [{ start: r1.start, end: r2.end }]
+    [ { start: r1.start, end: r2.end } ]
 coalesce x y _ = x <> y
 
 commonTime :: TimeSignature
 commonTime =
-  { numerator : 4
-  , denominator : 4
+  { numerator: 4
+  , denominator: 4
   }
 
 lookupRanges :: Int -> BeamMap -> Array BeamRange

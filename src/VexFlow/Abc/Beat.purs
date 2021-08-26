@@ -13,7 +13,6 @@ import Data.Maybe (Maybe(..))
 import VexFlow.Types (BeatMarker, TimeSignature)
 import Data.Abc (NoteDuration)
 
-
 -- | work out the beat duration from the time signature
 -- | e.g.
 -- | 1/4 for 2/4, 3/4, 4/4
@@ -30,7 +29,7 @@ beatDuration ts =
     { numerator: 12, denominator: 8 } ->
       (3 % 8)
     _ ->
-     (1 % ts.denominator)
+      (1 % ts.denominator)
 
 -- | Return the beat number if we're at an exact beat multiple after beat 0
 -- | (which is always implicitly present_).
@@ -46,8 +45,9 @@ exactBeatNumber phraseDur beatDur noteIndex =
     else
       case (denominator beats) of
         1 ->
-          Just $ { beatNumber: numerator beats
-                 , noteIndex : noteIndex
-                 }
+          Just $
+            { beatNumber: numerator beats
+            , noteIndex: noteIndex
+            }
         _ ->
           Nothing
