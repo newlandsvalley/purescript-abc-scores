@@ -17,3 +17,5 @@
 /.psa*
 /.purs*
 /.psc*
+/.metals
+/.vscode

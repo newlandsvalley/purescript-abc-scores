@@ -23,7 +23,7 @@ scoreMarginBottom = 15
 
 -- | the distance between successive staves
 staveSeparation :: Int
-staveSeparation = 115
+staveSeparation = 110
 -- staveSeparation = 100
 
 -- | the depth of a title (when present)

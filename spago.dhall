@@ -22,6 +22,7 @@ You can edit this file as you like.
   , "transformers"
   , "tuples"
   , "unfoldable"
+  , "debug"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]

@@ -48,6 +48,7 @@ import VexFlow.Types
   , Tempo
   , VexDuration
   , staveIndentation
+  , staveSeparation
   , titleDepth
   )
 
@@ -242,20 +243,6 @@ cMajor :: ModifiedKeySignature
 cMajor =
   defaultKey
 
-{-}
-  let
-    ks :: KeySignature
-    ks =
-      {  pitchClass : C
-      ,  accidental : Natural
-      ,  mode : Major
-      }
-  in
-    { keySignature  : ks
-    , modifications : Nil
-    }
--}
-
 -- | convert an ABC tempo signature to a VexFlow tempo marker
 tempoMarking :: TempoSignature -> Maybe Tempo
 tempoMarking tempoSig =
@@ -268,7 +255,7 @@ tempoMarking tempoSig =
 canvasHeight :: AbcTune -> Boolean -> Int
 canvasHeight tune titled =
   if titled then
-    (length tune.body) * 100 + titleDepth
+    (length tune.body) * staveSeparation + titleDepth
   else
-    (length tune.body) * 100
+    (length tune.body) * staveSeparation
 
