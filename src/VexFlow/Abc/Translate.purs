@@ -135,6 +135,9 @@ music context tickablePosition noteIndex phraseDuration m =
             )
             eRes
 
+      ChordSymbol symbol ->  
+        Right $ buildMusicSpecFromChordSymbol symbol barFraction
+
       Inline header ->
         Right $ buildMusicSpecFromContextChange $ headerChange header
 
@@ -470,6 +473,13 @@ buildMusicSpecFromDecorations decorations noteIndex =
     repetitions = map (buildRepetition noteIndex) (fromFoldable decorations)
   in
     MusicSpec contents { repetitions = repetitions, typesettingSpaces = [ noteIndex ] }
+
+buildMusicSpecFromChordSymbol :: String -> NoteDuration -> MusicSpec
+buildMusicSpecFromChordSymbol symbol barFraction =
+  let
+    (MusicSpec contents) = mempty :: MusicSpec
+  in
+    MusicSpec contents { chordSymbols = [{ symbol, barFraction} ] }
 
 -- | build the slur brackets from a normal note's left and right slur counts
 buildSlurBrackets :: Int -> Int -> Int -> Array SlurBracket

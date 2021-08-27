@@ -91,6 +91,19 @@ gustavPersson =
   <> "|: (A4=B^c) d3c3 A6 | A3G3 E3F3 D6 | (4d2e2d2^c2 d3f3 e3d3 | c6 A12 |\r\n"
   <> "| (A4=B^c) d3c3 A6 | A3G3 E3F3 D3B3 | A3G3 E3F3 D3F3 | (E4FE) D12 :|\r\n"
 
+-- example with chord symbols
+chordSymbolExample :: String
+chordSymbolExample =
+  "X:1\r\n"
+    <> "T:Polska från Fjällnäs\r\n"
+    <> "R:Polska\r\n"
+    <> "L:1/8\r\n"
+    <> "M:3/4\r\n"
+    <> "K:G\r\n"
+    <> " \"G\"G2G>B \"D7\"A>F | \"G\"G2B>dg2 | \"Am\"a2a>g \"D7\"fe/f/ |1 \"G\"g2b>g \"D7\"d>B :|2 \"G\"g2g4 |]\r\n"
+    <> "|: \"G\"d2B>d g>f | \"C\"e2e>dc2 | \"D7\"a2a>g fe/f/ |1 \"G\"g2b>g \"D7\"d>B :|2 \"G\"g2g4 |]\r\n"
+
+
 keyChangeSample :: String
 keyChangeSample =
   "K: D\r\n"

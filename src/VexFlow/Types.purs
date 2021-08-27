@@ -23,7 +23,8 @@ scoreMarginBottom = 15
 
 -- | the distance between successive staves
 staveSeparation :: Int
-staveSeparation = 100
+staveSeparation = 115
+-- staveSeparation = 100
 
 -- | the depth of a title (when present)
 titleDepth :: Int
@@ -78,8 +79,8 @@ type BeatMarker =
 
 -- a chord symbol
 type ChordSymbol = 
-  { symbol :: String 
-  , x :: Int
+  { symbol :: String -- the chord symbol itself
+  , barFraction :: NoteDuration -- the processed fraction of the bar when symbol encountered
   }
 
 -- | The ABC Context

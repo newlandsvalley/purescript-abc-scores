@@ -32,7 +32,7 @@ beatDuration ts =
       (1 % ts.denominator)
 
 -- | Return the beat number if we're at an exact beat multiple after beat 0
--- | (which is always implicitly present_).
+-- | (which is always implicitly present).
 -- | phraseDur is the sum of the duration of the notes so far seen
 -- | beatDur is the duration of a beat (within the time signature):
 exactBeatNumber :: NoteDuration -> NoteDuration -> Int -> Maybe BeatMarker
