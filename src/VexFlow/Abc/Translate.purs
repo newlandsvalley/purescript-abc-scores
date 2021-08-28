@@ -136,7 +136,7 @@ music context tickablePosition noteIndex phraseDuration m =
             eRes
 
       ChordSymbol symbol ->  
-        Right $ buildMusicSpecFromChordSymbol symbol barFraction
+        Right $ buildMusicSpecFromChordSymbol symbol noteIndex
 
       Inline header ->
         Right $ buildMusicSpecFromContextChange $ headerChange header
@@ -181,6 +181,7 @@ graceableNote context gn =
             , ornaments: ornaments gn.decorations
             , articulations: articulations gn.decorations
             , noteTicks: noteTicks context.unitNoteLength gn.abcNote.duration
+            , chordSymbol: ""
             }
       Left x -> Left x
 
@@ -213,6 +214,7 @@ rest context abcRest =
             , ornaments: []
             , articulations: []
             , noteTicks: noteTicks context.unitNoteLength abcRest.duration
+            , chordSymbol: ""
             }
       Left x -> Left x
 
@@ -262,6 +264,7 @@ chord context abcChord0 =
             , ornaments: []
             , articulations: []
             , noteTicks: noteTicks context.unitNoteLength chordLen
+            , chordSymbol: ""
             }
       Left x -> Left x
 
@@ -474,12 +477,12 @@ buildMusicSpecFromDecorations decorations noteIndex =
   in
     MusicSpec contents { repetitions = repetitions, typesettingSpaces = [ noteIndex ] }
 
-buildMusicSpecFromChordSymbol :: String -> NoteDuration -> MusicSpec
-buildMusicSpecFromChordSymbol symbol barFraction =
+buildMusicSpecFromChordSymbol :: String -> Int -> MusicSpec
+buildMusicSpecFromChordSymbol symbol noteIndex =
   let
     (MusicSpec contents) = mempty :: MusicSpec
   in
-    MusicSpec contents { chordSymbols = [{ symbol, barFraction} ] }
+    MusicSpec contents { chordSymbols = [{ symbol, noteIndex } ] }
 
 -- | build the slur brackets from a normal note's left and right slur counts
 buildSlurBrackets :: Int -> Int -> Int -> Array SlurBracket

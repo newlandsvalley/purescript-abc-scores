@@ -226,8 +226,8 @@ var wrapper = function() {
     },
 
     drawText: function (renderer, title, font, x, y) {
-      console.log("title:");
-      console.log(title); 
+      // console.log("title:");
+      // console.log(title); 
       var context = renderer.getContext();
       context.setRawFont(font);
       context.fillText (title, x, y);
@@ -257,7 +257,7 @@ var wrapper = function() {
       var beams = beamSpecs.map(wrapper.makeBeam (notes));
       var curves = vexCurves.map(wrapper.makeCurve (notes));
 
-      /* add repeititions to the stave (coda, segno etc.) */
+      /* add repetitions to the stave (coda, segno etc.) */
       wrapper.addRepetitions (stave, musicSpec.repetitions);
 
       Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
@@ -272,11 +272,14 @@ var wrapper = function() {
 
     // make a stave note (n.b. this can represent a single note or a chord)
     makeStaveNote: function (noteSpec) {
+      // console.log("makeStaveNote")
+      // console.log(noteSpec);
       var sn = new VF.StaveNote(noteSpec.vexNote);
       wrapper.addAccidentals (sn, noteSpec.accidentals);
       wrapper.addDots (sn, noteSpec.dots);
       wrapper.addOrnaments (sn, noteSpec.ornaments);
       wrapper.addArticulations (sn, noteSpec.articulations);
+      wrapper.addChordSymbol (sn, noteSpec.chordSymbol);
 
       if (noteSpec.graceKeys.length > 0) {
         var graceNotes = noteSpec.graceKeys.map(wrapper.makeGraceNote);
@@ -369,11 +372,17 @@ var wrapper = function() {
       });
     },
 
-    // add the ornamant(s) to the staveNote
+    // add the ornament(s) to the staveNote
     addOrnaments: function (staveNote, ornaments) {
       ornaments.forEach (function (ornament, index) {
         staveNote.addModifier(0, new VF.Ornament(ornament));
       });
+    },
+
+    // add a chord symbol above the note where it is to take effect 
+    // we will eventually replace this with VexFlows chordSymbol API
+    addChordSymbol: function (staveNote, chordSymbol) {
+      staveNote.addModifier(0, new VF.Annotation(chordSymbol));      
     },
 
     // add the articulation(s) to the staveNote

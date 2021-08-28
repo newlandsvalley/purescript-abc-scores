@@ -80,7 +80,7 @@ type BeatMarker =
 -- a chord symbol
 type ChordSymbol = 
   { symbol :: String -- the chord symbol itself
-  , barFraction :: NoteDuration -- the processed fraction of the bar when symbol encountered
+  , noteIndex :: Int -- the index of the note at which to attach the symbol
   }
 
 -- | The ABC Context
@@ -98,6 +98,7 @@ type AbcContext =
   , beatDuration :: NoteDuration -- the duratio of one beat under the time signature
   }
 
+-- | a NoteSpec is passed to the VexFlow JavaScript and so types have to be simple
 type NoteSpec =
   { vexNote :: VexNote
   , accidentals :: Array String
@@ -107,6 +108,7 @@ type NoteSpec =
   , ornaments :: Array String
   , articulations :: Array String
   , noteTicks :: Int -- the measurable duration of the note in ticks
+  , chordSymbol :: String -- a chord symbol attached to the note. Empty string if absent.
   }
 
 -- | A raw note that VexFlow understands
@@ -155,7 +157,7 @@ instance musicSpecMonoid :: Monoid MusicSpec where
     , beatMarkers: mempty
     , repetitions: mempty
     , typesettingSpaces: mempty
-    , chordSymbols: mempty
+    , chordSymbols: mempty  -- free-standing chord symbols.  Not yet attached to any note.
     }
 
 data LineThickness

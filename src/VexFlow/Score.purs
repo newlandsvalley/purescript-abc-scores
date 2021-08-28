@@ -22,11 +22,9 @@ import Data.Abc (AbcTune, BarLine, BodyPart(..), KeySignature)
 import Data.Abc.Metadata (getTitle, isEmptyStave, thumbnail)
 import Data.Array (null)
 import Data.Either (Either(..))
-import Data.Int (ceil, floor, toNumber)
+import Data.Int (floor, toNumber)
 import Data.List (filter, length)
 import Data.Maybe (Maybe(..), maybe)
-import Data.Rational ((%))
-import Data.Rational (toNumber) as Rational
 import Data.String (length) as String
 import Data.Traversable (traverse_)
 import Data.Tuple (Tuple(..))
@@ -41,9 +39,7 @@ import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Abc.Utils (initialAbcContext)
 import VexFlow.Abc.Volta (VexVolta)
-import VexFlow.Types (BarSpec, BeamSpec, ChordSymbol, Config, LineThickness(..), MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec, Tempo, TimeSignature, VexScore, scoreMarginBottom, staveIndentation, staveSeparation, titleDepth)
-
-import Debug (spy)
+import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..), MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec, Tempo, TimeSignature, VexScore, scoreMarginBottom, staveSeparation, titleDepth)
 
 -- | the Vex renderer
 foreign import data Renderer :: Type
@@ -221,7 +217,7 @@ displayBarSpec renderer staveSpec isTitled barSpec =
       when (not $ null musicSpec.noteSpecs) $
         renderBarContents renderer staveBar barSpec.beamSpecs barSpec.curves musicSpec
       renderStave renderer staveBar
-      renderChordSymbols renderer staveBarConfig musicSpec.chordSymbols
+      -- renderChordSymbols renderer staveBarConfig musicSpec.chordSymbols
 
 
 -- | display bar begin repeat markers
@@ -251,29 +247,6 @@ processVolta staveBar mVolta =
       displayVolta staveBar volta
     _ ->
       pure unit
-
-renderChordSymbols :: Renderer -> StaveConfig -> Array ChordSymbol -> Effect Unit
-renderChordSymbols renderer staveBarConfig chordSymbols =
-  traverse_ (renderChordSymbol renderer staveBarConfig) chordSymbols
-
-renderChordSymbol :: Renderer -> StaveConfig -> ChordSymbol -> Effect Unit
-renderChordSymbol renderer staveBarConfig chordSymbol =
-  let 
-    -- we don't want the chord symbol directly above the bar line 
-    -- so move everything to the right just a little
-    fudge = 1.15
-    -- offset of the chord symbol within the bar    
-    barOffset = ceil $ 
-          (Rational.toNumber chordSymbol.barFraction)
-          * (toNumber staveBarConfig.width)
-          * fudge
-    x = staveBarConfig.x + staveIndentation + barOffset
-    y = staveBarConfig.y + 15
-    -- _ = spy ("chord sym x") x
-    -- _ = spy ("chord sym y") y
-    -- _ = spy ("chord sym") chordSymbol.symbol
-  in
-    renderText renderer chordSymbol.symbol " 12pt Arial" x y
 
 displayContextChange :: Stave -> ContextChange -> Effect Unit
 displayContextChange staveBar contextChange =
@@ -318,13 +291,6 @@ setCanvasDimensionsToScore score config renderer =
 renderTuneTitle :: Renderer -> String -> Int -> Int -> Effect Unit
 renderTuneTitle renderer title x y =
   renderText renderer title " 25pt Arial" x y
-
-{-}
-renderChordSymbol :: Renderer -> Int -> Int -> String -> Effect Unit
-renderChordSymbol renderer x y symbol = 
-  renderText renderer symbol " 12pt Arial" x y
--}
-
 
 -- | initialise VexFlow against the canvas where it renders
 foreign import initialiseCanvas :: Config -> Effect Renderer

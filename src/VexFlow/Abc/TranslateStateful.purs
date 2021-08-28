@@ -18,49 +18,33 @@ module VexFlow.Abc.TranslateStateful
 --     and meter) because we can't represent it using the score's 'dotted'
 --     conventions.
 
-import Prelude (($), (<>), (+), (*), (==), (&&), bind, map, mempty, pure, show)
 import Control.Monad.Except.Trans
+
 import Control.Monad.State (State, evalStateT, execStateT, get, put)
-import VexFlow.Abc.Translate (headerChange, music) as Trans
+import Data.Abc (Bar, BarLine, BodyPart(..), Music, NoteDuration)
+import Data.Abc.Metadata (isEmptyStave)
+import Data.Array ((..), fromFoldable, zip)
+import Data.Array (length) as Array
 import Data.Either (Either, either)
 import Data.Foldable (foldM, foldl)
 import Data.List (List, toUnfoldable, length)
-import Data.Unfoldable (fromMaybe) as U
-import Data.Tuple (Tuple(..))
 import Data.Maybe (Maybe(..), fromMaybe, isNothing)
 import Data.Newtype (unwrap)
-import Data.Array ((..), fromFoldable, zip)
-import Data.Array (length) as Array
 import Data.Traversable (traverse)
-import Data.Abc (Bar, BarLine, BodyPart(..), Music, NoteDuration)
-import Data.Abc.Metadata (isEmptyStave)
-import VexFlow.Abc.Utils
-  ( applyContextChanges
-  , nextStaveNo
-  , updateAbcContext
-  , isEmptyMusicSpec
-  )
-import VexFlow.Types
-  ( AbcContext
-  , BarSpec
-  , BeatMarker
-  , LineThickness(..)
-  , MusicSpec(..)
-  , StaveSpec
-  , staveIndentation
-  )
-import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarWidth)
-import VexFlow.Abc.BarEnd
-  ( repositionBarEndRepeats
-  , fillStaveLine
-  , staveWidth
-  , staveEndsWithRepeatBegin
-  )
-import VexFlow.Abc.Volta (startVolta, isMidVolta)
+import Data.Tuple (Tuple(..))
+import Data.Unfoldable (fromMaybe) as U
+import Prelude (($), (<>), (+), (*), (==), (&&), bind, map, mempty, pure, show)
+import VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine, staveWidth, staveEndsWithRepeatBegin)
 import VexFlow.Abc.Beam (calculateBeams)
-import VexFlow.Abc.Slur (vexCurves)
 import VexFlow.Abc.Beat (exactBeatNumber)
+import VexFlow.Abc.ChordSymbol (attachChordSymbols)
 import VexFlow.Abc.Repetition (buildRepetition)
+import VexFlow.Abc.Slur (vexCurves)
+import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarWidth)
+import VexFlow.Abc.Translate (headerChange, music) as Trans
+import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext, isEmptyMusicSpec)
+import VexFlow.Abc.Volta (startVolta, isMidVolta)
+import VexFlow.Types (AbcContext, BarSpec, BeatMarker, LineThickness(..), MusicSpec(..), StaveSpec, staveIndentation)
 
 type Translation a = ExceptT String (State AbcContext) a
 
@@ -157,7 +141,8 @@ bar barNumber abcBar =
     -- because the fold can chenge the context
     abcContext <- get
     let
-      musicSpec = addFinalBeatMarker abcContext musicSpec0
+      musicSpec1 = attachChordSymbols musicSpec0
+      musicSpec = addFinalBeatMarker abcContext musicSpec1
       MusicSpec spec = musicSpec
       displayedKeySig =
         if (barNumber == 0) then
