@@ -222,7 +222,7 @@ var wrapper = function() {
         default:
           voltaType = VF.Volta.type.NONE;
       }
-      stave.setVoltaType(voltaType, volta.iteration, 30);
+      stave.setVoltaType(voltaType, volta.iteration, 25);
     },
 
     drawText: function (renderer, title, font, x, y) {
@@ -380,9 +380,10 @@ var wrapper = function() {
     },
 
     // add a chord symbol above the note where it is to take effect 
-    // we will eventually replace this with VexFlows chordSymbol API
+    // we will eventually replace this with VexFlow's chordSymbol API
     addChordSymbol: function (staveNote, chordSymbol) {
-      staveNote.addModifier(0, new VF.Annotation(chordSymbol));      
+      staveNote.addModifier(0, 
+        new VF.Annotation(chordSymbol).setFont('Arial', 15, 'bold'));      
     },
 
     // add the articulation(s) to the staveNote
