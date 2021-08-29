@@ -32,6 +32,7 @@ startAbcContext (Tuple numerator denominator) =
   , maxWidth: 1200
   , pendingRepeatBegin: false
   , beatDuration: beatDuration { numerator, denominator }
+  , showChordSymbols: false
   }
 
 c :: Int -> Music

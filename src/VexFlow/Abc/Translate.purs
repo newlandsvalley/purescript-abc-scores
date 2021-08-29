@@ -135,8 +135,12 @@ music context tickablePosition noteIndex phraseDuration m =
             )
             eRes
 
-      ChordSymbol symbol ->  
-        Right $ buildMusicSpecFromChordSymbol symbol noteIndex
+      ChordSymbol symbol ->
+        -- we're not sure about chord symbols at the moment so it's a configurable option
+        if (context.showChordSymbols) then
+          Right $ buildMusicSpecFromChordSymbol symbol noteIndex
+        else 
+          Right $ mempty :: Either String MusicSpec
 
       Inline header ->
         Right $ buildMusicSpecFromContextChange $ headerChange header
@@ -482,7 +486,7 @@ buildMusicSpecFromChordSymbol symbol noteIndex =
   let
     (MusicSpec contents) = mempty :: MusicSpec
   in
-    MusicSpec contents { chordSymbols = [{ symbol, noteIndex } ] }
+    MusicSpec contents { chordSymbols = [ { symbol, noteIndex } ] }
 
 -- | build the slur brackets from a normal note's left and right slur counts
 buildSlurBrackets :: Int -> Int -> Int -> Array SlurBracket

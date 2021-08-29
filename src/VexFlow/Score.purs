@@ -217,8 +217,7 @@ displayBarSpec renderer staveSpec isTitled barSpec =
       when (not $ null musicSpec.noteSpecs) $
         renderBarContents renderer staveBar barSpec.beamSpecs barSpec.curves musicSpec
       renderStave renderer staveBar
-      -- renderChordSymbols renderer staveBarConfig musicSpec.chordSymbols
-
+-- renderChordSymbols renderer staveBarConfig musicSpec.chordSymbols
 
 -- | display bar begin repeat markers
 

@@ -18,7 +18,7 @@ import Test.Unit.Main (runTest)
 import VexFlow.Abc.Alignment (justifiedScoreConfig)
 import VexFlow.Abc.Beat (exactBeatNumber)
 import VexFlow.Score (createScore)
-import VexFlow.Types (BarSpec, Config, VexScore, MusicSpec(..))
+import VexFlow.Types (BarSpec, Config, VexScore, MusicSpec(..), defaultConfig)
 
 main :: Effect Unit
 main = runTest do
@@ -31,13 +31,12 @@ main = runTest do
 
 initialConfig :: Config
 initialConfig =
-  { parentElementId: "canvas"
-  , width: 100
-  , height: 100
-  , scale: 0.8
-  , isSVG: false
-  , titled: false
-  }
+  defaultConfig
+    { width = 100
+    , height = 100
+    , isSVG = false
+    , titled = false
+    }
 
 assertScoreDepth :: String -> Int -> Test
 assertScoreDepth s expected =
@@ -252,5 +251,5 @@ alignmentSuite :: Free TestF Unit
 alignmentSuite =
   suite "alignment" do
     test "borddajnsijn" do
-      assertScoreDepth borddajnsijn 172
+      assertScoreDepth borddajnsijn 188
 

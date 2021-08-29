@@ -178,7 +178,7 @@ bar barNumber abcBar =
             spec.noteSpecs
             spec.beatMarkers
             spec.typesettingSpaces
-        , curves: vexCurves spec.slurBrackets 
+        , curves: vexCurves spec.slurBrackets
         , musicSpec: musicSpec
         }
       -- check if we're in the midst of a volta

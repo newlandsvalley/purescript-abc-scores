@@ -22,11 +22,12 @@ configure tune =
     titled = true 
   in
     { parentElementId : "canvas"
-    , width : canvasWidth
-    , height : canvasHeight tune titled
-    , scale : 0.8
-    , isSVG : true
-    , titled : titled
+    , width: canvasWidth
+    , height: canvasHeight tune titled
+    , scale: 0.8
+    , isSVG: true
+    , titled: titled
+    , showChordSymbols: true
     }
 
 main :: Effect Boolean

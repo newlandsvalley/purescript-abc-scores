@@ -40,6 +40,18 @@ type Config =
   , scale :: Number
   , isSVG :: Boolean -- true (SVG) or false (Canvas)
   , titled :: Boolean -- true if we are displaying a tune title   
+  , showChordSymbols :: Boolean -- temporary configuration option till we're happy with it
+  }
+
+defaultConfig :: Config
+defaultConfig =
+  { parentElementId: "canvas"
+  , width: 1600
+  , height: 800
+  , scale: 0.8
+  , isSVG: true
+  , titled: true
+  , showChordSymbols: false
   }
 
 -- | the configuration of a Stave
@@ -78,7 +90,7 @@ type BeatMarker =
   }
 
 -- a chord symbol
-type ChordSymbol = 
+type ChordSymbol =
   { symbol :: String -- the chord symbol itself
   , noteIndex :: Int -- the index of the note at which to attach the symbol
   }
@@ -96,6 +108,7 @@ type AbcContext =
   , maxWidth :: Int
   , pendingRepeatBegin :: Boolean -- begin repeat to be prepended to next stave
   , beatDuration :: NoteDuration -- the duratio of one beat under the time signature
+  , showChordSymbols :: Boolean -- temporary configuration option till we're happy with it
   }
 
 -- | a NoteSpec is passed to the VexFlow JavaScript and so types have to be simple
@@ -157,7 +170,7 @@ instance musicSpecMonoid :: Monoid MusicSpec where
     , beatMarkers: mempty
     , repetitions: mempty
     , typesettingSpaces: mempty
-    , chordSymbols: mempty  -- free-standing chord symbols.  Not yet attached to any note.
+    , chordSymbols: mempty -- free-standing chord symbols.  Not yet attached to any note.
     }
 
 data LineThickness

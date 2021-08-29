@@ -1,33 +1,25 @@
 module Examples.Thumbnail.Main where
 
-import Prelude (bind, pure)
-import Effect (Effect)
-import Data.Either (Either(..))
-import VexFlow.Score (renderThumbnail, initialiseCanvas)
-import VexFlow.Types (Config)
 import Data.Abc.Parser (parse)
-import Examples.Thumbnail.Texts (augustsson, cig, ewa, fastan, smalandPolska,
-                                gustavPersson, voltaContinuationSample,
-                                keyChangeSample, meterChangeSample,
-                                continuationSample, emptyBarSample)
+import Data.Either (Either(..))
+import Effect (Effect)
+import Examples.Thumbnail.Texts (augustsson, cig, ewa, fastan, smalandPolska, gustavPersson, voltaContinuationSample, keyChangeSample, meterChangeSample, continuationSample, emptyBarSample)
+import Prelude (bind, pure)
+import VexFlow.Score (renderThumbnail, initialiseCanvas)
+import VexFlow.Types (Config, defaultConfig)
 
 canvasWidth :: Int
 canvasWidth = 1000
 
-canvasDepth :: Int
-canvasDepth = 200
+canvasHeight :: Int
+canvasHeight = 200
 
-scale :: Number
-scale = 0.8
-
-defaultConfig :: Config
-defaultConfig =
-  { parentElementId : "canvas"
-  , width : canvasWidth
-  , height : canvasDepth
-  , scale : scale
-  , isSVG : false
-  , titled : false -- thumbnails are never titled so this is ignored
+config :: Config
+config = defaultConfig 
+  { width = canvasWidth
+  , height = canvasHeight 
+  , isSVG = false
+  , titled = false 
   }
 
 main :: Effect Boolean
@@ -37,7 +29,7 @@ main =
   in
     case eAbcTune of
       Right abcTune -> do
-        renderer <- initialiseCanvas defaultConfig
-        renderThumbnail defaultConfig renderer abcTune 
+        renderer <- initialiseCanvas config
+        renderThumbnail config renderer abcTune 
       _ ->
         pure false

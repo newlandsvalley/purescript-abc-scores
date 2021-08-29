@@ -194,6 +194,7 @@ initialAbcContext tune config =
             (Int.toNumber (config.width - staveIndentation)) / config.scale
         , pendingRepeatBegin: false
         , beatDuration: beatDuration { numerator, denominator }
+        , showChordSymbols: config.showChordSymbols
         }
     else
       Left "modifications to standard key signatures are not supported"

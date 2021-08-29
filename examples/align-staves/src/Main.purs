@@ -7,30 +7,10 @@ import Prelude (bind, pure)
 import Effect (Effect)
 import Data.Either (Either(..))
 import VexFlow.Score (renderFinalTune, initialiseCanvas)
-import VexFlow.Types (Config)
+import VexFlow.Types (defaultConfig)
 import Data.Abc.Parser (parse)
 import Examples.StaveAlignment.Texts (augustsson, blomgren, cig, ewa, fastan,
                           smalandPolska,keyChangeSample, meterChangeSample, titled)
-
-canvasWidth :: Int
-canvasWidth = 1600
-
-canvasDepth :: Int
-canvasDepth = 800
-
-scale :: Number
-scale = 0.8
-
-
-defaultConfig :: Config
-defaultConfig =
-  { parentElementId : "canvas"
-  , width : canvasWidth
-  , height : canvasDepth
-  , scale : scale
-  , isSVG : true
-  , titled : true
-  }
 
 main :: Effect Boolean
 main =

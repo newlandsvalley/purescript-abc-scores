@@ -1,5 +1,6 @@
-module VexFlow.Abc.ChordSymbol 
-  (attachChordSymbols) where
+module VexFlow.Abc.ChordSymbol
+  ( attachChordSymbols
+  ) where
 
 import Data.Array (foldl, modifyAt)
 import Data.Maybe (Maybe(..))
@@ -10,14 +11,13 @@ import VexFlow.Types (ChordSymbol, MusicSpec(..), NoteSpec)
 -- | but come before the note they decorate.)
 attachChordSymbols :: MusicSpec -> MusicSpec
 attachChordSymbols (MusicSpec ms) =
-  MusicSpec ms { noteSpecs = newNoteSpecs } 
+  MusicSpec ms { noteSpecs = newNoteSpecs }
 
   where
-    newNoteSpecs = foldl attachChordSymbol ms.noteSpecs ms.chordSymbols 
- 
-attachChordSymbol :: Array NoteSpec -> ChordSymbol -> Array NoteSpec 
-attachChordSymbol  noteSpecs chordSymbol = 
-  case (modifyAt chordSymbol.noteIndex (\ns -> ns {chordSymbol = chordSymbol.symbol}) noteSpecs) of 
-    Nothing -> noteSpecs 
+  newNoteSpecs = foldl attachChordSymbol ms.noteSpecs ms.chordSymbols
+
+attachChordSymbol :: Array NoteSpec -> ChordSymbol -> Array NoteSpec
+attachChordSymbol noteSpecs chordSymbol =
+  case (modifyAt chordSymbol.noteIndex (\ns -> ns { chordSymbol = chordSymbol.symbol }) noteSpecs) of
+    Nothing -> noteSpecs
     Just newSpecs -> newSpecs
-   

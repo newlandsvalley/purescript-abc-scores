@@ -1,34 +1,38 @@
 module Examples.Beaming.Main where
 
-import Prelude (Unit, bind, pure, unit, ($), (/))
-import Effect (Effect)
-import Data.Tuple (Tuple(..))
-import Data.Rational ((%))
-import Data.Maybe (Maybe(..))
-import Data.Either (Either(..))
-import Data.Int (round, toNumber)
-import VexFlow.Score (Renderer, initialiseCanvas, renderTuneAtStave)
-import VexFlow.Types (Config, AbcContext, staveIndentation)
-import VexFlow.Abc.Beat (beatDuration)
+import Examples.Beaming.Texts
+
 import Data.Abc (KeySignature, MeterSignature)
 import Data.Abc.Parser (parse)
-import Examples.Beaming.Texts
+import Data.Either (Either(..))
+import Data.Int (round, toNumber)
+import Data.Maybe (Maybe(..))
+import Data.Rational ((%))
+import Data.Tuple (Tuple(..))
+import Effect (Effect)
+import Prelude (Unit, bind, pure, unit, ($), (/))
+import VexFlow.Abc.Beat (beatDuration)
+-- import VexFlow.Abc.Utils (canvasHeight)
+import VexFlow.Score (Renderer, initialiseCanvas, renderTuneAtStave)
+import VexFlow.Types (Config, AbcContext, defaultConfig, staveIndentation)
 
 canvasWidth :: Int
 canvasWidth = 1200
 
-scale :: Number
-scale = 0.8
+canvasHeight :: Int
+canvasHeight = 1600
+
+scale :: Number 
+scale = 
+  defaultConfig.scale
 
 config :: Config
-config =
-  { parentElementId : "canvas"
-  , width : canvasWidth
-  , height : 1600
-  , scale : scale
-  , isSVG : true
-  , titled : false
-  }
+config = 
+  defaultConfig 
+    { width = canvasWidth
+    , height = canvasHeight
+    , titled = false
+    }  
 
 abcContext :: MeterSignature -> KeySignature -> Int -> AbcContext
 abcContext (Tuple numerator denominator ) keySignature staveNo =
@@ -43,6 +47,7 @@ abcContext (Tuple numerator denominator ) keySignature staveNo =
   , maxWidth : round $ (toNumber canvasWidth / scale)
   , pendingRepeatBegin: false
   , beatDuration: beatDuration { numerator, denominator }
+  , showChordSymbols: false
   }
 
 displayAtStave :: Renderer -> String -> Int -> Effect Boolean
