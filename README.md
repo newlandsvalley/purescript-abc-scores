@@ -50,6 +50,7 @@ VexFlow Version support
 
 The library now works with the most recent version of VexFlow (Currently 3.09).  However, there is a [regression](https://github.com/0xfe/vexflow/issues/798) in this version of VexFlow which causes minims not to be formatted correctly. Consequently, we stay with the much earlier version which continues to work well.  We will migrate to the newer version when it is fixed or at least when the new approach to formatting is documented fully.
 
+It seems that there is a good deal of recent development work on VexFlow but with very little being released.  One improvement is the introduction of support for chord symbols.  The ```chords``` branch puts basic infrastructure in place for also supporting these, but this support is currently limited to using note ```Annotations``` which means that the chord symbols are not horizontally aligned.  We will continue to monitor VexFlow progress and support these in the master branch when we can.
 
 Limitations
 -----------
