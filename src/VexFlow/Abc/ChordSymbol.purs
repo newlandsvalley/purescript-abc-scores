@@ -18,6 +18,6 @@ attachChordSymbols (MusicSpec ms) =
 
 attachChordSymbol :: Array NoteSpec -> ChordSymbol -> Array NoteSpec
 attachChordSymbol noteSpecs chordSymbol =
-  case (modifyAt chordSymbol.noteIndex (\ns -> ns { chordSymbol = chordSymbol.symbol }) noteSpecs) of
+  case (modifyAt chordSymbol.noteIndex (\ns -> ns { chordSymbol = chordSymbol.name }) noteSpecs) of
     Nothing -> noteSpecs
     Just newSpecs -> newSpecs

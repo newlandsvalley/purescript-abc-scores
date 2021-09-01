@@ -481,12 +481,12 @@ buildMusicSpecFromDecorations decorations noteIndex =
   in
     MusicSpec contents { repetitions = repetitions, typesettingSpaces = [ noteIndex ] }
 
-buildMusicSpecFromChordSymbol :: String -> Int -> MusicSpec
+buildMusicSpecFromChordSymbol :: SymbolDefinition -> Int -> MusicSpec
 buildMusicSpecFromChordSymbol symbol noteIndex =
   let
     (MusicSpec contents) = mempty :: MusicSpec
   in
-    MusicSpec contents { chordSymbols = [ { symbol, noteIndex } ] }
+    MusicSpec contents { chordSymbols = [ { name: symbol.name, noteIndex } ] }
 
 -- | build the slur brackets from a normal note's left and right slur counts
 buildSlurBrackets :: Int -> Int -> Int -> Array SlurBracket

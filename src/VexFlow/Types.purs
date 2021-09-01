@@ -91,7 +91,7 @@ type BeatMarker =
 
 -- a chord symbol
 type ChordSymbol =
-  { symbol :: String -- the chord symbol itself
+  { name :: String -- the chord symbol name itself
   , noteIndex :: Int -- the index of the note at which to attach the symbol
   }
 
