@@ -299,7 +299,7 @@ var wrapper = function() {
     makeTupletLayout: function (notes) {
       return function (vexTuplet) {
         return new Vex.Flow.Tuplet(notes.slice(vexTuplet.startPos, vexTuplet.endPos), {
-           num_notes: vexTuplet.p, notes_occupied: vexTuplet.q
+           num_notes: vexTuplet.p, notes_occupied: vexTuplet.q, location: VF.Tuplet.LOCATION_BOTTOM,
          });
       };
     },
