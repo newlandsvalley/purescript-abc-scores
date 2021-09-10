@@ -64,4 +64,5 @@ main = do
   _ <- displayAtStave renderer tuplet 1
   _ <- displayAtStave renderer basic 2
   _ <- displayAtStave renderer voltaBrackets 3
+  _ <- displayAtStave renderer ornament 4
   pure unit

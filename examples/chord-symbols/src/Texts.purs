@@ -42,3 +42,12 @@ voltaBrackets =
     <> "L: 1/16\r\n"
     <> "K: D\r\n"
     <> " \"G\" B2BG BGBG |1 \"D\" B2A2 A4 :|2 \"D\" B2A2 A3c |\r\n"
+
+ornament :: String
+ornament =
+    "X:1\r\n"
+    <> "T: chord symbols plus ornaments\r\n"
+    <> "M: 4/4\r\n"
+    <> "L: 1/8\r\n"
+    <> "K: G\r\n"
+    <> "| G2 \"G\" !trill! G4 F4 | \"Am\" !turn! C4  F2G2 |\r\n"        
