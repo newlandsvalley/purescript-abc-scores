@@ -12,8 +12,15 @@ module VexFlow.Abc.Utils
   , canvasHeight
   ) where
 
-import Data.Abc (AbcNote, AbcTune, Broken(..), GraceableNote, 
-                 ModifiedKeySignature, NoteDuration, TempoSignature)
+import Data.Abc
+  ( AbcNote
+  , AbcTune
+  , Broken(..)
+  , GraceableNote
+  , ModifiedKeySignature
+  , NoteDuration
+  , TempoSignature
+  )
 import Data.Abc.KeySignature (defaultKey)
 import Data.Abc.Metadata (dotFactor, getMeter, getKeySig, getTempoSig, getUnitNoteLength)
 import Data.Abc.Optics (_headers, _properties, _Voice)
@@ -156,6 +163,7 @@ initialAbcContext tune config =
     meterSignature =
       fromMaybe (Tuple 4 4) $ getMeter tune
     (Tuple numerator denominator) = meterSignature
+
     unitNoteLength :: NoteDuration
     unitNoteLength =
       fromMaybe (1 % 8) $ getUnitNoteLength tune
@@ -208,9 +216,9 @@ updateAbcContext abcContext change =
         { unitNoteLength = length
         , isNewTimeSignature = false
         }
-    ClefChange clef -> 
-      abcContext  
-        { mClef = Just clef 
+    ClefChange clef ->
+      abcContext
+        { mClef = Just clef
         , isNewTimeSignature = false
         }
 
@@ -253,25 +261,22 @@ canvasHeight tune titled =
 
 -- a lens focused on the key "clef" in a string-keyed collection
 _clef :: forall a. Lens' (Map String a) (Maybe a)
-_clef = at "clef"  
+_clef = at "clef"
 
 -- Get the clef from the last voice header if it exists
 -- We only recognise bass and treble clefs at the moment.  Default is treble.
 getVoiceClef :: AbcTune -> Maybe Clef
 getVoiceClef tune =
-  let 
-    clefString =  
+  let
+    clefString =
       join $ lastOf (_headers <<< traversed <<< _Voice <<< _properties <<< _clef) tune
-    f :: String -> Clef 
-    f s = 
-      case s of 
-        "Bass" -> Bass 
-        "bass" -> Bass 
-        _ -> Treble 
-  in map f clefString
 
-
-
-
-
+    f :: String -> Clef
+    f s =
+      case s of
+        "Bass" -> Bass
+        "bass" -> Bass
+        _ -> Treble
+  in
+    map f clefString
 

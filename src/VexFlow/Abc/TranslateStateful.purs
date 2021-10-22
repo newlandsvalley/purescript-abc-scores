@@ -250,6 +250,7 @@ addFinalBeatMarker abcContext (MusicSpec ms) =
   let
     (TickableContext noteIndex _ phraseDuration) = ms.tickableContext
     barDuration = phraseDuration * abcContext.unitNoteLength
+
     mBeatMarker :: Maybe BeatMarker
     mBeatMarker = exactBeatNumber barDuration abcContext.beatDuration noteIndex
   in

@@ -98,6 +98,7 @@ getRorNsGraceLength rOrNs =
       case rOrN of
         Left _ -> 0 + acc -- rest
         Right graceableNote -> -- note
+
           graceLength graceableNote.maybeGrace + acc
   in
     foldl f 0 rOrNs
@@ -107,6 +108,7 @@ estimateBarWidth :: Boolean -> Boolean -> Maybe KeySignature -> Bar -> Int
 estimateBarWidth hasClef hasTimeSig maybeKeySig abcBar =
   let
     (TickableContext noteCount graceCount _) = -- (_ is duration)
+
       foldMap getTickableContext abcBar.music
     clefCount =
       if hasClef then 1.0 else 0.0

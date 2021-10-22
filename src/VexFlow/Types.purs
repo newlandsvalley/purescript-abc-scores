@@ -24,6 +24,7 @@ scoreMarginBottom = 15
 -- | the distance between successive staves
 staveSeparation :: Int
 staveSeparation = 110
+
 -- staveSeparation = 100
 
 -- | the depth of a title (when present)
@@ -94,7 +95,6 @@ type ChordSymbol =
   { name :: String -- the chord symbol name itself
   , noteIndex :: Int -- the index of the note at which to attach the symbol
   }
-
 
 -- | The ABC Context
 type AbcContext =

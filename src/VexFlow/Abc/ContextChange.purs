@@ -10,13 +10,13 @@ import Data.Abc (ModifiedKeySignature, MeterSignature, NoteDuration)
 import Prelude (class Eq, class Show)
 
 -- a clef 
-data Clef =
-    Treble 
+data Clef
+  = Treble
   | Bass
 
 instance showClef :: Show Clef where
-    show Treble = "treble"
-    show Bass = "bass"
+  show Treble = "treble"
+  show Bass = "bass"
 
 derive instance eqClef :: Eq Clef
 

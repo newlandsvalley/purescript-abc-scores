@@ -51,11 +51,11 @@ notePitch abcNote =
 
 -- set the arbitrary pitch of a rest, set to the middle of the appropriate stave
 -- (which at the moment is a choice between treble and bass)
-restPitch :: Maybe Clef -> String 
-restPitch = case _ of 
-  Just Bass -> 
+restPitch :: Maybe Clef -> String
+restPitch = case _ of
+  Just Bass ->
     pitch D Implicit 3
-  _ -> 
+  _ ->
     pitch B Implicit 4
 
 accidental :: Accidental -> String
@@ -97,6 +97,7 @@ music context tickablePosition noteIndex phraseDuration m =
     tickableContext = getTickableContext m
     -- find the fraction  of the bar that has already been processed
     barFraction = phraseDuration * context.unitNoteLength
+
     mBeatMarker :: Maybe BeatMarker
     mBeatMarker = exactBeatNumber barFraction context.beatDuration noteIndex
   in
@@ -149,7 +150,7 @@ music context tickablePosition noteIndex phraseDuration m =
         -- we're not sure about chord symbols at the moment so it's a configurable option
         if (context.showChordSymbols) then
           Right $ buildMusicSpecFromChordSymbol symbol noteIndex
-        else 
+        else
           Right $ mempty :: Either String MusicSpec
 
       Inline header ->
@@ -168,8 +169,10 @@ graceableNote context gn =
   let
     graceNotes :: Array AbcNote
     graceNotes = maybe [] (\grace -> Nel.toUnfoldable grace.notes) gn.maybeGrace
+
     graceKeys :: Array String
     graceKeys = map notePitch graceNotes
+
     graceAccidentals :: Array String
     graceAccidentals = map noteAccidental graceNotes
     -- edur = noteDur context gn.abcNote
@@ -360,9 +363,9 @@ headerChange h =
           []
 
     Voice voiceDescription ->
-      case lookup "clef" voiceDescription.properties of 
-        Just "Bass" ->   [ ClefChange Bass ]
-        Just "bass" ->   [ ClefChange Bass ]
+      case lookup "clef" voiceDescription.properties of
+        Just "Bass" -> [ ClefChange Bass ]
+        Just "bass" -> [ ClefChange Bass ]
         Just "Treble" -> [ ClefChange Treble ]
         Just "treble" -> [ ClefChange Treble ]
         _ -> []
@@ -403,26 +406,37 @@ articulations artics =
     f acc decoration =
       case decoration of
         "." -> -- staccato
+
           "a." : acc
         "upbow" -> -- up bow
+
           "a|" : acc
         "u" -> -- up bow
+
           "a|" : acc
         "downbow" -> -- down bow
+
           "am" : acc
         "v" -> -- down bow
+
           "am" : acc
         "L" -> -- accent
+
           "a>" : acc
         "accent" -> -- accent
+
           "a>" : acc
         "emphasis" -> -- accent
+
           "a>" : acc
         "H" -> -- fermata  (above)
+
           "a@a" : acc
         "fermata" -> -- fermata  (above)
+
           "a@a" : acc
         "tenuto" -> -- tenuto
+
           "a-" : acc
         _ ->
           acc

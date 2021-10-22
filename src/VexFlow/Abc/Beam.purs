@@ -91,9 +91,11 @@ beamFunc noteSpecs typesettingSpaces acc beatMarker =
   let
     notesInBeat =
       slice acc.beatMarker.noteIndex beatMarker.noteIndex noteSpecs
+
     beamables :: Array BeamableNote
     beamables =
       mapWithIndex (beamableNote typesettingSpaces acc.beatMarker.noteIndex) notesInBeat
+
     beamRanges :: Array BeamRange
     beamRanges = getBeamRanges beamables
   in

@@ -165,6 +165,7 @@ renderTitledScore config renderer title eStaveSpecs =
       let
         yPos :: Int
         yPos = div (titleDepth * 3) 4
+
         xPos :: Int
         xPos = centeredTitleXPos config (String.length title)
       _ <- renderTuneTitle renderer title xPos yPos
@@ -216,6 +217,7 @@ displayBarSpec renderer staveSpec isTitled barSpec =
       when (not $ null musicSpec.noteSpecs) $
         renderBarContents renderer staveBar barSpec.beamSpecs barSpec.curves musicSpec
       renderStave renderer staveBar
+
 -- renderChordSymbols renderer staveBarConfig musicSpec.chordSymbols
 
 -- | display bar begin repeat markers
@@ -257,7 +259,7 @@ displayContextChange staveBar contextChange =
     UnitNoteChange _ ->
       -- this has no immediate effect on the displayed stave
       pure unit
-    ClefChange _clef -> 
+    ClefChange _clef ->
       -- perhaps we need to display it immediately but I doubt it 
       -- because voice headers cannot appear inline
       pure unit

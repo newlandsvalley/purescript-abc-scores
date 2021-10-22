@@ -43,6 +43,7 @@ vexCurves :: Array SlurBracket -> VexCurves
 vexCurves brackets =
   let
     (SlurStack _ curves) = -- balance brackets
+
       foldl push empty brackets
   in
     reverse curves
