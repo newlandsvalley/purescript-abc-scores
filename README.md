@@ -64,7 +64,7 @@ Limitations
 -----------
 
 *  ABC's modified key signature (for defining non-classical modes as found in, for example, some klezmer scores) is not supported.  (It is not yet supported by VexFlow.)
-*  Chord symbols are not supported (intentionally).
+*  Chord symbols support is an experimental feature which by default is switched off.
 *  Slurs are only supported if they are entirely contained within a bar.  This is partly because they are problematic in ABC (being unbalanceable) and partly because the score for the ABC is engraved on a bar-by-bar basis.  Although VexFlow does allow you to specify that the beginning and end notes live in separate bars, we cannot take advantage of it because, when processing the second bar, notes from the first are no longer in the stack frame.
-*  Polyphonic scores are not properly supported.  Voice headers are ignored - there is thus no attempt to link the staves of the separate voices nor to align the bar lines.  The score is treated as a single monophonic tune.
-*  Support for different voices (via the ABC `Voice` header which may describe various clefs) is limited.  Currently, only treble, alto, tenor and bass clefs are supported with treble being the default.  There is no attempt made to align the staves in a multi-part piece, attached by stave ties.  Rather, it is assumed that an application will split the tune into separate ABC formulations for each voice and display them separately.
+*  Polyphonic scores are not fully supported. There is no attempt made to align the staves in a multi-part piece, attached by stave ties.  Rather, it is assumed that an application will split the tune into separate ABC formulations for each voice and display them separately. `Voice` headers are parsed in order to establish the clef - currently, alto, tenor, bass and treble (the default) are supported.
+
