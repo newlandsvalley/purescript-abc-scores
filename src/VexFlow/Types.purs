@@ -102,7 +102,7 @@ type AbcContext =
   , keySignature :: KeySignature
   , mTempo :: Maybe Tempo
   , unitNoteLength :: NoteDuration
-  , mClef :: Maybe Clef
+  , clef :: Clef
   , staveNo :: Maybe Int
   , accumulatedStaveWidth :: Int
   , isMidVolta :: Boolean -- we've started but not finished a volta

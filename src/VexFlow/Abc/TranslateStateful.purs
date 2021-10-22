@@ -28,7 +28,7 @@ import Data.Array (length) as Array
 import Data.Either (Either, either)
 import Data.Foldable (foldM, foldl)
 import Data.List (List, toUnfoldable, length)
-import Data.Maybe (Maybe(..), fromMaybe, isNothing, maybe)
+import Data.Maybe (Maybe(..), fromMaybe, isNothing)
 import Data.Newtype (unwrap)
 import Data.Traversable (traverse)
 import Data.Tuple (Tuple(..))
@@ -105,7 +105,7 @@ bodyPart bp =
           normalisedStaveBars = repositionBarEndRepeats staveBars
           accumulatedStaveWidth = staveWidth normalisedStaveBars
           filledStaveLine = fillStaveLine abcContext.maxWidth normalisedStaveBars
-          clefString = maybe "treble" show abcContext'.mClef
+          clefString = show abcContext'.clef
         -- save to state whether we need to carry over a Begin Volta from the last stave
         _ <- put (abcContext' { pendingRepeatBegin = pendingRepeatBegin })
         -- return the stave specification

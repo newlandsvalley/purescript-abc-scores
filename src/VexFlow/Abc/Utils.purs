@@ -171,7 +171,7 @@ initialAbcContext tune config =
       fromMaybe cMajor $ map identity (getKeySig tune)
     mTempo =
       maybe Nothing tempoMarking (getTempoSig tune)
-    mClef = getVoiceClef tune
+    clef = fromMaybe Treble (getVoiceClef tune)
   in
     if (null modifiedKeySignature.modifications) then
       Right
@@ -179,7 +179,7 @@ initialAbcContext tune config =
         , keySignature: modifiedKeySignature.keySignature
         , mTempo: mTempo
         , unitNoteLength: unitNoteLength
-        , mClef: mClef
+        , clef: clef
         , staveNo: Nothing
         , accumulatedStaveWidth: staveIndentation -- just the initial margin
         , isMidVolta: false
@@ -218,7 +218,7 @@ updateAbcContext abcContext change =
         }
     ClefChange clef ->
       abcContext
-        { mClef = Just clef
+        { clef = clef
         , isNewTimeSignature = false
         }
 

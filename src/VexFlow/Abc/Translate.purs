@@ -50,13 +50,13 @@ notePitch abcNote =
   pitch abcNote.pitchClass abcNote.accidental (abcNote.octave - 1)
 
 -- set the arbitrary pitch of a rest, set to the middle of the appropriate stave
-restPitch :: Maybe Clef -> String
+restPitch :: Clef -> String
 restPitch = case _ of
-  Just Bass ->
+  Bass ->
     pitch D Implicit 3
-  Just Tenor ->
+  Tenor ->
     pitch A Implicit 3
-  Just Alto ->
+  Alto ->
     pitch C Implicit 4
   _ ->
     pitch B Implicit 4
@@ -181,13 +181,12 @@ graceableNote context gn =
     -- edur = noteDur context gn.abcNote
     eVexDur = vexDuration context.unitNoteLength gn.abcNote.duration
     key = notePitch gn.abcNote
-    clefString = maybe "treble" show context.mClef
   in
     case eVexDur of
       Right vexDur ->
         let
           vexNote =
-            { clef: clefString
+            { clef: show context.clef
             , keys: [ key ]
             , duration: compoundVexDuration vexDur
             , auto_stem: true
@@ -214,14 +213,13 @@ rest context abcRest =
   let
     eVexDur = vexDuration context.unitNoteLength abcRest.duration
     -- key = pitch B Implicit 4
-    key = restPitch context.mClef
-    clefString = maybe "treble" show context.mClef
+    key = restPitch context.clef
   in
     case eVexDur of
       Right vexDur ->
         let
           vexNote =
-            { clef: clefString
+            { clef: show context.clef
             , keys: [ key ]
             , duration: (compoundVexDuration vexDur <> "r")
             , auto_stem: true
@@ -266,14 +264,12 @@ chord context abcChord0 =
 
     accidentals :: Array String
     accidentals = map noteAccidental (Nel.toUnfoldable abcChord.notes)
-
-    clefString = maybe "treble" show context.mClef
   in
     case eVexDur of
       Right vexDur ->
         let
           vexNote =
-            { clef: clefString
+            { clef: show context.clef
             , keys: keys
             , duration: compoundVexDuration vexDur
             , auto_stem: true

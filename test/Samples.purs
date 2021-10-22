@@ -11,6 +11,7 @@ import Data.List (List(..), fromFoldable)
 import Data.Array (toUnfoldable)
 import VexFlow.Abc.TranslateStateful (execBodyPart)
 import VexFlow.Abc.Beat (beatDuration)
+import VexFlow.Abc.ContextChange (Clef(..))
 
 cMajor :: KeySignature
 cMajor =
@@ -25,7 +26,7 @@ startAbcContext (Tuple numerator denominator) =
   , keySignature: cMajor
   , mTempo: Nothing
   , unitNoteLength: (1 % 16)
-  , mClef : Nothing
+  , clef : Treble
   , staveNo: Nothing
   , accumulatedStaveWidth: staveIndentation
   , isMidVolta: false
