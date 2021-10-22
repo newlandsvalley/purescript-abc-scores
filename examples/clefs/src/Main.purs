@@ -63,4 +63,6 @@ main = do
   _ <- renderText renderer "Clefs" " 25pt Arial" 80 80
   _ <- displayAtStave renderer (useClef "treble") 0
   _ <- displayAtStave renderer (useClef "bass") 1
+  _ <- displayAtStave renderer (useClef "tenor") 2
+  _ <- displayAtStave renderer (useClef "alto") 3
   pure unit

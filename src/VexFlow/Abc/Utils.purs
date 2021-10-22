@@ -264,7 +264,7 @@ _clef :: forall a. Lens' (Map String a) (Maybe a)
 _clef = at "clef"
 
 -- Get the clef from the last voice header if it exists
--- We only recognise bass and treble clefs at the moment.  Default is treble.
+-- We only recognise treble, alto, tenor and bass clefs at the moment.  Default is treble.
 getVoiceClef :: AbcTune -> Maybe Clef
 getVoiceClef tune =
   let
@@ -274,6 +274,10 @@ getVoiceClef tune =
     f :: String -> Clef
     f s =
       case s of
+        "Alto" -> Alto
+        "alto" -> Alto
+        "Tenor" -> Tenor
+        "tenor" -> Tenor
         "Bass" -> Bass
         "bass" -> Bass
         _ -> Treble

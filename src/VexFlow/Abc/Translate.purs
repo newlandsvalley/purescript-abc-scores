@@ -50,11 +50,14 @@ notePitch abcNote =
   pitch abcNote.pitchClass abcNote.accidental (abcNote.octave - 1)
 
 -- set the arbitrary pitch of a rest, set to the middle of the appropriate stave
--- (which at the moment is a choice between treble and bass)
 restPitch :: Maybe Clef -> String
 restPitch = case _ of
   Just Bass ->
     pitch D Implicit 3
+  Just Tenor ->
+    pitch A Implicit 3
+  Just Alto ->
+    pitch C Implicit 4
   _ ->
     pitch B Implicit 4
 
@@ -366,6 +369,10 @@ headerChange h =
       case lookup "clef" voiceDescription.properties of
         Just "Bass" -> [ ClefChange Bass ]
         Just "bass" -> [ ClefChange Bass ]
+        Just "Tenor" -> [ ClefChange Tenor ]
+        Just "tenor" -> [ ClefChange Tenor ]
+        Just "Alto" -> [ ClefChange Alto ]
+        Just "alto" -> [ ClefChange Alto ]
         Just "Treble" -> [ ClefChange Treble ]
         Just "treble" -> [ ClefChange Treble ]
         _ -> []

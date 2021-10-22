@@ -12,10 +12,14 @@ import Prelude (class Eq, class Show)
 -- a clef 
 data Clef
   = Treble
+  | Alto
+  | Tenor
   | Bass
 
 instance showClef :: Show Clef where
   show Treble = "treble"
+  show Alto = "alto"
+  show Tenor = "tenor"
   show Bass = "bass"
 
 derive instance eqClef :: Eq Clef
