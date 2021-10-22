@@ -3,6 +3,7 @@ module VexFlow.Score
   , Stave
   , createScore
   , renderUntitledScore
+  , renderText
   , renderTitledScore
   , renderTune
   , renderFinalTune

@@ -12,7 +12,7 @@ import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Prelude (Unit, bind, pure, unit, ($), (/))
 import VexFlow.Abc.Beat (beatDuration)
-import VexFlow.Score (Renderer, initialiseCanvas, renderTuneAtStave)
+import VexFlow.Score (Renderer, initialiseCanvas, renderText, renderTuneAtStave)
 import VexFlow.Types (Config, AbcContext, defaultConfig, staveIndentation)
 
 canvasWidth :: Int
@@ -64,6 +64,7 @@ displayAtStave renderer text staveNo =
 main :: Effect Unit
 main = do
   renderer <- initialiseCanvas config
+  _ <- renderText renderer "Beaming" " 25pt Arial" 80 80
   _ <- displayAtStave renderer beaming44a 0
   _ <- displayAtStave renderer beaming44b 1
   _ <- displayAtStave renderer beaming44c 2
