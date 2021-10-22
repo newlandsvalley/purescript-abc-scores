@@ -1,6 +1,6 @@
-module Examples.Slurs.Main where
+module Examples.Clefs.Main where
 
-import Examples.Slurs.Texts
+import Examples.Clefs.Texts
 
 import Data.Abc (KeySignature, MeterSignature)
 import Data.Abc.Parser (parse)
@@ -25,7 +25,7 @@ config :: Config
 config =
   defaultConfig 
     { width = canvasWidth
-    , height = canvasHeight 
+    , height = canvasHeight
     , titled = false 
     }
 
@@ -60,10 +60,6 @@ displayAtStave renderer text staveNo =
 main :: Effect Unit
 main = do
   renderer <- initialiseCanvas config
-  _ <- displayAtStave renderer slurs1 0
-  _ <- displayAtStave renderer slurs2 1
-  _ <- displayAtStave renderer brokenRhythmSlurs 2
-  _ <- displayAtStave renderer tupletSlurs 3
-  _ <- displayAtStave renderer tupletPrefaceSlurs 4
-  _ <- displayAtStave renderer chordSlurs 5
+  _ <- displayAtStave renderer (useClef "treble") 0
+  _ <- displayAtStave renderer (useClef "bass") 1
   pure unit

@@ -16,6 +16,7 @@ You can edit this file as you like.
   , "newtype"
   , "ordered-collections"
   , "prelude"
+  , "profunctor-lenses"
   , "rationals"
   , "strings"
   , "stringutils"

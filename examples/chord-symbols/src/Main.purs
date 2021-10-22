@@ -36,6 +36,7 @@ abcContext (Tuple numerator denominator) keySignature staveNo =
   , keySignature : keySignature
   , mTempo : Nothing
   , unitNoteLength : ( 1 % 16)
+  , mClef : Nothing
   , staveNo : Just staveNo
   , accumulatedStaveWidth : staveIndentation
   , isMidVolta : false

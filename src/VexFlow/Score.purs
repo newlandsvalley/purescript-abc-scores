@@ -11,7 +11,6 @@ module VexFlow.Score
   , renderTuneAtStave
   , initialiseCanvas
   , resizeCanvas
-  , newStave
   , clearCanvas
   , setCanvasDepthToTune
   , setCanvasDimensionsToScore
@@ -61,9 +60,9 @@ staveConfig staveNo isTitled barSpec =
     , hasDoubleRightBar: (barSpec.endLineThickness == Double)
     }
 
-newStave :: StaveConfig -> KeySignature -> Effect Stave
-newStave staveCnfg ks =
-  newStaveImpl staveCnfg (Translate.keySignature ks)
+newStave :: StaveConfig -> String -> KeySignature -> Effect Stave
+newStave staveCnfg clefString ks =
+  newStaveImpl staveCnfg clefString (Translate.keySignature ks)
 
 -- | render the ABC tune, possibly titled (if indicated by the config), 
 -- | but unjustified and with an expansive canvas
@@ -192,7 +191,7 @@ displayBarSpec renderer staveSpec isTitled barSpec =
     staveBarConfig = staveConfig staveSpec.staveNo isTitled barSpec
   in
     do
-      staveBar <- newStave staveBarConfig staveSpec.keySignature
+      staveBar <- newStave staveBarConfig staveSpec.clefString staveSpec.keySignature
 
       -- add any inline meter or key change markers
       traverse_ (displayContextChange staveBar) musicSpec.contextChanges
@@ -258,6 +257,10 @@ displayContextChange staveBar contextChange =
     UnitNoteChange _ ->
       -- this has no immediate effect on the displayed stave
       pure unit
+    ClefChange _clef -> 
+      -- perhaps we need to display it immediately but I doubt it 
+      -- because voice headers cannot appear inline
+      pure unit
 
 -- | Add the tempo signature to the score is there is one
 addTempoMarking :: Stave -> Maybe Tempo -> Effect Unit
@@ -299,7 +302,7 @@ foreign import resizeCanvas :: Renderer -> Config -> Effect Renderer
 -- | clear the score from the canvas
 foreign import clearCanvas :: Renderer -> Effect Unit
 -- | create a new stave bar
-foreign import newStaveImpl :: StaveConfig -> String -> Effect Stave
+foreign import newStaveImpl :: StaveConfig -> String -> String -> Effect Stave
 -- | get the width of a stave
 foreign import getStaveWidth :: Stave -> Effect Int
 -- | display text on the canvas, but bypassing the VexFlow API

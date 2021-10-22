@@ -34,9 +34,11 @@ var wrapper = function() {
     },
 
     newStaveImpl : function (staveConfig) {
-      return function (keySignature) {
-        return function () {
-          return wrapper.makeStave(staveConfig, keySignature);
+      return function (clef) {
+        return function (keySignature) {
+          return function () {
+            return wrapper.makeStave(staveConfig, clef, keySignature);
+          }
         }
       }
     },
@@ -113,7 +115,7 @@ var wrapper = function() {
     addKeySignature : function (stave) {
       return function (keySignature) {
         return function () {
-          return wrapper.drawKeySignature(stave, keySignature, false);
+          return wrapper.drawKeySignature(stave, keySignature, "");
         }
       }
     },
@@ -170,7 +172,7 @@ var wrapper = function() {
         return renderer;
       },
 
-    makeStave: function (staveConfig, keySignature) {
+    makeStave: function (staveConfig, clef, keySignature) {
 
       var staveOptions = new Object();
       staveOptions.right_bar = staveConfig.hasRightBar;
@@ -186,7 +188,7 @@ var wrapper = function() {
 
       // Add a clef and key signature if it's the first bar in the stave
       if (staveConfig.barNo == 0) {
-        wrapper.drawKeySignature (stave, keySignature, true);
+        wrapper.drawKeySignature (stave, keySignature, clef);
       }
 
       return stave;
@@ -233,9 +235,9 @@ var wrapper = function() {
       context.fillText (title, x, y);
     },
 
-    drawKeySignature: function (stave, keySignature, withClef) {
-      if (withClef) {
-        stave.addClef("treble");
+    drawKeySignature: function (stave, keySignature, clef) {
+      if (clef) {
+        stave.addClef(clef);
       }
       stave.setKeySignature(keySignature);
     },

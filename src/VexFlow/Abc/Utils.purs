@@ -12,45 +12,29 @@ module VexFlow.Abc.Utils
   , canvasHeight
   ) where
 
-import Data.Abc
-  ( AbcTune
-  , AbcNote
-  , Broken(..)
-  , GraceableNote
-  , ModifiedKeySignature
-  , NoteDuration
-  , TempoSignature
-  )
+import Data.Abc (AbcNote, AbcTune, Broken(..), GraceableNote, 
+                 ModifiedKeySignature, NoteDuration, TempoSignature)
 import Data.Abc.KeySignature (defaultKey)
-import Data.Abc.Metadata
-  ( dotFactor
-  , getMeter
-  , getKeySig
-  , getTempoSig
-  , getUnitNoteLength
-  )
+import Data.Abc.Metadata (dotFactor, getMeter, getKeySig, getTempoSig, getUnitNoteLength)
+import Data.Abc.Optics (_headers, _properties, _Voice)
 import Data.Array (null, replicate) as Array
 import Data.Either (Either(..), hush)
 import Data.Foldable (foldl)
 import Data.Int (round, toNumber) as Int
+import Data.Lens.At (at)
+import Data.Lens.Fold (lastOf)
+import Data.Lens.Lens (Lens')
+import Data.Lens.Traversal (traversed)
 import Data.List (length, null)
+import Data.Map (Map)
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Rational (fromInt, toNumber, numerator, denominator, (%))
-import Data.Tuple (Tuple(..))
 import Data.String.CodeUnits (fromCharArray)
-import Prelude (map, show, ($), (*), (+), (-), (/), (<>), (&&), identity)
-import VexFlow.Abc.ContextChange (ContextChange(..))
+import Data.Tuple (Tuple(..))
+import Prelude (join, map, show, ($), (*), (+), (-), (/), (<>), (&&), (<<<), identity)
 import VexFlow.Abc.Beat (beatDuration)
-import VexFlow.Types
-  ( AbcContext
-  , Config
-  , MusicSpec(..)
-  , Tempo
-  , VexDuration
-  , staveIndentation
-  , staveSeparation
-  , titleDepth
-  )
+import VexFlow.Abc.ContextChange (ContextChange(..), Clef(..))
+import VexFlow.Types (AbcContext, Config, MusicSpec(..), Tempo, VexDuration, staveIndentation, staveSeparation, titleDepth)
 
 -- | build a VexDuration
 vexDuration :: NoteDuration -> NoteDuration -> Either String VexDuration
@@ -179,6 +163,7 @@ initialAbcContext tune config =
       fromMaybe cMajor $ map identity (getKeySig tune)
     mTempo =
       maybe Nothing tempoMarking (getTempoSig tune)
+    mClef = getVoiceClef tune
   in
     if (null modifiedKeySignature.modifications) then
       Right
@@ -186,6 +171,7 @@ initialAbcContext tune config =
         , keySignature: modifiedKeySignature.keySignature
         , mTempo: mTempo
         , unitNoteLength: unitNoteLength
+        , mClef: mClef
         , staveNo: Nothing
         , accumulatedStaveWidth: staveIndentation -- just the initial margin
         , isMidVolta: false
@@ -220,6 +206,11 @@ updateAbcContext abcContext change =
     UnitNoteChange length ->
       abcContext
         { unitNoteLength = length
+        , isNewTimeSignature = false
+        }
+    ClefChange clef -> 
+      abcContext  
+        { mClef = Just clef 
         , isNewTimeSignature = false
         }
 
@@ -259,4 +250,28 @@ canvasHeight tune titled =
     (length tune.body) * staveSeparation + titleDepth
   else
     (length tune.body) * staveSeparation
+
+-- a lens focused on the key "clef" in a string-keyed collection
+_clef :: forall a. Lens' (Map String a) (Maybe a)
+_clef = at "clef"  
+
+-- Get the clef from the last voice header if it exists
+-- We only recognise bass and treble clefs at the moment.  Default is treble.
+getVoiceClef :: AbcTune -> Maybe Clef
+getVoiceClef tune =
+  let 
+    clefString =  
+      join $ lastOf (_headers <<< traversed <<< _Voice <<< _properties <<< _clef) tune
+    f :: String -> Clef 
+    f s = 
+      case s of 
+        "Bass" -> Bass 
+        "bass" -> Bass 
+        _ -> Treble 
+  in map f clefString
+
+
+
+
+
 

@@ -19,11 +19,12 @@ import Data.List (List, foldl)
 import Data.List.NonEmpty (NonEmptyList, head, toUnfoldable) as Nel
 import Data.Unfoldable (fromMaybe, replicate)
 import Data.Maybe (Maybe(..), maybe)
+import Data.Map (lookup)
 import Data.String.Common (toLower)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..))
 import Prelude ((<>), ($), (*), (+), (-), map, mempty, show)
-import VexFlow.Abc.ContextChange (ContextChange(..))
+import VexFlow.Abc.ContextChange (ContextChange(..), Clef(..))
 import VexFlow.Abc.Slur (SlurBracket(..))
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext, getTickableContext)
 import VexFlow.Abc.Utils
@@ -47,6 +48,15 @@ notePitch :: AbcNote -> String
 notePitch abcNote =
   -- VexFlow's notation of octave is one higher thab our ABC's
   pitch abcNote.pitchClass abcNote.accidental (abcNote.octave - 1)
+
+-- set the arbitrary pitch of a rest, set to the middle of the appropriate stave
+-- (which at the moment is a choice between treble and bass)
+restPitch :: Maybe Clef -> String 
+restPitch = case _ of 
+  Just Bass -> 
+    pitch D Implicit 3
+  _ -> 
+    pitch B Implicit 4
 
 accidental :: Accidental -> String
 accidental Sharp = "#"
@@ -165,12 +175,13 @@ graceableNote context gn =
     -- edur = noteDur context gn.abcNote
     eVexDur = vexDuration context.unitNoteLength gn.abcNote.duration
     key = notePitch gn.abcNote
+    clefString = maybe "treble" show context.mClef
   in
     case eVexDur of
       Right vexDur ->
         let
           vexNote =
-            { clef: "treble"
+            { clef: clefString
             , keys: [ key ]
             , duration: compoundVexDuration vexDur
             , auto_stem: true
@@ -190,20 +201,21 @@ graceableNote context gn =
       Left x -> Left x
 
 -- | translate an ABC rest to a VexFlow note
--- | which we'll position on the B stave line
+-- | which we'll position on the B stave line 
 -- | failing if the duration cannot be translated
 rest :: AbcContext -> AbcRest -> Either String NoteSpec
 rest context abcRest =
   let
     eVexDur = vexDuration context.unitNoteLength abcRest.duration
-    -- edur = duration context.unitNoteLength abcRest.duration
-    key = pitch B Implicit 4
+    -- key = pitch B Implicit 4
+    key = restPitch context.mClef
+    clefString = maybe "treble" show context.mClef
   in
     case eVexDur of
       Right vexDur ->
         let
           vexNote =
-            { clef: "treble"
+            { clef: clefString
             , keys: [ key ]
             , duration: (compoundVexDuration vexDur <> "r")
             , auto_stem: true
@@ -248,12 +260,14 @@ chord context abcChord0 =
 
     accidentals :: Array String
     accidentals = map noteAccidental (Nel.toUnfoldable abcChord.notes)
+
+    clefString = maybe "treble" show context.mClef
   in
     case eVexDur of
       Right vexDur ->
         let
           vexNote =
-            { clef: "treble"
+            { clef: clefString
             , keys: keys
             , duration: compoundVexDuration vexDur
             , auto_stem: true
@@ -327,8 +341,8 @@ restOrNote context rOrn =
       graceableNote context gn
 
 -- | cater for an inline header (within a stave)
--- |   we need to cater for changes in key signature, meter or unit note length
--- | which all alter the translation context.  All other headers may be ignored
+-- |  we need to cater for changes in key signature, meter, unit note length or voice
+-- |  which all alter the translation context.  All other headers may be ignored
 headerChange :: Header -> Array ContextChange
 headerChange h =
   case h of
@@ -344,6 +358,14 @@ headerChange h =
           [ MeterChange meterSignature ]
         _ ->
           []
+
+    Voice voiceDescription ->
+      case lookup "clef" voiceDescription.properties of 
+        Just "Bass" ->   [ ClefChange Bass ]
+        Just "bass" ->   [ ClefChange Bass ]
+        Just "Treble" -> [ ClefChange Treble ]
+        Just "treble" -> [ ClefChange Treble ]
+        _ -> []
     _ ->
       []
 

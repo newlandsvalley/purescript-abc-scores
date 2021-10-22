@@ -4,7 +4,7 @@ import Data.Abc (BarLine, NoteDuration, KeySignature)
 import Data.Either (Either)
 import Data.Maybe (Maybe)
 import Prelude (class Eq, class Monoid, class Semigroup, mempty, (<>))
-import VexFlow.Abc.ContextChange (ContextChange)
+import VexFlow.Abc.ContextChange (ContextChange, Clef)
 import VexFlow.Abc.Repetition (Repetition)
 import VexFlow.Abc.Slur (SlurBracket, VexCurve)
 import VexFlow.Abc.TickableContext (TickableContext)
@@ -95,12 +95,14 @@ type ChordSymbol =
   , noteIndex :: Int -- the index of the note at which to attach the symbol
   }
 
+
 -- | The ABC Context
 type AbcContext =
   { timeSignature :: TimeSignature
   , keySignature :: KeySignature
   , mTempo :: Maybe Tempo
   , unitNoteLength :: NoteDuration
+  , mClef :: Maybe Clef
   , staveNo :: Maybe Int
   , accumulatedStaveWidth :: Int
   , isMidVolta :: Boolean -- we've started but not finished a volta
@@ -212,6 +214,7 @@ type BarSpec =
 type StaveSpec =
   { staveNo :: Int
   , staveWidth :: Int -- the cumulative width of the stave bars
+  , clefString :: String
   , keySignature :: KeySignature
   , isNewTimeSignature :: Boolean -- do we need to display a time signature?
   , mTempo :: Maybe Tempo -- the tempo marker

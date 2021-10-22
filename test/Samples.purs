@@ -25,6 +25,7 @@ startAbcContext (Tuple numerator denominator) =
   , keySignature: cMajor
   , mTempo: Nothing
   , unitNoteLength: (1 % 16)
+  , mClef : Nothing
   , staveNo: Nothing
   , accumulatedStaveWidth: staveIndentation
   , isMidVolta: false

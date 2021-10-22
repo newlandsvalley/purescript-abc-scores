@@ -12,7 +12,6 @@ import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Prelude (Unit, bind, pure, unit, ($), (/))
 import VexFlow.Abc.Beat (beatDuration)
--- import VexFlow.Abc.Utils (canvasHeight)
 import VexFlow.Score (Renderer, initialiseCanvas, renderTuneAtStave)
 import VexFlow.Types (Config, AbcContext, defaultConfig, staveIndentation)
 
@@ -40,6 +39,7 @@ abcContext (Tuple numerator denominator ) keySignature staveNo =
   , keySignature : keySignature
   , mTempo : Nothing
   , unitNoteLength : ( 1 % 16)
+  , mClef : Nothing
   , staveNo : Just staveNo
   , accumulatedStaveWidth : staveIndentation
   , isMidVolta : false

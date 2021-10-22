@@ -12,6 +12,7 @@
     "thumbnail": "spago -x ./thumbnail.dhall bundle-app --main Examples.Thumbnail.Main --to examples/thumbnail/dist/thumbnail.js",
     "slurs": "spago -x ./slurs.dhall bundle-app --main Examples.Slurs.Main --to examples/slurs/dist/slurs.js",
     "chord-symbols": "spago -x ./chord-symbols.dhall bundle-app --main Examples.ChordSymbols.Main --to examples/chord-symbols/dist/chord-symbols.js",
+    "clefs": "spago -x ./clefs.dhall bundle-app --main Examples.Clefs.Main --to examples/clefs/dist/clefs.js",
     "bugs": "spago -x ./bugs.dhall bundle-app --main Examples.Bugs.Main --to examples/bugs/dist/bugs.js",
     "debug": "spago -x ./debug.dhall run --main Examples.Debug.Main"
   },
