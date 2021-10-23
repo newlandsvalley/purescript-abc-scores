@@ -369,9 +369,12 @@ headerChange h =
         Just "tenor" -> [ ClefChange Tenor ]
         Just "Alto" -> [ ClefChange Alto ]
         Just "alto" -> [ ClefChange Alto ]
+        {-
         Just "Treble" -> [ ClefChange Treble ]
         Just "treble" -> [ ClefChange Treble ]
-        _ -> []
+        -}
+        -- anything else at all defaults to treble
+        _ -> [ ClefChange Treble ]
     _ ->
       []
 
