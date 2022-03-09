@@ -105,7 +105,7 @@ in  upstream
 -------------------------------
 -}
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.14.3-20210722/packages.dhall sha256:1ceb43aa59436bf5601bac45f6f3781c4e1f0e4c2b8458105b018e5ed8c30f8c
+      https://github.com/purescript/package-sets/releases/download/psc-0.14.7-20220303/packages.dhall sha256:d7cbc15ea16768e4a4f99baa58a54559dd2648c6c1362de2469d9e41c23b28c3
 
 in  upstream
   with abc-parser =
@@ -128,27 +128,3 @@ in  upstream
     , repo = "https://github.com/newlandsvalley/purescript-abc-parser.git"
     , version = "ps014"
     }
-
-  {-}
-  with stringutils =
-    { dependencies =
-      [ "arrays"
-      , "assert"
-      , "console"
-      , "effect"
-      , "either"
-      , "functions"
-      , "integers"
-      , "lists"
-      , "maybe"
-      , "partial"
-      , "prelude"
-      , "psci-support"
-      , "quickcheck"
-      , "strings"
-      , "unsafe-coerce"
-      ]
-    , repo = "https://github.com/menelaos/purescript-stringutils.git"
-    , version = "e149d04cd5bcc25222c1807f2e1edafb36b5f70e"
-    }
-    -}

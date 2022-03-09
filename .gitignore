@@ -15,6 +15,7 @@
 /examples/bugs/
 /examples/debug/
 /reference/
+/vexflow4/
 /.psc*
 /.psa*
 /.purs*
