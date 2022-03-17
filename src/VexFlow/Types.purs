@@ -117,7 +117,7 @@ type AbcContext =
 type NoteSpec =
   { vexNote :: VexNote
   , accidentals :: Array String
-  , dots :: Array Int
+  , dotCount :: Int
   , graceKeys :: Array String
   , graceAccidentals :: Array String
   , ornaments :: Array String

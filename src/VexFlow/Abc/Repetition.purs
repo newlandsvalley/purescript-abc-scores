@@ -3,7 +3,10 @@ module VexFlow.Abc.Repetition
   , buildRepetition
   ) where
 
-import Prelude ((==))
+import Prelude (($))
+import Data.Map (Map, fromFoldable, lookup)
+import Data.Maybe (fromMaybe)
+import Data.Tuple (Tuple(..))
 
 {- from VexFlow Staverepetition
 export class Repetition extends StaveModifier {
@@ -80,32 +83,27 @@ export class Repetition extends StaveModifier {
 !longphrase!           same, but extending 3/4 of the way down
 -}
 
--- | the Repetitiom data type
--- | we can't really use enumerated types here because of JavaScript interop
-type Repetition =
-  { repetitionType :: Int -- 1 .. 12 (see above)
-  , isLeft :: Boolean -- repetitionLeft or repetitionRight
-  }
+type Repetition = Int
 
--- | Build the repetition (if it exists) from the decoration and its position
--- | in the bar. note: decorations are not yet type-safe in the ABC parser
-buildRepetition :: Int -> String -> Repetition
-buildRepetition noteIndex decoration =
-  let
-    isLeft = noteIndex == 0
-  in
-    case decoration of
-      "segno" ->
-        case isLeft of
-          true -> { repetitionType: 4, isLeft }
-          false -> { repetitionType: 5, isLeft }
-      "coda" ->
-        case isLeft of
-          true -> { repetitionType: 2, isLeft }
-          false -> { repetitionType: 3, isLeft }
-      "D.S." -> { repetitionType: 9, isLeft }
-      "D.C." -> { repetitionType: 6, isLeft }
-      "dacoda" -> { repetitionType: 7, isLeft }
-      "dacopo" -> { repetitionType: 8, isLeft }
-      "fine" -> { repetitionType: 12, isLeft }
-      _ -> { repetitionType: 1, isLeft }
+-- | Build the repetition (if it exists) from the decoration 
+-- | note: decorations are not yet type-safe in the ABC parser
+buildRepetition :: String -> Repetition
+buildRepetition decoration =
+  fromMaybe noRepetition $ lookup decoration repetitionMap
+
+  where 
+  noRepetition :: Repetition 
+  noRepetition = 1 
+
+  repetitionMap :: Map String Repetition
+  repetitionMap = 
+    fromFoldable $ 
+      [ Tuple "coda" 2
+      , Tuple "segno" 4
+      , Tuple "D.C." 6
+      , Tuple "dacoda" 7
+      , Tuple "dacapo" 8
+      , Tuple "D.S." 9
+      , Tuple "fine" 12
+      ]
+

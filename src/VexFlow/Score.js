@@ -278,7 +278,7 @@ var wrapper = function() {
       // console.log(noteSpec);
       var sn = new VF.StaveNote(noteSpec.vexNote);
       wrapper.addAccidentals (sn, noteSpec.accidentals);
-      wrapper.addDots (sn, noteSpec.dots);
+      wrapper.addDots (sn, noteSpec.dotCount);
       wrapper.addOrnaments (sn, noteSpec.ornaments);
       wrapper.addArticulations (sn, noteSpec.articulations);
       wrapper.addChordSymbol (sn, noteSpec.chordSymbol);
@@ -287,7 +287,7 @@ var wrapper = function() {
         var graceNotes = noteSpec.graceKeys.map(wrapper.makeGraceNote);
         wrapper.addGraceAccidentals (graceNotes, noteSpec.graceAccidentals);
         var graceNoteGroup =  new VF.GraceNoteGroup(graceNotes, true);
-        sn.addModifier(0, graceNoteGroup.beamNotes());
+        sn.addModifier(graceNoteGroup.beamNotes(), 0);
       }
       return sn;
     },
@@ -347,7 +347,7 @@ var wrapper = function() {
     addAccidentals: function (staveNote, accidentals) {
       accidentals.forEach (function (accidentalString, index) {
         if (accidentalString) {
-          staveNote.addAccidental(index, new VF.Accidental(accidentalString));
+          staveNote.addModifier(new VF.Accidental(accidentalString), index);
         }
       });
     },
@@ -357,55 +357,48 @@ var wrapper = function() {
       accidentals.forEach (function (accidentalString, index) {
         if (accidentalString) {
           /* console.log("grace accidental ", accidentalString, " at ", index); */
-          graceNotes[index].addAccidental(0, new VF.Accidental(accidentalString));
+          graceNotes[index].addModifier(new VF.Accidental(accidentalString), 0);
         }
       });
     },
 
     // add the dottedness to the staveNote
-    addDots: function (staveNote, dots) {
-      dots.forEach (function (dotCount, index) {
-        if (dotCount == 2) {
-          staveNote.addDot(index).addDot(index);
-        }
-        else if (dotCount == 1) {
-          staveNote.addDot(index);
-        }
-      });
+    addDots: function (staveNote, dotCount) {
+      if (dotCount == 2) {
+        VF.Dot.buildAndAttach([staveNote], { all: true });
+        VF.Dot.buildAndAttach([staveNote], { all: true });
+      }
+      else if (dotCount == 1) {
+        VF.Dot.buildAndAttach([staveNote], { all: true });
+      }
     },
 
     // add the ornament(s) to the staveNote
     addOrnaments: function (staveNote, ornaments) {
       ornaments.forEach (function (ornament, index) {
-        staveNote.addModifier(0, new VF.Ornament(ornament));
+        staveNote.addModifier(new VF.Ornament(ornament), 0);
       });
     },
 
     // add a chord symbol above the note where it is to take effect 
-    // we will eventually replace this with VexFlow's chordSymbol API
     addChordSymbol: function (staveNote, chordSymbol) {
-      staveNote.addModifier(0, 
-        new VF.Annotation(chordSymbol).setFont('Arial', 15, 'bold'));      
+      var chord = new VF.ChordSymbol().addGlyphOrText(chordSymbol);
+      staveNote.addModifier(chord, 0);
     },
 
     // add the articulation(s) to the staveNote
     addArticulations: function (staveNote, articulations) {
       articulations.forEach (function (articulation, index) {
-        staveNote.addArticulation(0, new VF.Articulation(articulation));
+        // position 3 above stave, position 4 below it
+        staveNote.addModifier(new VF.Articulation(articulation).setPosition(4), 0);
       });
     },
 
     // add the repetitions to the stave
     addRepetitions: function (stave, repetitions) {
       repetitions.forEach (function (repetition, index) {
-        if (repetition.isLeft) {
-          // console.log ("repetition left:", repetition.repetitionType);
-          stave.setRepetitionTypeLeft(repetition.repetitionType, 25);
-        }
-        else {
-          // console.log ("repetition right:", repetition.repetitionType);
-          stave.setRepetitionTypeRight(repetition.repetitionType, 25);
-        }
+        // console.log ("repetition:", repetition);
+        stave.setRepetitionType(repetition, 25);
       });
     }
 

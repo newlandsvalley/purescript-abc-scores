@@ -206,7 +206,7 @@ foldOverMusics barDecorations =
     -- our initial MusicSpec is empty, apart from the fact that we need to 
     -- start off with any decorations against the bar
     (MusicSpec emptySpec) = mempty :: MusicSpec
-    repetitions = map (buildRepetition 0) (fromFoldable barDecorations)
+    repetitions = map buildRepetition (fromFoldable barDecorations)
     initialSpec = emptySpec { repetitions = repetitions }
   in
     -- we then fold over all the bar contents, building the VexFlow spec as we go

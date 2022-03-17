@@ -195,7 +195,7 @@ graceableNote context gn =
           Right
             { vexNote: vexNote
             , accidentals: [ accidental gn.abcNote.accidental ]
-            , dots: [ vexDur.dots ]
+            , dotCount: vexDur.dots
             , graceKeys: graceKeys
             , graceAccidentals: graceAccidentals
             , ornaments: ornaments gn.decorations
@@ -228,7 +228,7 @@ rest context abcRest =
           Right
             { vexNote: vexNote
             , accidentals: []
-            , dots: [ vexDur.dots ]
+            , dotCount: vexDur.dots 
             , graceKeys: []
             , graceAccidentals: []
             , ornaments: []
@@ -238,10 +238,9 @@ rest context abcRest =
             }
       Left x -> Left x
 
--- | translate an ABC chord to a VexFlow note
--- | failing if the durations cannot be translated
+-- | translate an ABC chord to a VexFlow note failing if the durations cannot be translated
 -- | n.b. in VexFlow, all notes in a chord must have the same duration
--- | this is a mismatch with ABC.  We just take the first note as representative
+-- | this is a mismatch with ABC.  We just take the first note as representative.
 chord :: AbcContext -> AbcChord -> Either String NoteSpec
 chord context abcChord0 =
   let
@@ -249,18 +248,20 @@ chord context abcChord0 =
 
     -- this isn't quite right = we'll just used the length of the first
     -- note in the (normalised) chord
+    representativeNote = Nel.head abcChord.notes
+
     chordLen :: NoteDuration
-    chordLen = (Nel.head abcChord.notes).duration
+    chordLen = representativeNote.duration
 
     eVexDur :: Either String VexDuration
     -- eVexDur = chordalNoteDur context abcChord.duration (Nel.head abcChord.notes)
     eVexDur = vexDuration context.unitNoteLength chordLen
 
     keys :: Array String
-    keys = map notePitch (Nel.toUnfoldable abcChord.notes)
+    keys = map notePitch (Nel.toUnfoldable abcChord.notes)    
 
-    dotCounts :: Array Int
-    dotCounts = map (noteDotCount context) (Nel.toUnfoldable abcChord.notes)
+    dotCount :: Int
+    dotCount = noteDotCount context representativeNote
 
     accidentals :: Array String
     accidentals = map noteAccidental (Nel.toUnfoldable abcChord.notes)
@@ -278,7 +279,7 @@ chord context abcChord0 =
           Right
             { vexNote: vexNote
             , accidentals: accidentals
-            , dots: dotCounts -- we need to apply dots to each note in the chord
+            , dotCount 
             , graceKeys: []
             , graceAccidentals: []
             , ornaments: []
@@ -519,7 +520,7 @@ buildMusicSpecFromDecorations :: List String -> Int -> MusicSpec
 buildMusicSpecFromDecorations decorations noteIndex =
   let
     (MusicSpec contents) = mempty :: MusicSpec
-    repetitions = map (buildRepetition noteIndex) (fromFoldable decorations)
+    repetitions = map buildRepetition (fromFoldable decorations)
   in
     MusicSpec contents { repetitions = repetitions, typesettingSpaces = [ noteIndex ] }
 
