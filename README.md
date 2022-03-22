@@ -5,7 +5,7 @@ This is a purescript wrapper for [VexFlow](http://www.vexflow.com/) which is des
 
 It is intended to be a replacement for [purescript-scores](https://github.com/newlandsvalley/purescript-scores) which itself was a wrapper for [VexTab](http://www.vexflow.com/vextab). i.e. the intention is to cut out the middle man (which is anyhow not regularly maintained).
 
-Currently, it uses vexflow 4.0.1-beta.2
+Currently, it uses vexflow 4.0.1-rc.0
 
 To build the library
 --------------------
@@ -16,7 +16,7 @@ To build the library
 or   
 
      bower install
-     pulp buils
+     pulp build
 
 To build the small display examples
 -----------------------------------
