@@ -26,4 +26,6 @@ You can edit this file as you like.
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]
+, license = "MIT"
+, repository = "https://github.com/newlandsvalley/purescript-abc-scores"
 }

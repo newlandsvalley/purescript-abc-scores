@@ -406,18 +406,18 @@ var wrapper = function() {
 
 }();
 
-exports.initialiseCanvas = wrapper.initialiseCanvas;
-exports.resizeCanvas = wrapper.resizeCanvas;
-exports.clearCanvas = wrapper.clearCanvas;
-exports.newStaveImpl = wrapper.newStaveImpl;
-exports.renderStave = wrapper.renderStave;
-exports.renderText = wrapper.renderText;
-exports.getStaveWidth = wrapper.getStaveWidth;
-exports.displayBarBeginRepeat = wrapper.displayBarBeginRepeat;
-exports.displayBarEndRepeat = wrapper.displayBarEndRepeat;
-exports.displayBarBothRepeat = wrapper.displayBarBothRepeat;
-exports.renderBarContents = wrapper.renderBarContents;
-exports.displayVolta = wrapper.displayVolta;
-exports.addTimeSignature = wrapper.addTimeSignature;
-exports.addKeySignature = wrapper.addKeySignature;
-exports.addTempoMarkingImpl = wrapper.addTempoMarkingImpl;
+export var initialiseCanvas = wrapper.initialiseCanvas;
+export var resizeCanvas = wrapper.resizeCanvas;
+export var clearCanvas = wrapper.clearCanvas;
+export var newStaveImpl = wrapper.newStaveImpl;
+export var renderStave = wrapper.renderStave;
+export var renderText = wrapper.renderText;
+export var getStaveWidth = wrapper.getStaveWidth;
+export var displayBarBeginRepeat = wrapper.displayBarBeginRepeat;
+export var displayBarEndRepeat = wrapper.displayBarEndRepeat;
+export var displayBarBothRepeat = wrapper.displayBarBothRepeat;
+export var renderBarContents = wrapper.renderBarContents;
+export var displayVolta = wrapper.displayVolta;
+export var addTimeSignature = wrapper.addTimeSignature;
+export var addKeySignature = wrapper.addKeySignature;
+export var addTempoMarkingImpl = wrapper.addTempoMarkingImpl;

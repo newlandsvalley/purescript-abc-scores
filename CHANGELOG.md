@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## ? (2022-03-17)
+## v0.6.0 (2022-04-09)
 
+  * Purescript 0.15.0
   * Support vexflow4
+  * Support chord symbols
+  * Support the full variety of variant endings
+  * Support different clefs
+  * (replace test-unit with spec)
 
 ## v0.5.5 (2021-02-21)
 
-  * Alloww the canvas overall dimensions to be set to the score dimensions
+  * Allow the canvas overall dimensions to be set to the score dimensions
 
 ## v0.5.4 (2021-02-20)
 

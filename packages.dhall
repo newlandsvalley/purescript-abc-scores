@@ -105,8 +105,8 @@ in  upstream
 -------------------------------
 -}
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.14.7-20220321/packages.dhall
-        sha256:dff91304260c1196273badf7d8141e66ab16bed147b95aa175dd8a84ec87d58f
+      https://github.com/purescript/package-sets/releases/download/psc-0.15.0-20220507/packages.dhall
+        sha256:cf54330f3bc1b25a093b69bff8489180c954b43668c81288901a2ec29a08cc64
 
 in  upstream
   with abc-parser =
@@ -127,5 +127,5 @@ in  upstream
       , "tuples"
       ]
     , repo = "https://github.com/newlandsvalley/purescript-abc-parser.git"
-    , version = "ps014"
+    , version = "ps015"
     }
