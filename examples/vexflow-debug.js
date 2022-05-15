@@ -1,5 +1,5 @@
 /*!
- * VexFlow 4.0.1   2022-03-24T20:35:28.447Z   409af72ce03dd6da1919ee6c7de72c62aac0644e
+ * VexFlow 4.0.2   2022-04-28T00:14:05.094Z   a968cfa5453a34ff0f8bb8bc882d08ef44f62cea
  * Copyright (c) 2010 Mohit Muthanna Cheppudira <mohit@muthanna.com>
  * https://www.vexflow.com   https://github.com/0xfe/vexflow
  */
@@ -29,9 +29,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "ID": () => (/* binding */ ID),
 /* harmony export */   "DATE": () => (/* binding */ DATE)
 /* harmony export */ });
-const VERSION = '4.0.1';
-const ID = '409af72ce03dd6da1919ee6c7de72c62aac0644e';
-const DATE = '2022-03-24T20:35:28.447Z';
+const VERSION = '4.0.2';
+const ID = 'a968cfa5453a34ff0f8bb8bc882d08ef44f62cea';
+const DATE = '2022-04-28T00:14:05.094Z';
 
 
 /***/ }),
@@ -2040,6 +2040,8 @@ class Beam extends _element__WEBPACK_IMPORTED_MODULE_0__.Element {
         this.notes.forEach((note) => {
             const stem = note.getStem();
             if (stem) {
+                const stem_x = note.getStemX();
+                stem.setNoteHeadXBounds(stem_x, stem_x);
                 ctx.openGroup('stem', note.getAttribute('id') + '-stem');
                 stem.setContext(ctx).draw();
                 ctx.closeGroup();
@@ -21883,8 +21885,8 @@ class Stave extends _element__WEBPACK_IMPORTED_MODULE_2__.Element {
         return this;
     }
     // Section functions
-    setSection(section, y, xOffset = 0, fontSize) {
-        const staveSection = new _stavesection__WEBPACK_IMPORTED_MODULE_8__.StaveSection(section, this.x + xOffset, y);
+    setSection(section, y, xOffset = 0, fontSize, drawRect = true) {
+        const staveSection = new _stavesection__WEBPACK_IMPORTED_MODULE_8__.StaveSection(section, this.x + xOffset, y, drawRect);
         if (fontSize)
             staveSection.setFontSize(fontSize);
         this.modifiers.push(staveSection);
@@ -22616,11 +22618,19 @@ class StaveConnector extends _element__WEBPACK_IMPORTED_MODULE_0__.Element {
      * @param type see {@link StaveConnector.type} & {@link StaveConnector.typeString}
      */
     setType(type) {
-        type = typeof type === 'string' ? StaveConnector.typeString[type] : type;
-        if (type >= StaveConnector.type.SINGLE_RIGHT && type <= StaveConnector.type.NONE) {
-            this.type = type;
+        const newType = typeof type === 'string' ? StaveConnector.typeString[type] : type;
+        // Be certain that the type is a valid type:
+        if (Object.values(StaveConnector.type).includes(newType)) {
+            this.type = newType;
         }
         return this;
+    }
+    /**
+     * Get type.
+     * @returns number {@link StaveConnector.type}
+     */
+    getType() {
+        return this.type;
     }
     /** Set optional associated Text. */
     setText(text, options = {}) {
@@ -23624,7 +23634,7 @@ class StaveNote extends _stemmablenote__WEBPACK_IMPORTED_MODULE_4__.StemmableNot
                             }
                         } //Very close whole notes
                     }
-                    else {
+                    else if (lineDiff < 1) {
                         xShift = voiceXShift + 2;
                         if (noteU.stemDirection === noteL.stemDirection) {
                             // upper voice is middle voice, so shift it right
@@ -23634,6 +23644,14 @@ class StaveNote extends _stemmablenote__WEBPACK_IMPORTED_MODULE_4__.StemmableNot
                             // shift lower voice right
                             noteL.note.setXShift(xShift);
                         }
+                    }
+                    else if (noteU.note.hasStem()) {
+                        noteU.stemDirection = -noteU.note.getStemDirection();
+                        noteU.note.setStemDirection(noteU.stemDirection);
+                    }
+                    else if (noteL.note.hasStem()) {
+                        noteL.stemDirection = -noteL.note.getStemDirection();
+                        noteL.note.setStemDirection(noteL.stemDirection);
                     }
                 }
             }
@@ -24646,13 +24664,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class StaveSection extends _stavemodifier__WEBPACK_IMPORTED_MODULE_1__.StaveModifier {
-    constructor(section, x, shift_y) {
+    constructor(section, x, shift_y, drawRect = true) {
         super();
         this.setWidth(16);
         this.section = section;
         this.x = x;
         this.shift_x = 0;
         this.shift_y = shift_y;
+        this.drawRect = drawRect;
         this.resetFont();
     }
     static get CATEGORY() {
@@ -24685,12 +24704,14 @@ class StaveSection extends _stavemodifier__WEBPACK_IMPORTED_MODULE_1__.StaveModi
         const width = textWidth + 2 * paddingX; // add left & right padding
         const height = textHeight + 2 * paddingY; // add top & bottom padding
         //  Seems to be a good default y
-        const y = stave.getYForTopText(2) + this.shift_y;
+        const y = stave.getYForTopText(1.5) + this.shift_y;
         const x = this.x + shift_x;
-        ctx.beginPath();
-        ctx.setLineWidth(rectWidth);
-        ctx.rect(x, y + textMeasurements.y - paddingY, width, height);
-        ctx.stroke();
+        if (this.drawRect) {
+            ctx.beginPath();
+            ctx.setLineWidth(rectWidth);
+            ctx.rect(x, y + textMeasurements.y - paddingY, width, height);
+            ctx.stroke();
+        }
         ctx.fillText(this.section, x + paddingX, y);
         ctx.restore();
         return this;
