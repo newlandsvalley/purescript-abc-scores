@@ -262,13 +262,36 @@ var wrapper = function() {
       /* add repetitions to the stave (coda, segno etc.) */
       wrapper.addRepetitions (stave, musicSpec.repetitions);
 
-      Vex.Flow.Formatter.FormatAndDraw(context, stave, notes);
+      /* draw the notes.  Try to emulate thw original VexFlow 1.89 formatter */
+      wrapper.formatAndDrawNotes (context, stave, notes);
+
+      /* Vex.Flow.Formatter.FormatAndDraw(context, stave, notes); */
       ties.forEach(function(t) {t.setContext(context).draw()})
       beams.forEach(function(b) {b.setContext(context).draw()});
       tuplets.forEach(function(tuplet){
         tuplet.setContext(context).draw();
       });
       curves.forEach(function(c) {c.setContext(context).draw()});
+    },
+
+
+    /*  This formatting appears to be sufficient for our needs.  It attempts to emulate
+        the formatting we used successfully with VexFlow 1.2.89.  This went horribly wrong
+        for our purposes with VexFlow 3.  The magic softmaxFactor seems to put things right.
+    */
+    formatAndDrawNotes: function (context, stave, notes) {
+      // Create a voice and add the notes.  SOFT mode is not strict about filling the bar 
+      // with enough notes to satisfy the time signature which would be disastrous.
+      // Users can get it wrong, we'd need to special-case start and end bars etc.
+      const voice = new VF.Voice().setMode(VF.Voice.Mode.SOFT);
+
+      voice.addTickables(notes);
+      
+      // Format and justify the notes
+      new VF.Formatter({ softmaxFactor: 5 }).joinVoices([voice]).format([voice]).formatToStave([voice], stave);
+      
+      // Render voice
+      voice.draw(context, stave);
     },
 
 
