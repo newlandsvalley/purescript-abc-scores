@@ -14,12 +14,9 @@ import Examples.StaveAlignment.Texts (augustsson, blomgren, cig, ewa, fastan,
 
 main :: Effect Boolean
 main =
-  let
-    eAbcTune = parse blomgren
-  in
-    case eAbcTune of
-      Right abcTune -> do
-        renderer <- initialiseCanvas defaultConfig
-        renderFinalTune defaultConfig renderer abcTune
-      _ ->
-        pure false
+  case (parse blomgren) of
+    Right abcTune -> do
+      renderer <- initialiseCanvas defaultConfig
+      renderFinalTune defaultConfig renderer abcTune
+    _ ->
+      pure false

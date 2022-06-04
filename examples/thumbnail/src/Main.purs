@@ -9,7 +9,7 @@ import VexFlow.Score (renderThumbnail, initialiseCanvas)
 import VexFlow.Types (Config, defaultConfig)
 
 canvasWidth :: Int
-canvasWidth = 1000
+canvasWidth = 500
 
 canvasHeight :: Int
 canvasHeight = 200
@@ -24,12 +24,9 @@ config = defaultConfig
 
 main :: Effect Boolean
 main =
-  let
-    eAbcTune = parse ewa
-  in
-    case eAbcTune of
-      Right abcTune -> do
-        renderer <- initialiseCanvas config
-        renderThumbnail config renderer abcTune 
-      _ ->
-        pure false
+  case (parse ewa) of
+    Right abcTune -> do
+      renderer <- initialiseCanvas config
+      renderThumbnail config renderer abcTune 
+    _ ->
+      pure false

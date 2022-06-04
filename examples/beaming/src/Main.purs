@@ -53,14 +53,11 @@ abcContext (Tuple numerator denominator ) keySignature staveNo =
 
 displayAtStave :: Renderer -> String -> Int -> Effect Boolean
 displayAtStave renderer text staveNo =
-  let
-    eAbcTune = parse text
-  in
-    case eAbcTune of
-      Right abcTune -> do
-        renderTuneAtStave staveNo config renderer abcTune
-      _ ->
-        pure false
+  case (parse text) of
+    Right abcTune -> do
+      renderTuneAtStave staveNo config renderer abcTune
+    _ ->
+      pure false
 
 main :: Effect Unit
 main = do
