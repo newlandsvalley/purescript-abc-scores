@@ -23,7 +23,7 @@ import Control.Monad.Except.Trans
 import Control.Monad.State (State, evalStateT, execStateT, get, put)
 import Data.Abc (Bar, BarLine, BodyPart(..), Music, NoteDuration)
 import Data.Abc.Metadata (isEmptyStave)
-import Data.Array ((..), fromFoldable, zip)
+import Data.Array ((..), catMaybes, fromFoldable, zip)
 import Data.Array (length) as Array
 import Data.Either (Either, either)
 import Data.Foldable (foldM, foldl)
@@ -44,7 +44,7 @@ import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarW
 import VexFlow.Abc.Translate (headerChange, music) as Trans
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext, isEmptyMusicSpec)
 import VexFlow.Abc.Volta (startVolta, isMidVolta)
-import VexFlow.Types (AbcContext, BarSpec, BeatMarker, LineThickness(..), MusicSpec(..), StaveSpec, staveIndentation)
+import VexFlow.Types (AbcContext, BarSpec, BeatMarker, LineThickness(..), MusicSpec(..), StaveSpec, VexScore, staveIndentation)
 
 type Translation a = ExceptT String (State AbcContext) a
 
@@ -52,7 +52,7 @@ runBodyPart :: AbcContext -> BodyPart -> Either String (Maybe StaveSpec)
 runBodyPart abcContext bp =
   unwrap $ evalStateT (runExceptT $ bodyPart bp) abcContext
 
-runTuneBody :: AbcContext -> List BodyPart -> Either String (Array (Maybe StaveSpec))
+runTuneBody :: AbcContext -> List BodyPart -> VexScore
 runTuneBody abcContext bps =
   unwrap $ evalStateT (runExceptT $ tuneBody bps) abcContext
 
@@ -68,9 +68,12 @@ zipBars bs =
   in
     zip intArray barArray
 
-tuneBody :: List BodyPart -> Translation (Array (Maybe StaveSpec))
-tuneBody bodyParts =
-  traverse bodyPart $ toUnfoldable bodyParts
+tuneBody :: List BodyPart -> Translation (Array StaveSpec)
+tuneBody bodyParts = do
+  -- we have an array of Maybes because some body parts of ABC are effectively empty
+  mStaveSpecs <- traverse bodyPart $ toUnfoldable bodyParts
+  -- so filter just the lines where there is something
+  pure (catMaybes mStaveSpecs)
 
 bodyPart :: BodyPart -> Translation (Maybe StaveSpec)
 bodyPart bp =

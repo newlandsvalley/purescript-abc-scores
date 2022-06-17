@@ -21,10 +21,10 @@ module VexFlow.Abc.Alignment
 -- | the canvas.
 
 import Control.Monad.State (State, evalStateT, get, put)
-import Data.Array (filter, length, singleton, takeWhile)
+import Data.Array (length, singleton, takeWhile)
 import Data.Foldable (foldl, foldM)
 import Data.Int (floor, toNumber)
-import Data.Maybe (Maybe(..), isJust)
+import Data.Maybe (Maybe(..))
 import Data.Either (Either(..), either)
 import Data.Newtype (unwrap)
 import Prelude (bind, map, max, mempty, min, pure, ($), (*), (+), (-), (/), (<>), (>=), (/=))
@@ -70,51 +70,42 @@ justifiedScoreConfig score config =
 -- |
 -- | If the widest stave is wider than the maximum stave width (and hence
 -- | truncated) then align to this maximum width.
-alignStaves :: Int -> Number -> Array (Maybe StaveSpec) -> Array (Maybe StaveSpec)
+alignStaves :: Int -> Number -> Array StaveSpec -> Array StaveSpec
 alignStaves maxCanvasWidth scale staves =
   let
     newStaves = map removeStaveExtension staves
     maxWidth = maxStaveWidth maxCanvasWidth scale
     alignmentWidth = alignmentStaveWidth maxWidth newStaves
-    mapf (Just staveSpec) =
+    mapf staveSpec =
       let
         maybeFactor = incrementFactor alignmentWidth staveSpec.staveWidth
       in
         case maybeFactor of
           Just n ->
-            Just $ growStaveSpec n staveSpec
+            growStaveSpec n staveSpec
           _ ->
-            Just staveSpec
-    mapf _ = Nothing
+            staveSpec
   in
     map mapf newStaves
 
 -- | remove the empty stave bar extension that may occur at the end of a stave
-removeStaveExtension :: Maybe StaveSpec -> Maybe StaveSpec
-removeStaveExtension mss =
-  case mss of
-    Nothing ->
-      Nothing
-    Just ss ->
-      -- drop the last bar if it has no end line marker
-      let
-        barSpecs = takeWhile (\bs -> bs.endLineThickness /= NoLine) ss.barSpecs
-      in
-        Just $ ss { barSpecs = barSpecs }
+removeStaveExtension :: StaveSpec -> StaveSpec
+removeStaveExtension ss =
+  -- drop the last bar if it has no end line marker
+  let
+    barSpecs = takeWhile (\bs -> bs.endLineThickness /= NoLine) ss.barSpecs
+  in
+    ss { barSpecs = barSpecs }
 
 -- | find the widest stave
 -- | (if any stave is greater than the maximum width then this max is taken as the
 -- | maximum)
-alignmentStaveWidth :: Int -> Array (Maybe StaveSpec) -> Int
+alignmentStaveWidth :: Int -> Array StaveSpec -> Int
 alignmentStaveWidth maxWidth mss =
   let
-    staveWidthf :: Int -> Maybe StaveSpec -> Int
-    staveWidthf acc mNext =
-      case mNext of
-        Nothing ->
-          acc
-        Just staveSpec ->
-          min maxWidth (max acc staveSpec.staveWidth)
+    staveWidthf :: Int -> StaveSpec -> Int
+    staveWidthf acc staveSpec =
+      min maxWidth (max acc staveSpec.staveWidth)
   in
     foldl staveWidthf 0 mss
 
@@ -170,7 +161,7 @@ maxStaveWidth canvasWidth scale =
   floor $ (toNumber canvasWidth) / scale
 
 -- | the canvas width that contains the justified score
-justifiedScoreCanvasWidth :: Number -> Array (Maybe StaveSpec) -> Int
+justifiedScoreCanvasWidth :: Number -> Array StaveSpec -> Int
 justifiedScoreCanvasWidth scale staves =
   let
     staveWidth = (alignmentStaveWidth 10000 staves) + (2 * staveIndentation)
@@ -178,10 +169,10 @@ justifiedScoreCanvasWidth scale staves =
     floor $ (toNumber staveWidth) * scale
 
 -- | the canvas height that contains the justified score
-justifiedScoreCanvasHeight :: Number -> Boolean -> Array (Maybe StaveSpec) -> Int
+justifiedScoreCanvasHeight :: Number -> Boolean -> Array StaveSpec -> Int
 justifiedScoreCanvasHeight scale titled staves =
   let
-    staveCount = length $ filter (isJust) staves
+    staveCount = length staves
     -- we'll assume if we have just one stave, then it's a thumbnail
     -- and we want to minimise the dimensions
     marginBottom =

@@ -68,7 +68,7 @@ firstBarOfScore vexScore =
   case vexScore of
     Right staveSpecs ->
       case (head staveSpecs) of
-        Just (Just staveSpec) ->
+        Just staveSpec ->
           head staveSpec.barSpecs
         _ ->
           Nothing

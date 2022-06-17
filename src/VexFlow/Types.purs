@@ -31,7 +31,7 @@ staveSeparation = 110
 titleDepth :: Int
 titleDepth = 48
 
-type VexScore = Either String (Array (Maybe StaveSpec))
+type VexScore = Either String (Array StaveSpec)
 
 -- | the configuration of the VexFlow Backend (SVG is preferred, or Canvas)
 type Config =

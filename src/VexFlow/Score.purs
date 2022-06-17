@@ -176,14 +176,9 @@ renderTitledScore config renderer title eStaveSpecs =
       _ <- log ("error in producing score: " <> err)
       pure false
 
-displayStaveSpec :: Renderer -> Boolean -> Maybe StaveSpec -> Effect Unit
-displayStaveSpec renderer isTitled mStaveSpec =
-  case mStaveSpec of
-    (Just staveSpec) ->
-      traverse_ (displayBarSpec renderer staveSpec isTitled) staveSpec.barSpecs
-    _ ->
-      -- the body part is merely a header - no display needed
-      pure unit
+displayStaveSpec :: Renderer -> Boolean -> StaveSpec -> Effect Unit
+displayStaveSpec renderer isTitled staveSpec =
+  traverse_ (displayBarSpec renderer staveSpec isTitled) staveSpec.barSpecs
 
 -- | display a single bar from the (translated) BarSpec
 displayBarSpec :: Renderer -> StaveSpec -> Boolean -> BarSpec -> Effect Unit
