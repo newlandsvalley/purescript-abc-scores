@@ -7,6 +7,7 @@
   * Support chord symbols
   * Support the full variety of variant endings
   * Support different clefs
+  * change return type of rendering functions to Maybe RenderingError  
   * (replace test-unit with spec)
 
 ## v0.5.5 (2021-02-21)
