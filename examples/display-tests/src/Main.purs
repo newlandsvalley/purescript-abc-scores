@@ -14,7 +14,7 @@ import Prelude (Unit, bind, pure, unit, ($), (/))
 import VexFlow.Abc.Beat (beatDuration)
 import VexFlow.Abc.ContextChange (Clef(..))
 import VexFlow.Score (Renderer, initialiseCanvas, renderTuneAtStave, renderText)
-import VexFlow.Types (Config, AbcContext, defaultConfig, staveIndentation)
+import VexFlow.Types (Config, AbcContext, RenderingError, defaultConfig, staveIndentation)
 
 canvasWidth :: Int
 canvasWidth = 1200
@@ -50,13 +50,13 @@ abcContext (Tuple numerator denominator ) keySignature staveNo =
 
 -- | we give each test it's own stave.
 
-displayAtStave :: Renderer -> String -> Int -> Effect Boolean
+displayAtStave :: Renderer -> String -> Int -> Effect (Maybe RenderingError)
 displayAtStave renderer text staveNo =
   case (parse text) of
     Right abcTune -> do
       renderTuneAtStave staveNo config renderer abcTune
     _ ->
-      pure false
+      pure $ Just "ABC failed to parse"
 
 main :: Effect Unit
 main = do

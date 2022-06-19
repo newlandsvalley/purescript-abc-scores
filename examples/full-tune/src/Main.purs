@@ -1,11 +1,11 @@
 module Examples.FullTune.Main where
 
-import Prelude (bind, pure)
-import Effect (Effect)
+import Prelude (($), bind, pure)
+import Data.Maybe (Maybe(..))
 import Data.Either (Either(..))
+import Effect (Effect)
 import VexFlow.Score (renderFinalTune, initialiseCanvas)
-import VexFlow.Types (Config, defaultConfig)
-import VexFlow.Abc.Utils (canvasHeight)
+import VexFlow.Types (Config, RenderingError, defaultConfig)
 import Data.Abc.Parser (parse)
 import Data.Abc (AbcTune)
 import Examples.FullTune.Texts (augustsson, cig, ewa, fastan, smalandPolska,
@@ -20,7 +20,7 @@ config =
     , showChordSymbols = true 
     }
 
-main :: Effect Boolean
+main :: Effect (Maybe RenderingError)
 main =
   -- parse voltaContinuationSample
   -- parse augustsson
@@ -32,4 +32,4 @@ main =
       -}
       renderFinalTune config renderer abcTune
     _ ->
-      pure false
+      pure $ Just "ABC failed to parse"

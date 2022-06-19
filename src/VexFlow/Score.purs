@@ -29,8 +29,7 @@ import Data.String (length) as String
 import Data.Traversable (traverse_)
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
-import Effect.Console (log)
-import Prelude ((<>), (*), (==), (/=), (&&), ($), (+), Unit, bind, discard, div, identity, not, pure, show, unit, when)
+import Prelude ((<>), (*), (==), (/=), (&&), ($), (+), (>), Unit, bind, discard, div, identity, not, pure, show, unit, when)
 import VexFlow.Abc.Alignment (centeredTitleXPos, justifiedScoreConfig)
 import VexFlow.Abc.Alignment (rightJustify) as Exports
 import VexFlow.Abc.ContextChange (ContextChange(..))
@@ -39,7 +38,7 @@ import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Abc.Utils (initialAbcContext)
 import VexFlow.Abc.Volta (VexVolta)
-import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..), MusicSpec(..), MusicSpecContents, StaveConfig, StaveSpec, Tempo, TimeSignature, VexScore, scoreMarginBottom, staveSeparation, titleDepth)
+import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..), MusicSpec(..), MusicSpecContents, RenderingError, StaveConfig, StaveSpec, Tempo, TimeSignature, VexScore, scoreMarginBottom, staveSeparation, titleDepth)
 
 -- | the Vex renderer
 foreign import data Renderer :: Type
@@ -67,7 +66,7 @@ newStave staveCnfg clefString ks =
 
 -- | render the ABC tune, possibly titled (if indicated by the config), 
 -- | but unjustified and with an expansive canvas
-renderTune :: Config -> Renderer -> AbcTune -> Effect Boolean
+renderTune :: Config -> Renderer -> AbcTune -> Effect (Maybe RenderingError)
 renderTune config renderer abcTune =
   if (config.titled) then
     let
@@ -80,7 +79,7 @@ renderTune config renderer abcTune =
 -- | render the final ABC tune, possibly titled( if indicated by the config)
 -- | and with the staves aligned at the right hand side.
 -- | There is no change to the canvas dimensions themselves
-renderRightAlignedTune :: Config -> Renderer -> AbcTune -> Effect Boolean
+renderRightAlignedTune :: Config -> Renderer -> AbcTune -> Effect (Maybe RenderingError)
 renderRightAlignedTune config renderer abcTune =
   let
     unjustifiedScore = createScore config abcTune
@@ -92,7 +91,7 @@ renderRightAlignedTune config renderer abcTune =
 
 -- | render the final ABC tune, possibly titled( if indicated by the config),
 -- | justified and with canvas clipped to tune size
-renderFinalTune :: Config -> Renderer -> AbcTune -> Effect Boolean
+renderFinalTune :: Config -> Renderer -> AbcTune -> Effect (Maybe RenderingError)
 renderFinalTune config renderer abcTune =
   let
     unjustifiedScore = createScore config abcTune
@@ -100,14 +99,17 @@ renderFinalTune config renderer abcTune =
     config' = justifiedScoreConfig score config
     title = maybe "Untitled" identity $ getTitle abcTune
   in
-    do
+    -- don't render if the tune width exceded the requested canvas width
+    if (config'.width > config.width) then 
+      pure $ Just "Canvas width exceded"
+    else do
       _ <- resizeCanvas renderer config'
       if (config'.titled) then renderTitledScore config' renderer title score
       else renderUntitledScore renderer score
 
 -- | render a thumbnail of the first few bars of the tune with the canvas 
 -- | clipped to the thumbnail boundary.
-renderThumbnail :: Config -> Renderer -> AbcTune -> Effect Boolean
+renderThumbnail :: Config -> Renderer -> AbcTune -> Effect (Maybe RenderingError)
 renderThumbnail config renderer abcTune =
   let
     unjustifiedScore = createScore config (thumbnail abcTune)
@@ -121,7 +123,7 @@ renderThumbnail config renderer abcTune =
 
 -- | render the tune but at the required stave number
 -- | useful for examples
-renderTuneAtStave :: Int -> Config -> Renderer -> AbcTune -> Effect Boolean
+renderTuneAtStave :: Int -> Config -> Renderer -> AbcTune -> Effect (Maybe RenderingError)
 renderTuneAtStave staveNo config renderer abcTune =
   renderUntitledScore renderer $ createScoreAtStave staveNo config abcTune
 
@@ -147,19 +149,18 @@ createScoreAtStave staveNo config abcTune =
 
 -- | @deprecated in favour of renderTune, renderFinalTune or renderThumbnail
 -- | render the untitled Vex Score to the HTML score div
-renderUntitledScore :: Renderer -> VexScore -> Effect Boolean
+renderUntitledScore :: Renderer -> VexScore -> Effect (Maybe RenderingError)
 renderUntitledScore renderer eStaveSpecs =
   case eStaveSpecs of
     Right staveSpecs -> do
       _ <- traverse_ (displayStaveSpec renderer false) staveSpecs
-      pure true
-    Left err -> do
-      _ <- log ("error in producing score: " <> err)
-      pure false
+      pure Nothing
+    Left err -> 
+      pure $ Just ("error in producing score: " <> err)
 
 -- | @deprecated in favour of renderTune, renderFinalTune or renderThumbnail
 -- | render the Vex Score to the HTML score div
-renderTitledScore :: Config -> Renderer -> String -> VexScore -> Effect Boolean
+renderTitledScore :: Config -> Renderer -> String -> VexScore -> Effect (Maybe RenderingError)
 renderTitledScore config renderer title eStaveSpecs =
   case eStaveSpecs of
     Right staveSpecs -> do
@@ -171,10 +172,9 @@ renderTitledScore config renderer title eStaveSpecs =
         xPos = centeredTitleXPos config (String.length title)
       _ <- renderTuneTitle renderer title xPos yPos
       _ <- traverse_ (displayStaveSpec renderer true) staveSpecs
-      pure true
-    Left err -> do
-      _ <- log ("error in producing score: " <> err)
-      pure false
+      pure Nothing
+    Left err -> 
+      pure $ Just ("error in producing score: " <> err)
 
 displayStaveSpec :: Renderer -> Boolean -> StaveSpec -> Effect Unit
 displayStaveSpec renderer isTitled staveSpec =

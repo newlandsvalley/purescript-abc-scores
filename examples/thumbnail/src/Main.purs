@@ -2,11 +2,12 @@ module Examples.Thumbnail.Main where
 
 import Data.Abc.Parser (parse)
 import Data.Either (Either(..))
+import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Examples.Thumbnail.Texts (augustsson, cig, ewa, fastan, smalandPolska, gustavPersson, voltaContinuationSample, keyChangeSample, meterChangeSample, continuationSample, emptyBarSample)
-import Prelude (bind, pure)
+import Prelude (bind, pure, ($))
 import VexFlow.Score (renderThumbnail, initialiseCanvas)
-import VexFlow.Types (Config, defaultConfig)
+import VexFlow.Types (Config, RenderingError, defaultConfig)
 
 canvasWidth :: Int
 canvasWidth = 500
@@ -22,11 +23,11 @@ config = defaultConfig
   , titled = false 
   }
 
-main :: Effect Boolean
+main :: Effect (Maybe RenderingError)
 main =
   case (parse ewa) of
     Right abcTune -> do
       renderer <- initialiseCanvas config
       renderThumbnail config renderer abcTune 
     _ ->
-      pure false
+      pure $ Just "ABC failed to parse"

@@ -6,7 +6,6 @@ You can edit this file as you like.
 , dependencies =
   [ "abc-parser"
   , "arrays"
-  , "console"
   , "effect"
   , "either"
   , "foldable-traversable"

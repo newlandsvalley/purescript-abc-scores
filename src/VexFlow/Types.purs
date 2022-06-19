@@ -10,6 +10,8 @@ import VexFlow.Abc.Slur (SlurBracket, VexCurve)
 import VexFlow.Abc.TickableContext (TickableContext)
 import VexFlow.Abc.Volta (VexVolta)
 
+type RenderingError = String
+
 type BeatNumber = Int
 
 -- | the indentation of the stave from the left margin
