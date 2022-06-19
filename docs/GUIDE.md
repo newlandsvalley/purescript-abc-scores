@@ -46,6 +46,7 @@ dependencies =
   , "console"
   , "effect"
   , "either"
+  , "maybe"
   , "prelude"
   ]
 ```
@@ -55,28 +56,29 @@ dependencies =
 ```purs
 module Example.Main where
 
-import Prelude (bind, pure)
+import Prelude
 import Effect (Effect)
+import Data.Maybe (Maybe(..))
 import Data.Either (Either(..))
 import VexFlow.Score (renderFinalTune, initialiseCanvas)
-import VexFlow.Types (defaultConfig)
+import VexFlow.Types (defaultConfig, RenderingError)
 import Data.Abc.Parser (parse)
 
-main :: Effect Boolean
+main :: Effect (Maybe RenderingError)
 main =
   case (parse tuneText) of
     Right abcTune -> do
       renderer <- initialiseCanvas defaultConfig
       renderFinalTune defaultConfig renderer abcTune
     _ ->
-      pure false
+      pure $ Just "ABC failed to parse"
 
 -- | the tune in ABC notation
 tuneText :: String 
 tuneText = ....
 ```
 
-```renderFinalTune``` ignores the width and height settings of the configuration and instead displays the tune with staves justified and the canvas clipped to the dimensions of the score so as not to lose any real estate.  If the tune has a title (which it should) then it is displayed above the score.
+```renderFinalTune``` ignores the width and height settings of the configuration and instead, if the rendered tune fits within the configuration dimensions, displays the tune with staves justified and the canvas clipped to the dimensions of the score so as not to lose any real estate.  If the tune has a title (which it should) then it is displayed above the score.  If the rendered tune does not fit, an error is returned.
 
 ## Display an Unfinished score
 
@@ -85,11 +87,12 @@ You may use ```purescript-scores``` in an editor application where the score is 
 ```purs
 module Example.Main where
 
-import Prelude (bind, pure)
+import Prelude
 import Effect (Effect)
+import Data.Maybe (Maybe(..))
 import Data.Either (Either(..))
 import VexFlow.Score (renderTune, initialiseCanvas)
-import VexFlow.Types (Config, defaultConfig)
+import VexFlow.Types (Config, defaultConfig, RenderingError)
 import Data.Abc.Parser (parse)
 import Data.Abc (AbcTune)
 
@@ -100,14 +103,14 @@ config =
     , showChordSymbols = true 
     }
 
-main :: Effect Boolean
+main :: Effect (Maybe RenderingError)
 main =
   case (parse tuneText) of
     Right abcTune -> do
       renderer <- initialiseCanvas config
       renderTune config renderer abcTune
     _ ->
-      pure false
+      pure $ Just "ABC failed to parse"
       
 -- | the tune in ABC notation
 tuneText :: String 
@@ -123,11 +126,12 @@ A ```thumbnail``` is a picture of the introductory bars of a tune:
 module Example.Main where
 
 import Data.Abc.Parser (parse)
+import Data.Maybe (Maybe(..))
 import Data.Either (Either(..))
 import Effect (Effect)
-import Prelude (bind, pure)
+import Prelude
 import VexFlow.Score (renderThumbnail, initialiseCanvas)
-import VexFlow.Types (Config, defaultConfig)
+import VexFlow.Types (Config, defaultConfig, RenderingError)
 
 config :: Config
 config = defaultConfig 
@@ -137,14 +141,14 @@ config = defaultConfig
   , titled = false 
   }
 
-main :: Effect Boolean
+main :: Effect (Maybe RenderingError)
 main =
   case (parse tuneText) of
     Right abcTune -> do
       renderer <- initialiseCanvas config
       renderThumbnail config renderer abcTune 
     _ ->
-      pure false
+      pure $ Just "ABC failed to parse"
 
 -- | the tune in ABC notation
 tuneText :: String 
