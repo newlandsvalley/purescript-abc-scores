@@ -1,14 +1,12 @@
 "use strict";
 
-/* const exports = require("webpack"); */
-
 var wrapper = function() {
 
+  // In a web application, we must import the vexflow JS before the transpiled PS.
+  // However, in the tests, we don't have this luxury.  VF is initialised in this 
+  // roundabout way to allow the tests to run (which do not make any JS calls but
+  // require it to be valid)
   var VF = null;
-  /*
-  var renderer = null;
-  var context = null;
-  */
 
   return {
 
