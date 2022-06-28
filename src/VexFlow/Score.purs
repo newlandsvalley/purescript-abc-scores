@@ -9,6 +9,8 @@ module VexFlow.Score
   , renderFinalTune
   , renderRightAlignedTune
   , renderThumbnail
+  , staveConfig
+  , newStave
   , renderTuneAtStave
   , initialiseCanvas
   , resizeCanvas
