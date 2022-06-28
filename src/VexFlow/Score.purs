@@ -1,26 +1,20 @@
 module VexFlow.Score
-  ( Renderer
-  , Stave
-  , createScore
+  ( createScore
   , renderUntitledScore
-  , renderText
   , renderTitledScore
   , renderTune
   , renderFinalTune
   , renderRightAlignedTune
   , renderThumbnail
   , staveConfig
-  , newStave
   , renderTuneAtStave
-  , initialiseCanvas
-  , resizeCanvas
-  , clearCanvas
   , setCanvasDepthToTune
   , setCanvasDimensionsToScore
   , module Exports
+  , module API
   ) where
 
-import Data.Abc (AbcTune, BarLine, BodyPart(..), KeySignature)
+import Data.Abc (AbcTune, BarLine, BodyPart(..))
 import Data.Abc.Metadata (getTitle, isEmptyStave, thumbnail)
 import Data.Array (null)
 import Data.Either (Either(..))
@@ -35,18 +29,15 @@ import Prelude ((<>), (*), (==), (/=), (&&), ($), (+), (>), Unit, bind, discard,
 import VexFlow.Abc.Alignment (centeredTitleXPos, justifiedScoreConfig)
 import VexFlow.Abc.Alignment (rightJustify) as Exports
 import VexFlow.Abc.ContextChange (ContextChange(..))
-import VexFlow.Abc.Slur (VexCurves)
 import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Abc.Utils (initialAbcContext)
 import VexFlow.Abc.Volta (VexVolta)
-import VexFlow.Types (BarSpec, BeamSpec, Config, LineThickness(..), MusicSpec(..), MusicSpecContents, RenderingError, StaveConfig, StaveSpec, Tempo, TimeSignature, VexScore, scoreMarginBottom, staveSeparation, titleDepth)
+import VexFlow.ApiBindings
+import VexFlow.ApiBindings (Renderer, Stave, clearCanvas, initialiseCanvas, renderText, renderTuneTitle, resizeCanvas) as API
+import VexFlow.Types (BarSpec, Config, LineThickness(..), MusicSpec(..), RenderingError, StaveConfig, StaveSpec, VexScore, scoreMarginBottom, staveSeparation, titleDepth)
 
--- | the Vex renderer
-foreign import data Renderer :: Type
--- | a stave
-foreign import data Stave :: Type
-
+-- | configure a new stave at appropriate coordinates and with appropriate furnishings
 staveConfig :: Int -> Boolean -> BarSpec -> StaveConfig
 staveConfig staveNo isTitled barSpec =
   let
@@ -61,10 +52,6 @@ staveConfig staveNo isTitled barSpec =
     , hasRightBar: (barSpec.endLineThickness /= NoLine)
     , hasDoubleRightBar: (barSpec.endLineThickness == Double)
     }
-
-newStave :: StaveConfig -> String -> KeySignature -> Effect Stave
-newStave staveCnfg clefString ks =
-  newStaveImpl staveCnfg clefString (Translate.keySignature ks)
 
 -- | render the ABC tune, possibly titled (if indicated by the config), 
 -- | but unjustified and with an expansive canvas
@@ -262,11 +249,6 @@ displayContextChange staveBar contextChange =
       -- because voice headers cannot appear inline
       pure unit
 
--- | Add the tempo signature to the score is there is one
-addTempoMarking :: Stave -> Maybe Tempo -> Effect Unit
-addTempoMarking stave mTempo =
-  maybe (pure unit) (addTempoMarkingImpl stave) mTempo
-
 -- | set the canvas depth used by the renderer to an appropriate amount 
 -- | governed by the number of (non-empty) score lines in the tune
 setCanvasDepthToTune :: AbcTune -> Config -> Renderer -> Effect Renderer
@@ -290,38 +272,4 @@ setCanvasDimensionsToScore score config renderer =
   in
     resizeCanvas renderer justifiedConfig
 
-renderTuneTitle :: Renderer -> String -> Int -> Int -> Effect Unit
-renderTuneTitle renderer title x y =
-  renderText renderer title " 25pt Arial" x y
 
--- | initialise VexFlow against the canvas where it renders
-foreign import initialiseCanvas :: Config -> Effect Renderer
--- | resize the canvas
--- | we return the renderer to give the illusion that it's not operating by side-effect
-foreign import resizeCanvas :: Renderer -> Config -> Effect Renderer
--- | clear the score from the canvas
-foreign import clearCanvas :: Renderer -> Effect Unit
--- | create a new stave bar
-foreign import newStaveImpl :: StaveConfig -> String -> String -> Effect Stave
--- | get the width of a stave
-foreign import getStaveWidth :: Stave -> Effect Int
--- | display text on the canvas, but bypassing the VexFlow API
-foreign import renderText :: Renderer -> String -> String -> Int -> Int -> Effect Unit
--- | display all the contents of the bar, using explicit beaming for the notes
-foreign import renderBarContents :: Renderer -> Stave -> Array BeamSpec -> VexCurves -> MusicSpecContents -> Effect Unit
--- | display the (filled) bar
-foreign import renderStave :: Renderer -> Stave -> Effect Unit
--- | dispay a bar begin repeat
-foreign import displayBarBeginRepeat :: Stave -> String -> Effect Unit
--- | dispay a bar begin repeat
-foreign import displayBarEndRepeat :: Stave -> Effect Unit
--- | dispay a bar begin-and-end repeat
-foreign import displayBarBothRepeat :: Stave -> Effect Unit
--- | display a Volta
-foreign import displayVolta :: Stave -> VexVolta -> Effect Unit
--- | add the time signature
-foreign import addTimeSignature :: Stave -> TimeSignature -> Effect Unit
--- | add the key signature
-foreign import addKeySignature :: Stave -> String -> Effect Unit
--- | add the tempo signature
-foreign import addTempoMarkingImpl :: Stave -> Tempo -> Effect Unit
