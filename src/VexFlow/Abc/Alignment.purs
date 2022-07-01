@@ -2,6 +2,7 @@ module VexFlow.Abc.Alignment
   ( centeredTitleXPos
   , justifiedScoreConfig
   , rightJustify
+  , removeStaveExtensions
   ) where
 
 -- | align the staves on the right hand side
@@ -73,7 +74,7 @@ justifiedScoreConfig score config =
 alignStaves :: Int -> Number -> Array StaveSpec -> Array StaveSpec
 alignStaves maxCanvasWidth scale staves =
   let
-    newStaves = map removeStaveExtension staves
+    newStaves = removeStaveExtensions staves
     maxWidth = maxStaveWidth maxCanvasWidth scale
     alignmentWidth = alignmentStaveWidth maxWidth newStaves
     mapf staveSpec =
@@ -87,6 +88,11 @@ alignStaves maxCanvasWidth scale staves =
             staveSpec
   in
     map mapf newStaves
+
+-- | remove the stave extension bar from every bar in the score
+removeStaveExtensions :: Array StaveSpec -> Array StaveSpec
+removeStaveExtensions staves =   
+  map removeStaveExtension staves
 
 -- | remove the empty stave bar extension that may occur at the end of a stave
 removeStaveExtension :: StaveSpec -> StaveSpec
