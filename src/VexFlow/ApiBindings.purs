@@ -35,7 +35,6 @@ addTempoMarking stave mTempo =
   maybe (pure unit) (addTempoMarkingImpl stave) mTempo
 
 -- | display bar begin repeat markers
-
 processBarBeginRepeat :: Stave -> BarLine -> Effect Unit
 processBarBeginRepeat staveBar barLine =
   case barLine.startRepeats of
@@ -52,6 +51,7 @@ processBarEndRepeat staveBar isRepeat =
   when isRepeat do
     displayBarEndRepeat staveBar
 
+-- | display a Volta
 processVolta :: Stave -> Maybe VexVolta -> Effect Unit
 processVolta staveBar mVolta =
   case mVolta of
@@ -60,6 +60,7 @@ processVolta staveBar mVolta =
     _ ->
       pure unit
 
+-- display a context change (of meter or key)
 displayContextChange :: Stave -> ContextChange -> Effect Unit
 displayContextChange staveBar contextChange =
   case contextChange of
