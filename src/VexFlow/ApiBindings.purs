@@ -4,8 +4,10 @@ module VexFlow.ApiBindings where
 
 import Prelude
 
-import Data.Abc (KeySignature)
-import Data.Maybe (Maybe, maybe)
+import Data.Abc (BarLine, KeySignature)
+import Data.Maybe (Maybe(..), maybe)
+import Data.Tuple (Tuple(..))
+import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Translate (keySignature) as Translate
 import Effect (Effect)
 import VexFlow.Abc.Slur (VexCurves)
@@ -31,6 +33,48 @@ renderTuneTitle renderer title x y =
 addTempoMarking :: Stave -> Maybe Tempo -> Effect Unit
 addTempoMarking stave mTempo =
   maybe (pure unit) (addTempoMarkingImpl stave) mTempo
+
+-- | display bar begin repeat markers
+
+processBarBeginRepeat :: Stave -> BarLine -> Effect Unit
+processBarBeginRepeat staveBar barLine =
+  case barLine.startRepeats of
+    0 ->
+      pure unit
+    1 ->
+      displayBarBeginRepeat staveBar ""
+    n ->
+      displayBarBeginRepeat staveBar ("play " <> show (n + 1) <> " times")
+
+-- | display bar end repeat markers
+processBarEndRepeat :: Stave -> Boolean -> Effect Unit
+processBarEndRepeat staveBar isRepeat =
+  when isRepeat do
+    displayBarEndRepeat staveBar
+
+processVolta :: Stave -> Maybe VexVolta -> Effect Unit
+processVolta staveBar mVolta =
+  case mVolta of
+    Just volta ->
+      displayVolta staveBar volta
+    _ ->
+      pure unit
+
+displayContextChange :: Stave -> ContextChange -> Effect Unit
+displayContextChange staveBar contextChange =
+  case contextChange of
+    MeterChange (Tuple numerator denominator) ->
+      addTimeSignature staveBar { numerator, denominator }
+    KeyChange modifiedKeySignature ->
+      -- note - this is dropping the modifications
+      addKeySignature staveBar (Translate.keySignature modifiedKeySignature.keySignature)
+    UnitNoteChange _ ->
+      -- this has no immediate effect on the displayed stave
+      pure unit
+    ClefChange _clef ->
+      -- perhaps we need to display it immediately but I doubt it 
+      -- because voice headers cannot appear inline
+      pure unit
  
 
 -- | initialise VexFlow against the canvas where it renders

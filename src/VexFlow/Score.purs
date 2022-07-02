@@ -14,7 +14,7 @@ module VexFlow.Score
   , module API
   ) where
 
-import Data.Abc (AbcTune, BarLine, BodyPart(..))
+import Data.Abc (AbcTune, BodyPart(..))
 import Data.Abc.Metadata (getTitle, isEmptyStave, thumbnail)
 import Data.Array (null)
 import Data.Either (Either(..))
@@ -23,16 +23,12 @@ import Data.List (filter, length)
 import Data.Maybe (Maybe(..), maybe)
 import Data.String (length) as String
 import Data.Traversable (traverse_)
-import Data.Tuple (Tuple(..))
 import Effect (Effect)
-import Prelude ((<>), (*), (==), (/=), (&&), ($), (+), (>), Unit, bind, discard, div, identity, not, pure, show, unit, when)
+import Prelude ((<>), (*), (==), (/=), (&&), ($), (+), (>), Unit, bind, discard, div, identity, not, pure, when)
 import VexFlow.Abc.Alignment (centeredTitleXPos, justifiedScoreConfig)
 import VexFlow.Abc.Alignment (rightJustify) as Exports
-import VexFlow.Abc.ContextChange (ContextChange(..))
-import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Abc.Utils (initialAbcContext)
-import VexFlow.Abc.Volta (VexVolta)
 import VexFlow.ApiBindings
 import VexFlow.ApiBindings (Renderer, Stave, clearCanvas, initialiseCanvas, renderText, renderTuneTitle, resizeCanvas) as API
 import VexFlow.Types (BarSpec, Config, LineThickness(..), MusicSpec(..), RenderingError, StaveConfig, StaveSpec, VexScore, scoreMarginBottom, staveSeparation, titleDepth)
@@ -184,16 +180,12 @@ displayBarSpec renderer staveSpec isTitled barSpec =
 
       -- add a time signature to the first bar stave.  This only happens if it's
       -- stave 0 or if a BodyPart time sig header change has just occurred
-      if (barSpec.barNumber == 0) && (staveSpec.isNewTimeSignature) then
+      when ((barSpec.barNumber == 0) && (staveSpec.isNewTimeSignature)) do
         addTimeSignature staveBar barSpec.timeSignature
-      else
-        pure unit
 
       -- and add a tempo marking if one is present in the ABC
-      if (barSpec.barNumber == 0) && (staveSpec.staveNo == 0) then
+      when ((barSpec.barNumber == 0) && (staveSpec.staveNo == 0)) do
         addTempoMarking staveBar staveSpec.mTempo
-      else
-        pure unit
 
       _ <- processBarBeginRepeat staveBar barSpec.startLine
       _ <- processBarEndRepeat staveBar barSpec.endLineRepeat
@@ -203,51 +195,6 @@ displayBarSpec renderer staveSpec isTitled barSpec =
         renderBarContents renderer staveBar barSpec.beamSpecs barSpec.curves musicSpec
       renderStave renderer staveBar
 
--- renderChordSymbols renderer staveBarConfig musicSpec.chordSymbols
-
--- | display bar begin repeat markers
-
-processBarBeginRepeat :: Stave -> BarLine -> Effect Unit
-processBarBeginRepeat staveBar barLine =
-  case barLine.startRepeats of
-    0 ->
-      pure unit
-    1 ->
-      displayBarBeginRepeat staveBar ""
-    n ->
-      displayBarBeginRepeat staveBar ("play " <> show (n + 1) <> " times")
-
--- | display bar end repeat markers
-processBarEndRepeat :: Stave -> Boolean -> Effect Unit
-processBarEndRepeat staveBar isRepeat =
-  if isRepeat then
-    displayBarEndRepeat staveBar
-  else
-    pure unit
-
-processVolta :: Stave -> Maybe VexVolta -> Effect Unit
-processVolta staveBar mVolta =
-  case mVolta of
-    Just volta ->
-      displayVolta staveBar volta
-    _ ->
-      pure unit
-
-displayContextChange :: Stave -> ContextChange -> Effect Unit
-displayContextChange staveBar contextChange =
-  case contextChange of
-    MeterChange (Tuple numerator denominator) ->
-      addTimeSignature staveBar { numerator, denominator }
-    KeyChange modifiedKeySignature ->
-      -- note - this is dropping the modifications
-      addKeySignature staveBar (Translate.keySignature modifiedKeySignature.keySignature)
-    UnitNoteChange _ ->
-      -- this has no immediate effect on the displayed stave
-      pure unit
-    ClefChange _clef ->
-      -- perhaps we need to display it immediately but I doubt it 
-      -- because voice headers cannot appear inline
-      pure unit
 
 -- | set the canvas depth used by the renderer to an appropriate amount 
 -- | governed by the number of (non-empty) score lines in the tune
