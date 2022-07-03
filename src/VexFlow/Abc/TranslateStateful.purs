@@ -42,7 +42,7 @@ import VexFlow.Abc.Repetition (buildRepetition)
 import VexFlow.Abc.Slur (vexCurves)
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarWidth)
 import VexFlow.Abc.Translate (headerChange, music) as Trans
-import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext, isEmptyMusicSpec)
+import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext, isEmptyMusicSpec, isFullBar)
 import VexFlow.Abc.Volta (startVolta, isMidVolta)
 import VexFlow.Types (AbcContext, BarSpec, BeatMarker, LineThickness(..), MusicSpec(..), StaveSpec, VexScore, staveIndentation)
 
@@ -176,6 +176,7 @@ bar barNumber abcBar =
         , startLine: modifiedStartLine abcContext.pendingRepeatBegin abcBar.startLine
         , endLineThickness: Single -- not yet known
         , endLineRepeat: false -- not yet known
+        , isFull : isFullBar abcContext.timeSignature abcContext.unitNoteLength spec.tickableContext
         , volta: volta
         , timeSignature: abcContext.timeSignature
         , beamSpecs: calculateBeams
@@ -271,15 +272,3 @@ modifiedStartLine isPendingRepeatbegin barLine =
     barLine { startRepeats = 1 }
   else
     barLine
-
-{-
-lineThickness :: BarLine -> LineThickness
-lineThickness barLine =
-  case barLine.thickness of
-    Thin ->
-      Single
-    Invisible ->
-      NoLine
-    _ ->
-      Double
--}

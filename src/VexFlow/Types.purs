@@ -208,6 +208,7 @@ type BarSpec =
   , startLine :: BarLine -- the Left bar line (always present)
   , endLineThickness :: LineThickness -- right bar line type (default Single)?
   , endLineRepeat :: Boolean -- does it have an end repeat? important for end repeat markers
+  , isFull :: Boolean -- does it have a full complement of notes according to the time signature?
   , volta :: Maybe VexVolta
   , timeSignature :: TimeSignature
   , beamSpecs :: Array BeamSpec
