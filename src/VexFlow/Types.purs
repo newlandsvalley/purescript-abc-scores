@@ -186,6 +186,14 @@ data LineThickness
 
 derive instance eqLineThickness :: Eq LineThickness
 
+data BarFill
+  = Empty
+  | Partial
+  | Full
+  | OverFull
+
+derive instance eqBarFill :: Eq BarFill
+
 -- | we define MusicSpecContents separately from MusicSpec
 -- | because we need to pass it to JavaScript
 type MusicSpecContents =
@@ -208,7 +216,7 @@ type BarSpec =
   , startLine :: BarLine -- the Left bar line (always present)
   , endLineThickness :: LineThickness -- right bar line type (default Single)?
   , endLineRepeat :: Boolean -- does it have an end repeat? important for end repeat markers
-  , isFull :: Boolean -- does it have a full complement of notes according to the time signature?
+  , fill :: BarFill -- what sort of complement of notes according to the time signature?
   , volta :: Maybe VexVolta
   , timeSignature :: TimeSignature
   , beamSpecs :: Array BeamSpec

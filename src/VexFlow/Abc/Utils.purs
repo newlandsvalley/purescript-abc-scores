@@ -9,7 +9,7 @@ module VexFlow.Abc.Utils
   , updateAbcContext
   , nextStaveNo
   , isEmptyMusicSpec
-  , isFullBar
+  , getBarFill
   , canvasHeight
   ) where
 
@@ -39,11 +39,11 @@ import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Rational (fromInt, toNumber, numerator, denominator, (%))
 import Data.String.CodeUnits (fromCharArray)
 import Data.Tuple (Tuple(..))
-import Prelude (join, map, show, ($), (*), (+), (-), (/), (<>), (&&), (<<<), (==), identity)
+import Prelude (join, map, show, ($), (*), (+), (-), (/), (<>), (>), (&&), (<<<), (==), identity)
 import VexFlow.Abc.Beat (beatDuration)
 import VexFlow.Abc.ContextChange (ContextChange(..), Clef(..))
 import VexFlow.Abc.TickableContext (TickableContext(..))
-import VexFlow.Types (AbcContext, Config, MusicSpec(..), Tempo, TimeSignature, VexDuration, staveIndentation, staveSeparation, titleDepth)
+import VexFlow.Types (AbcContext, BarFill(..), Config, MusicSpec(..), Tempo, TimeSignature, VexDuration, staveIndentation, staveSeparation, titleDepth)
 
 -- | build a VexDuration
 vexDuration :: NoteDuration -> NoteDuration -> Either String VexDuration
@@ -286,16 +286,24 @@ getVoiceClef tune =
   in
     map f clefString
 
--- | Is the bar full according to the time signature
+-- | How full is the bar full according to the time signature
 -- | e.g. a signature of 9/8 required 9 eighth notes
--- | and requires a bar duration of (9 % 8)
-isFullBar :: TimeSignature -> NoteDuration  -> TickableContext -> Boolean
-isFullBar timeSignature unitNoteLength (TickableContext _ _ barNotesDuration) =
-  let 
-    barDuration = unitNoteLength * barNotesDuration
-    signatureDuration = timeSignature.numerator % timeSignature.denominator
-    -- _ = spy "bar duration" barDurationspy 
-    -- _ - spy "signature duration" signatureDuration
-  in
-    barDuration == signatureDuration
+-- | and so a full bar requires a total note duration of (9 % 8)
+getBarFill :: TimeSignature -> NoteDuration  -> TickableContext -> BarFill
+getBarFill timeSignature unitNoteLength (TickableContext _ _ barNotesDuration) =
+  if (barDuration == (fromInt 0))
+    then 
+      Empty 
+  else if (barDuration == signatureDuration)
+    then 
+      Full
+  else if (barDuration > signatureDuration)
+    then 
+      OverFull
+  else  
+    Partial
 
+  where
+
+  barDuration = unitNoteLength * barNotesDuration
+  signatureDuration = timeSignature.numerator % timeSignature.denominator
