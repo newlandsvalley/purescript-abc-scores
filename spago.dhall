@@ -17,6 +17,7 @@ You can edit this file as you like.
   , "prelude"
   , "profunctor-lenses"
   , "rationals"
+  , "safe-coerce"
   , "strings"
   , "stringutils"
   , "transformers"

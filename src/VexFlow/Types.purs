@@ -1,6 +1,7 @@
 module VexFlow.Types where
 
 import Data.Abc (BarLine, NoteDuration, KeySignature)
+import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Either (Either)
 import Data.Maybe (Maybe)
 import Prelude (class Eq, class Monoid, class Semigroup, mempty, (<>))
@@ -27,14 +28,14 @@ scoreMarginBottom = 15
 staveSeparation :: Int
 staveSeparation = 110
 
--- staveSeparation = 100
-
 -- | the depth of a title (when present)
 titleDepth :: Int
 titleDepth = 48
 
-type MonophonicScore = (Array StaveSpec)
+-- | a score of a simple monophonic tune
+type MonophonicScore = (NonEmptyArray StaveSpec)
 
+-- | a score which can fail to be produced
 type VexScore = Either String MonophonicScore
 
 -- | the configuration of the VexFlow Backend (SVG is preferred, or Canvas)

@@ -22,7 +22,8 @@ module VexFlow.Abc.Alignment
 -- | the canvas.
 
 import Control.Monad.State (State, evalStateT, get, put)
-import Data.Array (length, singleton, takeWhile)
+import Data.Array (singleton, takeWhile)
+import Data.Array.NonEmpty (length)
 import Data.Foldable (foldl, foldM)
 import Data.Int (floor, toNumber)
 import Data.Maybe (Maybe(..))
@@ -34,6 +35,7 @@ import VexFlow.Types
   ( BarSpec
   , Config
   , LineThickness(..)
+  , MonophonicScore
   , StaveSpec
   , VexScore
   , scoreMarginBottom
@@ -71,7 +73,7 @@ justifiedScoreConfig score config =
 -- |
 -- | If the widest stave is wider than the maximum stave width (and hence
 -- | truncated) then align to this maximum width.
-alignStaves :: Int -> Number -> Array StaveSpec -> Array StaveSpec
+alignStaves :: Int -> Number -> MonophonicScore -> MonophonicScore
 alignStaves maxCanvasWidth scale staves =
   let
     newStaves = removeStaveExtensions staves
@@ -90,7 +92,7 @@ alignStaves maxCanvasWidth scale staves =
     map mapf newStaves
 
 -- | remove the stave extension bar from every bar in the score
-removeStaveExtensions :: Array StaveSpec -> Array StaveSpec
+removeStaveExtensions :: MonophonicScore -> MonophonicScore
 removeStaveExtensions staves =   
   map removeStaveExtension staves
 
@@ -106,7 +108,7 @@ removeStaveExtension ss =
 -- | find the widest stave
 -- | (if any stave is greater than the maximum width then this max is taken as the
 -- | maximum)
-alignmentStaveWidth :: Int -> Array StaveSpec -> Int
+alignmentStaveWidth :: Int -> MonophonicScore -> Int
 alignmentStaveWidth maxWidth mss =
   let
     staveWidthf :: Int -> StaveSpec -> Int
@@ -167,7 +169,7 @@ maxStaveWidth canvasWidth scale =
   floor $ (toNumber canvasWidth) / scale
 
 -- | the canvas width that contains the justified score
-justifiedScoreCanvasWidth :: Number -> Array StaveSpec -> Int
+justifiedScoreCanvasWidth :: Number -> MonophonicScore -> Int
 justifiedScoreCanvasWidth scale staves =
   let
     staveWidth = (alignmentStaveWidth 10000 staves) + (2 * staveIndentation)
@@ -175,7 +177,7 @@ justifiedScoreCanvasWidth scale staves =
     floor $ (toNumber staveWidth) * scale
 
 -- | the canvas height that contains the justified score
-justifiedScoreCanvasHeight :: Number -> Boolean -> Array StaveSpec -> Int
+justifiedScoreCanvasHeight :: Number -> Boolean -> MonophonicScore -> Int
 justifiedScoreCanvasHeight scale titled staves =
   let
     staveCount = length staves

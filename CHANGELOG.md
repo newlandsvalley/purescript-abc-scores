@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.6.0 (2022-04-09)
+## v0.6.0 (2022-08-17)
 
   * Purescript 0.15.0
   * Support vexflow4
@@ -8,6 +8,7 @@
   * Support the full variety of variant endings
   * Support different clefs
   * change return type of rendering functions to Maybe RenderingError  
+  * redefine VexScore as a NonEmptyArray of Stave rather than an Array
   * (replace test-unit with spec)
 
 ## v0.5.5 (2021-02-21)

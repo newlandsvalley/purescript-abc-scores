@@ -5,6 +5,7 @@ import Test.Samples
 import Data.Abc (PitchClass(..))
 import Data.Abc.Parser (parse)
 import Data.Array (head)
+import Data.Array.NonEmpty (head) as NEA
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.Rational ((%))
@@ -67,11 +68,10 @@ firstBarOfScore :: VexScore -> Maybe BarSpec
 firstBarOfScore vexScore =
   case vexScore of
     Right staveSpecs ->
-      case (head staveSpecs) of
-        Just staveSpec ->
-          head staveSpec.barSpecs
-        _ ->
-          Nothing
+      let 
+        staveSpec = NEA.head staveSpecs
+      in
+        head staveSpec.barSpecs
     _ ->
       Nothing
 

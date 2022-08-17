@@ -8,15 +8,16 @@ module VexFlow.Abc.TranslateStateful
 -- The translation wrapped in a State Monad which is inside ExceptT.
 --
 -- We need to thread the AbcContext throughout the translation because
--- Any change in headers for time signature, key signature or unit note length
+-- any change in headers for time signature, key signature or unit note length
 -- will alter the state.
 --
--- We require ExceptT because the computation can fail in two ways:
---  \) We have a modified key signature (e.g. some Klezmer tunes) which is
+-- We require ExceptT because the computation can fail in three ways:
+--  1) We have a modified key signature (e.g. in some Klezmer tunes) which is
 --     currently not supported.
 --  2) We have an unsupportable note duration (given the unit note length
 --     and meter) because we can't represent it using the score's 'dotted'
 --     conventions.
+--  3) The ABC is effectively empty of notes
 
 import Control.Monad.Except.Trans
 
@@ -25,6 +26,7 @@ import Data.Abc (Bar, BarLine, BodyPart(..), Music, NoteDuration)
 import Data.Abc.Metadata (isEmptyStave)
 import Data.Array ((..), catMaybes, fromFoldable, zip)
 import Data.Array (length) as Array
+import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
 import Data.Either (Either, either)
 import Data.Foldable (foldM, foldl)
 import Data.List (List, toUnfoldable, length)
@@ -34,6 +36,7 @@ import Data.Traversable (traverse)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (fromMaybe) as U
 import Prelude (($), (<>), (+), (*), (==), (&&), bind, map, mempty, pure, show)
+import Safe.Coerce (coerce)
 import VexFlow.Abc.BarEnd (repositionBarEndRepeats, fillStaveLine, staveWidth, staveEndsWithRepeatBegin)
 import VexFlow.Abc.Beam (calculateBeams)
 import VexFlow.Abc.Beat (exactBeatNumber)
@@ -44,7 +47,7 @@ import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarW
 import VexFlow.Abc.Translate (headerChange, music) as Trans
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext, isEmptyMusicSpec, getBarFill)
 import VexFlow.Abc.Volta (startVolta, isMidVolta)
-import VexFlow.Types (AbcContext, BarSpec, BeatMarker, LineThickness(..), MusicSpec(..), StaveSpec, VexScore, staveIndentation)
+import VexFlow.Types (AbcContext, BarSpec, BeatMarker, LineThickness(..), MonophonicScore, MusicSpec(..), StaveSpec, VexScore, staveIndentation)
 
 type Translation a = ExceptT String (State AbcContext) a
 
@@ -68,12 +71,18 @@ zipBars bs =
   in
     zip intArray barArray
 
-tuneBody :: List BodyPart -> Translation (Array StaveSpec)
+tuneBody :: List BodyPart -> Translation MonophonicScore
 tuneBody bodyParts = do
   -- we have an array of Maybes because some body parts of ABC are effectively empty
   mStaveSpecs <- traverse bodyPart $ toUnfoldable bodyParts
   -- so filter just the lines where there is something
-  pure (catMaybes mStaveSpecs)
+  let 
+    score = catMaybes mStaveSpecs
+  -- fail if it's empty but coerce to a NonEmptyArray (a MonophonicScore) if not
+  case (Array.length score) of 
+    0 -> throwError "The score is empty"
+    _ -> pure $ (coerce :: Array StaveSpec -> MonophonicScore) score
+
 
 bodyPart :: BodyPart -> Translation (Maybe StaveSpec)
 bodyPart bp =
