@@ -26,7 +26,21 @@ import Prelude (class Monoid, class Semigroup, map, mempty, (*), (+), ($))
 -- | we ignore the duration of the grace notes that preface a real note
 -- | because in effect their duration is 'borrowed' from the actual note
 
--- | the number of pixels we designate to a tickable item on a stave
+-- | The number of pixels we designate to a tickable item on a stave.
+-- | This affects the horizontal separation of notes and is a matter of taste.
+-- | I like this look and feel. It (obviously) also affects the width of a bar.
+-- |
+-- | When we invoke VexFlow, we use the ```SOFT``` voice mode and we use the magic
+-- | ```softmaxFactor: 5``` in the formatter.  This has the effect of letting us determine
+-- | the bar width and the horizontal layout of notes within the bar and not VexFlow.
+-- | However, this would perhaps not be appropriate if we had wanted to produce multi-staves
+-- | with the correct vertical alignment of notes between the parts.  The alternative would 
+-- | be to use the ```Full``` voice mode and to let VexFlow calculate the bar contents width
+-- | and layout.
+-- |
+-- | This would then mean that VexFlow decides the horizontal note separation but the downside
+-- | is that there can then be wasted space at the right-hand side of each bar because we use 
+-- | our heuristic for the bar width when creating the actual bar stave.
 pixelsPerItem :: Number
 pixelsPerItem = 35.0
 
@@ -107,7 +121,7 @@ getRorNsGraceLength rOrNs =
 estimateBarWidth :: Boolean -> Boolean -> Maybe KeySignature -> Bar -> Int
 estimateBarWidth hasClef hasTimeSig maybeKeySig abcBar =
   let
-    (TickableContext noteCount graceCount _) = -- (_ is duration)
+    (TickableContext noteCount graceCount _duration) = 
 
       foldMap getTickableContext abcBar.music
     clefCount =

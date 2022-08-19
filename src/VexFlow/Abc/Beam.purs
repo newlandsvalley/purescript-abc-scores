@@ -84,7 +84,7 @@ calculateStandardBeams timeSignature noteSpecs beatMarkers typesettingSpaces =
 
 -- | the heart of the algorithm.
 -- | find the beamability of each note, split the bar into beats and fold
--- | over each beat.  Beaming will not normalle be used across beats (unless
+-- | over each beat.  Beaming will not normally be used across beats (unless
 -- | a tuplet might do so, being accommodated solely in the first beat of the two)
 beamFunc :: Array NoteSpec -> Array Int -> BeamAcc -> BeatMarker -> BeamAcc
 beamFunc noteSpecs typesettingSpaces acc beatMarker =
