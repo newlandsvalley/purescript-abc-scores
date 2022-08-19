@@ -2,13 +2,12 @@ module Examples.Clefs.Main where
 
 import Examples.Clefs.Texts
 
-import Data.Abc (KeySignature, MeterSignature)
+import Data.Abc (KeySignature, TimeSignature)
 import Data.Abc.Parser (parse)
 import Data.Either (Either(..))
 import Data.Int (round, toNumber)
 import Data.Maybe (Maybe(..))
 import Data.Rational ((%))
-import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Prelude (Unit, bind, pure, unit, ($), (/))
 import VexFlow.Abc.Beat (beatDuration)
@@ -30,9 +29,9 @@ config =
     , titled = false 
     }
 
-abcContext :: MeterSignature -> KeySignature -> Int -> AbcContext
-abcContext (Tuple numerator denominator) keySignature staveNo =
-  { timeSignature : { numerator, denominator }
+abcContext :: TimeSignature -> KeySignature -> Int -> AbcContext
+abcContext timeSignature keySignature staveNo =
+  { timeSignature
   , keySignature : keySignature
   , mTempo : Nothing
   , unitNoteLength : ( 1 % 16)
@@ -43,7 +42,7 @@ abcContext (Tuple numerator denominator) keySignature staveNo =
   , isNewTimeSignature : false
   , maxWidth : round $ (toNumber canvasWidth / config.scale)
   , pendingRepeatBegin: false
-  , beatDuration: beatDuration { numerator, denominator }
+  , beatDuration: beatDuration timeSignature
   , showChordSymbols: config.showChordSymbols
   }
 

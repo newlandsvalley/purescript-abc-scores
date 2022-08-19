@@ -3,7 +3,6 @@ module Test.Samples where
 import Prelude (($), (<>))
 import VexFlow.Types (AbcContext, staveIndentation)
 import Data.Abc
-import Data.Tuple (Tuple(..))
 import Data.Rational ((%), fromInt)
 import Data.Maybe (Maybe(..))
 import Data.Map (empty)
@@ -20,9 +19,9 @@ cMajor =
   , mode: Major
   }
 
-startAbcContext :: MeterSignature -> AbcContext
-startAbcContext (Tuple numerator denominator) =
-  { timeSignature: { numerator, denominator }
+startAbcContext :: TimeSignature -> AbcContext
+startAbcContext timeSignature =
+  { timeSignature
   , keySignature: cMajor
   , mTempo: Nothing
   , unitNoteLength: (1 % 16)
@@ -33,7 +32,7 @@ startAbcContext (Tuple numerator denominator) =
   , isNewTimeSignature: false
   , maxWidth: 1200
   , pendingRepeatBegin: false
-  , beatDuration: beatDuration { numerator, denominator }
+  , beatDuration: beatDuration timeSignature
   , showChordSymbols: false
   }
 
@@ -79,7 +78,7 @@ gMajorM =
 -- sample meter change (to 3/4)
 meterChange34 :: Music
 meterChange34 =
-  Inline $ Meter $ Just (Tuple 3 4)
+  Inline $ Meter $ Just { numerator: 3, denominator: 4 }
 
 -- sample key change (to G)
 keyChangeG :: Music

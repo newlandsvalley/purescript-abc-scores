@@ -10,8 +10,8 @@ module VexFlow.Abc.Beat (beatDuration, exactBeatNumber) where
 import Prelude ((/), ($), (==))
 import Data.Rational
 import Data.Maybe (Maybe(..))
-import VexFlow.Types (BeatMarker, TimeSignature)
-import Data.Abc (NoteDuration)
+import VexFlow.Types (BeatMarker)
+import Data.Abc (NoteDuration, TimeSignature)
 
 -- | work out the beat duration from the time signature
 -- | e.g.

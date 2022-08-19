@@ -4,6 +4,7 @@ import Test.Samples
 
 import Data.Abc (PitchClass(..))
 import Data.Abc.Parser (parse)
+import Data.Abc.Meter (commonTime)
 import Data.Array (head)
 import Data.Array.NonEmpty (head) as NEA
 import Data.Either (Either(..))
@@ -81,7 +82,7 @@ configThreadingSpec =
   describe "config threading" do
     it "handles meter change (4/4 to 3/4)" do
       let
-        initialContext = startAbcContext (Tuple 4 4)
+        initialContext = startAbcContext commonTime
         abcContext = meterChangeTo34 initialContext
       -- key change alters the time signature and beats per beam
       3 `shouldEqual` abcContext.timeSignature.numerator
@@ -89,14 +90,14 @@ configThreadingSpec =
       (Just 0) `shouldEqual` abcContext.staveNo
     it "handles key change (C to G)" do
       let
-        initialContext = startAbcContext (Tuple 4 4)
+        initialContext = startAbcContext commonTime
         abcContext = keyChangeToG initialContext
       -- key change alters the time signature and beats per beam
       G `shouldEqual` abcContext.keySignature.pitchClass
     -- this now depends on variable bar widths
     it "calculates width of 4 bars" do
       let
-        initialContext = startAbcContext (Tuple 4 4)
+        initialContext = startAbcContext commonTime
         abcContext = accumulateBarWidths initialContext
       -- key change alters the time signature and beats per beam
       465 `shouldEqual` abcContext.accumulatedStaveWidth

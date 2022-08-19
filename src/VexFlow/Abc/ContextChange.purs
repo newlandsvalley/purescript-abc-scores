@@ -6,7 +6,7 @@ module VexFlow.Abc.ContextChange where
 -- | the start of a bar, which is surely true for just about every
 -- | practical case
 
-import Data.Abc (ModifiedKeySignature, MeterSignature, NoteDuration)
+import Data.Abc (ModifiedKeySignature, TimeSignature, NoteDuration)
 import Prelude (class Eq, class Show)
 
 -- a clef 
@@ -25,7 +25,7 @@ instance showClef :: Show Clef where
 derive instance eqClef :: Eq Clef
 
 data ContextChange
-  = MeterChange MeterSignature
+  = MeterChange TimeSignature
   | KeyChange ModifiedKeySignature
   | UnitNoteChange NoteDuration
   | ClefChange Clef

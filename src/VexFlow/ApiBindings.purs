@@ -4,14 +4,13 @@ module VexFlow.ApiBindings where
 
 import Prelude
 
-import Data.Abc (BarLine, KeySignature)
+import Data.Abc (BarLine, KeySignature, TimeSignature)
 import Data.Maybe (Maybe(..), maybe)
-import Data.Tuple (Tuple(..))
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Translate (keySignature) as Translate
 import Effect (Effect)
 import VexFlow.Abc.Slur (VexCurves)
-import VexFlow.Types (BeamSpec, Config, MusicSpecContents, StaveConfig, Tempo, TimeSignature)
+import VexFlow.Types (BeamSpec, Config, MusicSpecContents, StaveConfig, Tempo)
 import VexFlow.Abc.Volta (VexVolta)
 
 -- | the Vex renderer
@@ -64,8 +63,8 @@ processVolta staveBar mVolta =
 displayContextChange :: Stave -> ContextChange -> Effect Unit
 displayContextChange staveBar contextChange =
   case contextChange of
-    MeterChange (Tuple numerator denominator) ->
-      addTimeSignature staveBar { numerator, denominator }
+    MeterChange timeSignature ->
+      addTimeSignature staveBar timeSignature
     KeyChange modifiedKeySignature ->
       -- note - this is dropping the modifications
       addKeySignature staveBar (Translate.keySignature modifiedKeySignature.keySignature)

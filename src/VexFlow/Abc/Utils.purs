@@ -21,9 +21,12 @@ import Data.Abc
   , ModifiedKeySignature
   , NoteDuration
   , TempoSignature
+  , TimeSignature
   )
+
 import Data.Abc.KeySignature (defaultKey)
-import Data.Abc.Metadata (dotFactor, getMeter, getKeySig, getTempoSig, getUnitNoteLength)
+import Data.Abc.Metadata (dotFactor, getKeySig, getTempoSig, getUnitNoteLength)
+import Data.Abc.Meter (getDefaultedMeter)
 import Data.Abc.Optics (_headers, _properties, _Voice)
 import Data.Array (null, replicate) as Array
 import Data.Either (Either(..), hush)
@@ -43,7 +46,7 @@ import Prelude (join, map, show, ($), (*), (+), (-), (/), (<>), (>), (&&), (<<<)
 import VexFlow.Abc.Beat (beatDuration)
 import VexFlow.Abc.ContextChange (ContextChange(..), Clef(..))
 import VexFlow.Abc.TickableContext (TickableContext(..))
-import VexFlow.Types (AbcContext, BarFill(..), Config, MusicSpec(..), Tempo, TimeSignature, VexDuration, staveIndentation, staveSeparation, titleDepth)
+import VexFlow.Types (AbcContext, BarFill(..), Config, MusicSpec(..), Tempo, VexDuration, staveIndentation, staveSeparation, titleDepth)
 
 -- | build a VexDuration
 vexDuration :: NoteDuration -> NoteDuration -> Either String VexDuration
@@ -162,9 +165,8 @@ normaliseBroken broken gn1 gn2 =
 initialAbcContext :: AbcTune -> Config -> Either String AbcContext
 initialAbcContext tune config =
   let
-    meterSignature =
-      fromMaybe (Tuple 4 4) $ getMeter tune
-    (Tuple numerator denominator) = meterSignature
+    timeSignature =
+      getDefaultedMeter tune
 
     unitNoteLength :: NoteDuration
     unitNoteLength =
@@ -177,7 +179,7 @@ initialAbcContext tune config =
   in
     if (null modifiedKeySignature.modifications) then
       Right
-        { timeSignature: { numerator, denominator }
+        { timeSignature
         , keySignature: modifiedKeySignature.keySignature
         , mTempo: mTempo
         , unitNoteLength: unitNoteLength
@@ -189,7 +191,7 @@ initialAbcContext tune config =
         , maxWidth: Int.round $
             (Int.toNumber (config.width - staveIndentation)) / config.scale
         , pendingRepeatBegin: false
-        , beatDuration: beatDuration { numerator, denominator }
+        , beatDuration: beatDuration timeSignature
         , showChordSymbols: config.showChordSymbols
         }
     else
@@ -198,16 +200,15 @@ initialAbcContext tune config =
 updateAbcContext :: AbcContext -> ContextChange -> AbcContext
 updateAbcContext abcContext change =
   case change of
-    MeterChange meterSignature ->
-      let
-        (Tuple numerator denominator) = meterSignature
-        timeSignature = { numerator, denominator }
-      in
-        abcContext
-          { timeSignature = timeSignature
-          , isNewTimeSignature = true
-          , beatDuration = beatDuration { numerator, denominator }
+    MeterChange timeSignature ->
+      abcContext
+        { timeSignature = timeSignature
+        , isNewTimeSignature = true
+        , beatDuration = beatDuration 
+          { numerator: timeSignature.numerator
+          , denominator: timeSignature.denominator 
           }
+        }
     KeyChange modifiedKeySignature ->
       abcContext
         { keySignature = modifiedKeySignature.keySignature

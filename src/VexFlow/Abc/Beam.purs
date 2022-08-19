@@ -2,6 +2,8 @@ module VexFlow.Abc.Beam (calculateBeams) where
 
 -- work out the beam groups from the time signature
 
+import Data.Abc (TimeSignature)
+import Data.Abc.Meter (commonTime)
 import Data.Array (concat, filter, groupBy, mapWithIndex, slice)
 import Data.Array.NonEmpty (NonEmptyArray, length, head, last)
 import Data.Foldable (foldl, elem)
@@ -10,7 +12,7 @@ import Data.Maybe (fromMaybe)
 import Data.String.Utils (endsWith)
 import Data.Tuple (snd)
 import Prelude (class Eq, class Show, map, ($), (&&), (+), (-), (/=), (<>), (==), (>), (>=), (||))
-import VexFlow.Types (BeamSpec, BeatMarker, BeatNumber, NoteSpec, TimeSignature)
+import VexFlow.Types (BeamSpec, BeatMarker, BeatNumber, NoteSpec)
 
 -- | How beamable is a given rest or note
 data Beamability
@@ -169,12 +171,6 @@ coalesce [ r1 ] [ r2 ] typesettingSpaces =
     -- this is the only permitted coalesce
     [ { start: r1.start, end: r2.end } ]
 coalesce x y _ = x <> y
-
-commonTime :: TimeSignature
-commonTime =
-  { numerator: 4
-  , denominator: 4
-  }
 
 lookupRanges :: Int -> BeamMap -> Array BeamRange
 lookupRanges idx bm =

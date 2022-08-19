@@ -1,6 +1,6 @@
 module VexFlow.Types where
 
-import Data.Abc (BarLine, NoteDuration, KeySignature)
+import Data.Abc (BarLine, NoteDuration, KeySignature, TimeSignature)
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Either (Either)
 import Data.Maybe (Maybe)
@@ -71,12 +71,6 @@ type StaveConfig =
   , hasDoubleRightBar :: Boolean
   }
 
--- | the time signature
-type TimeSignature =
-  { numerator :: Int
-  , denominator :: Int
-  }
-
 type VexDuration =
   { vexDurString :: String -- w,h,q,8,16 or 32
   , dots :: Int -- number of dots
@@ -114,7 +108,7 @@ type AbcContext =
   , isNewTimeSignature :: Boolean -- we need to display a changed time signature
   , maxWidth :: Int
   , pendingRepeatBegin :: Boolean -- begin repeat to be prepended to next stave
-  , beatDuration :: NoteDuration -- the duratio of one beat under the time signature
+  , beatDuration :: NoteDuration -- the duration of one beat under the time signature
   , showChordSymbols :: Boolean -- temporary configuration option till we're happy with it
   }
 
