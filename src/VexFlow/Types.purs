@@ -8,7 +8,7 @@ import Prelude (class Eq, class Monoid, class Semigroup, mempty, (<>))
 import VexFlow.Abc.ContextChange (ContextChange, Clef)
 import VexFlow.Abc.Repetition (Repetition)
 import VexFlow.Abc.Slur (SlurBracket, VexCurve)
-import VexFlow.Abc.TickableContext (TickableContext)
+import VexFlow.Abc.TickableContext (TickableContext, defaultNoteSeparation)
 import VexFlow.Abc.Volta (VexVolta)
 
 type RenderingError = String
@@ -46,6 +46,7 @@ type Config =
   , scale :: Number
   , isSVG :: Boolean -- true (SVG) or false (Canvas)
   , titled :: Boolean -- true if we are displaying a tune title   
+  , noteSeparation :: Number -- a number indicating how close together the notes are in a bar
   , showChordSymbols :: Boolean -- temporary configuration option till we're happy with it
   }
 
@@ -57,6 +58,7 @@ defaultConfig =
   , scale: 0.8
   , isSVG: true
   , titled: true
+  , noteSeparation: defaultNoteSeparation
   , showChordSymbols: false
   }
 
@@ -109,6 +111,7 @@ type AbcContext =
   , maxWidth :: Int
   , pendingRepeatBegin :: Boolean -- begin repeat to be prepended to next stave
   , beatDuration :: NoteDuration -- the duration of one beat under the time signature
+  , noteSeparation :: Number -- a number indicating how close together the notes are in a bar
   , showChordSymbols :: Boolean -- temporary configuration option till we're happy with it
   }
 

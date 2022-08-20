@@ -192,6 +192,7 @@ initialAbcContext tune config =
             (Int.toNumber (config.width - staveIndentation)) / config.scale
         , pendingRepeatBegin: false
         , beatDuration: beatDuration timeSignature
+        , noteSeparation: config.noteSeparation
         , showChordSymbols: config.showChordSymbols
         }
     else

@@ -12,6 +12,7 @@ import Effect (Effect)
 import Prelude (Unit, bind, pure, unit, ($), (/))
 import VexFlow.Abc.Beat (beatDuration)
 import VexFlow.Abc.ContextChange (Clef(..))
+import VexFlow.Abc.TickableContext (defaultNoteSeparation)
 import VexFlow.Score (Renderer, initialiseCanvas, renderText, renderTuneAtStave)
 import VexFlow.Types (Config, AbcContext, RenderingError, defaultConfig, staveIndentation)
 
@@ -44,6 +45,7 @@ abcContext timeSignature keySignature staveNo =
   , maxWidth : round $ (toNumber canvasWidth / config.scale)
   , pendingRepeatBegin: false
   , beatDuration: beatDuration timeSignature
+  , noteSeparation: defaultNoteSeparation
   , showChordSymbols: config.showChordSymbols
   }
 

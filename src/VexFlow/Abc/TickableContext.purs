@@ -23,12 +23,17 @@ import Data.Int (round, toNumber)
 import Data.Rational ((%), fromInt)
 import Prelude (class Monoid, class Semigroup, map, mempty, (*), (+), ($))
 
+
 -- | we ignore the duration of the grace notes that preface a real note
 -- | because in effect their duration is 'borrowed' from the actual note
 
+-- | The default horizontal separation between notes in a bar (measured
+-- | in pixels at a standard scale of 1.0)
+-- |
 -- | The number of pixels we designate to a tickable item on a stave.
 -- | This affects the horizontal separation of notes and is a matter of taste.
--- | I like this look and feel. It (obviously) also affects the width of a bar.
+-- | I like this look and feel with the value set to 35.0.
+-- | It (obviously) also affects the width of a bar.
 -- |
 -- | When we invoke VexFlow, we use the ```SOFT``` voice mode and we use the magic
 -- | ```softmaxFactor: 5``` in the formatter.  This has the effect of letting us determine
@@ -41,8 +46,9 @@ import Prelude (class Monoid, class Semigroup, map, mempty, (*), (+), ($))
 -- | This would then mean that VexFlow decides the horizontal note separation but the downside
 -- | is that there can then be wasted space at the right-hand side of each bar because we use 
 -- | our heuristic for the bar width when creating the actual bar stave.
-pixelsPerItem :: Number
-pixelsPerItem = 35.0
+defaultNoteSeparation :: Number
+defaultNoteSeparation = 
+  35.0
 
 type NoteCount = Int
 type GraceCount = Int
@@ -118,8 +124,8 @@ getRorNsGraceLength rOrNs =
     foldl f 0 rOrNs
 
 -- | heuristic to estimate the width of a bar
-estimateBarWidth :: Boolean -> Boolean -> Maybe KeySignature -> Bar -> Int
-estimateBarWidth hasClef hasTimeSig maybeKeySig abcBar =
+estimateBarWidth :: Boolean -> Boolean -> Maybe KeySignature -> Number -> Bar -> Int
+estimateBarWidth hasClef hasTimeSig maybeKeySig pixelsPerItem abcBar =
   let
     (TickableContext noteCount graceCount _duration) = 
 

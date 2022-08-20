@@ -167,6 +167,7 @@ bar barNumber abcBar =
         estimateBarWidth (barNumber == 0)
           abcContext.isNewTimeSignature
           displayedKeySig
+          abcContext.noteSeparation
           abcBar
       -- continue any volta from the previous bar.  However, the first bar
       -- in a new stave may jusg be empty of notes, merely displaying the key

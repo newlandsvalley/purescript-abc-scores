@@ -11,6 +11,7 @@ import Data.Array (toUnfoldable)
 import VexFlow.Abc.TranslateStateful (execBodyPart)
 import VexFlow.Abc.Beat (beatDuration)
 import VexFlow.Abc.ContextChange (Clef(..))
+import VexFlow.Abc.TickableContext (defaultNoteSeparation)
 
 cMajor :: KeySignature
 cMajor =
@@ -33,6 +34,7 @@ startAbcContext timeSignature =
   , maxWidth: 1200
   , pendingRepeatBegin: false
   , beatDuration: beatDuration timeSignature
+  , noteSeparation: defaultNoteSeparation
   , showChordSymbols: false
   }
 
