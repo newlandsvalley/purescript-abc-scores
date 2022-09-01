@@ -7,6 +7,9 @@ It is intended to be a replacement for [purescript-scores](https://github.com/ne
 
 Currently, it uses vexflow 4.0.2.
 
+For more information, see the [guide](https://github.com/newlandsvalley/purescript-abc-scores/blob/master/docs/GUIDE.md).
+
+
 To build the library
 --------------------
 

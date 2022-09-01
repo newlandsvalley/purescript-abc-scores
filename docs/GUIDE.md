@@ -15,11 +15,12 @@ defaultConfig =
   , scale: 0.8
   , isSVG: true
   , titled: true
+  , noteSeparation: 35.0
   , showChordSymbols: false
   }
 ```
 
-As you can see, SVG is chosen by default and it renders to a ```Div``` node labelled ```canvas```.  There are default pixel sizes for both width and height and you can override all these defaults with your own values.
+As you can see, SVG is chosen by default and it renders to a ```Div``` node labelled ```canvas```.  There are default pixel sizes for both width and height and you can override all these defaults with your own values.  A ```noteSeparation``` of ```35.0``` seems to give a good horizontal layout to the notes within a bar.
 
 You must provide target ```HTML```with this node (which can of course be provided statically or with a UI such as ```Halogen```. Here is a basic ```index.html``` file.  Notice that it firstly loads the VexFlow 4 script and that the example PureScript code we will write is transpiled to ```example.js```.
 
