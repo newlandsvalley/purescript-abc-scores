@@ -12,7 +12,7 @@ import Data.Abc
 
 import Data.Abc.Canonical (keySignatureAccidental)
 import Data.Abc.KeySignature (normaliseModalKey)
-import Data.Abc.Metadata (normaliseChord)
+import Data.Abc.Utils (normaliseChord)
 import Data.Array (concat, fromFoldable, last, length, mapWithIndex, (:))
 import Data.Either (Either(..))
 import Data.List (List, foldl)

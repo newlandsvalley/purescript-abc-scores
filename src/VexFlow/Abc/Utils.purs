@@ -24,10 +24,12 @@ import Data.Abc
   , TimeSignature
   )
 
-import Data.Abc.KeySignature (defaultKey)
-import Data.Abc.Metadata (dotFactor, getKeySig, getTempoSig, getUnitNoteLength)
+import Data.Abc.KeySignature (defaultKey, getKeySig)
+import Data.Abc.Utils (dotFactor)
 import Data.Abc.Meter (getDefaultedMeter)
 import Data.Abc.Optics (_headers, _properties, _Voice)
+import Data.Abc.Tempo (getTempoSig)
+import Data.Abc.UnitNote (getUnitNoteLength)
 import Data.Array (null, replicate) as Array
 import Data.Either (Either(..), hush)
 import Data.Foldable (foldl)

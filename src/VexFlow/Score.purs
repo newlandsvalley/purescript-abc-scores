@@ -15,7 +15,7 @@ module VexFlow.Score
   ) where
 
 import Data.Abc (AbcTune, BodyPart(..))
-import Data.Abc.Metadata (getTitle, isEmptyStave, thumbnail)
+import Data.Abc.Utils (getTitle, isEmptyStave, thumbnail)
 import Data.Array (null)
 import Data.Either (Either(..))
 import Data.Int (floor, toNumber)

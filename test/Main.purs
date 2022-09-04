@@ -10,7 +10,6 @@ import Data.Array.NonEmpty (head) as NEA
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.Rational ((%))
-import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_)
 import Prelude (($), (<>), Unit, discard, map, show)

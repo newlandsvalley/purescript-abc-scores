@@ -23,7 +23,7 @@ import Control.Monad.Except.Trans
 
 import Control.Monad.State (State, evalStateT, execStateT, get, put)
 import Data.Abc (Bar, BarLine, BodyPart(..), Music, NoteDuration)
-import Data.Abc.Metadata (isEmptyStave)
+import Data.Abc.Utils (isEmptyStave)
 import Data.Array ((..), catMaybes, fromFoldable, zip)
 import Data.Array (length) as Array
 import Data.Array.NonEmpty.Internal (NonEmptyArray(..))
