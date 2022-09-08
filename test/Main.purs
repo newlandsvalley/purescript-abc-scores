@@ -93,13 +93,15 @@ configThreadingSpec =
         abcContext = keyChangeToG initialContext
       -- key change alters the time signature and beats per beam
       G `shouldEqual` abcContext.keySignature.pitchClass
-    -- this now depends on variable bar widths
+    -- this depeds on the noteSeparation constant in TickableContext
     it "calculates width of 4 bars" do
       let
         initialContext = startAbcContext commonTime
         abcContext = accumulateBarWidths initialContext
-      -- key change alters the time signature and beats per beam
-      465 `shouldEqual` abcContext.accumulatedStaveWidth
+      -- 465 for a noteSeparation of 35.0
+      -- 465 `shouldEqual` abcContext.accumulatedStaveWidth
+      -- 400 for a noteSeparation of 30.0
+      400 `shouldEqual` abcContext.accumulatedStaveWidth
 
 beamingSpec :: Spec Unit
 beamingSpec =

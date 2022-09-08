@@ -23,17 +23,13 @@ import Data.Int (round, toNumber)
 import Data.Rational ((%), fromInt)
 import Prelude (class Monoid, class Semigroup, map, mempty, (*), (+), ($))
 
-
--- | we ignore the duration of the grace notes that preface a real note
--- | because in effect their duration is 'borrowed' from the actual note
-
 -- | The default horizontal separation between notes in a bar (measured
 -- | in pixels at a standard scale of 1.0)
 -- |
--- | The number of pixels we designate to a tickable item on a stave.
+-- | The number of pixels we designate to a tickable item (aka note) on a stave.
 -- | This affects the horizontal separation of notes and is a matter of taste.
--- | I like this look and feel with the value set to 35.0.
--- | It (obviously) also affects the width of a bar.
+-- | I like this look and feel with the value set to 30.0, but 35.0 is OK too 
+-- | giving the notes a little more space. It (obviously) also affects the width of a bar.
 -- |
 -- | When we invoke VexFlow, we use the ```SOFT``` voice mode and we use the magic
 -- | ```softmaxFactor: 5``` in the formatter.  This has the effect of letting us determine
@@ -48,7 +44,7 @@ import Prelude (class Monoid, class Semigroup, map, mempty, (*), (+), ($))
 -- | our heuristic for the bar width when creating the actual bar stave.
 defaultNoteSeparation :: Number
 defaultNoteSeparation = 
-  35.0
+  30.0
 
 type NoteCount = Int
 type GraceCount = Int
@@ -97,6 +93,8 @@ getTickableContext m =
     _ ->
       mempty
 
+-- we ignore the duration of the grace notes that preface a real note
+-- because in effect their duration is 'borrowed' from the actual note
 graceLength :: Maybe Grace -> Int
 graceLength maybeGraceNote =
   fromMaybe 0 $ map (\g -> Nel.length g.notes) maybeGraceNote
