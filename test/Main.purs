@@ -98,10 +98,10 @@ configThreadingSpec =
       let
         initialContext = startAbcContext commonTime
         abcContext = accumulateBarWidths initialContext
-      -- 465 for a noteSeparation of 35.0
-      -- 465 `shouldEqual` abcContext.accumulatedStaveWidth
-      -- 400 for a noteSeparation of 30.0
-      400 `shouldEqual` abcContext.accumulatedStaveWidth
+      -- 476 for a noteSeparation of 35.0
+      -- 476 `shouldEqual` abcContext.accumulatedStaveWidth
+      -- 409 for a noteSeparation of 30.0
+      409 `shouldEqual` abcContext.accumulatedStaveWidth
 
 beamingSpec :: Spec Unit
 beamingSpec =

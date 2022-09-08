@@ -129,7 +129,8 @@ estimateBarWidth hasClef hasTimeSig maybeKeySig pixelsPerItem abcBar =
 
       foldMap getTickableContext abcBar.music
     clefCount =
-      if hasClef then 1.0 else 0.0
+      -- a clef is a little fatter than a normal tickable
+      if hasClef then 1.3 else 0.0
     timeSigCount =
       if hasTimeSig then 1.0 else 0.0
     keySigCount =
@@ -154,8 +155,10 @@ keySignatureWidth keySignature =
       1.0
     2 ->
       1.0
-    _ ->
+    3 ->
       1.5
+    _ -> 
+      2.0
 
 -- | heuristic to allocate width to 'tickables'
 tickableCountWidth :: Int -> Number
