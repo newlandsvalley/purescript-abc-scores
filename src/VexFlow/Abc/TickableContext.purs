@@ -21,15 +21,16 @@ import Data.List.NonEmpty (head, length, toUnfoldable) as Nel
 import Data.Maybe (Maybe, maybe, fromMaybe)
 import Data.Int (round, toNumber)
 import Data.Rational ((%), fromInt)
-import Prelude (class Monoid, class Semigroup, map, mempty, (*), (+), ($))
+import Prelude (class Monoid, class Semigroup, map, mempty, (*), (+), ($), (||), (==))
 
 -- | The default horizontal separation between notes in a bar (measured
 -- | in pixels at a standard scale of 1.0)
 -- |
 -- | The number of pixels we designate to a tickable item (aka note) on a stave.
 -- | This affects the horizontal separation of notes and is a matter of taste.
--- | I like this look and feel with the value set to 30.0, but 35.0 is OK too 
--- | giving the notes a little more space. It (obviously) also affects the width of a bar.
+-- | I like the look and feel with the value set to 32.0, but anything in the range
+-- | of 30.0 to 36.0 seems OK. Upper levels give the notes a little more space. 
+-- | This value (obviously) also affects the width of a bar.
 -- |
 -- | When we invoke VexFlow, we use the ```SOFT``` voice mode and we use the magic
 -- | ```softmaxFactor: 5``` in the formatter.  This has the effect of letting us determine
@@ -44,7 +45,7 @@ import Prelude (class Monoid, class Semigroup, map, mempty, (*), (+), ($))
 -- | our heuristic for the bar width when creating the actual bar stave.
 defaultNoteSeparation :: Number
 defaultNoteSeparation = 
-  30.0
+  32.0
 
 type NoteCount = Int
 type GraceCount = Int
@@ -128,20 +129,24 @@ estimateBarWidth hasClef hasTimeSig maybeKeySig pixelsPerItem abcBar =
     (TickableContext noteCount graceCount _duration) = 
 
       foldMap getTickableContext abcBar.music
-    clefCount =
+    clefSpace =
       -- a clef is a little fatter than a normal tickable
       if hasClef then 1.3 else 0.0
-    timeSigCount =
+    timeSigSpace =
       if hasTimeSig then 1.0 else 0.0
-    keySigCount =
+    keySigSpace =
       maybe 0.0 keySignatureWidth maybeKeySig
+    -- offer a little more space if the bar only has a note or two
+    smallBarSpace = 
+      if ((noteCount == 2) || (noteCount == 2)) then 0.5 else 0.0
   in
     round $
-      ( clefCount
-          + timeSigCount
-          + keySigCount
+      ( clefSpace
+          + timeSigSpace
+          + keySigSpace
           + (tickableCountWidth noteCount)
           + (0.5 * toNumber graceCount)
+          + smallBarSpace
       ) * pixelsPerItem
 
 -- heuristic to decide how much width to dedicate to a key signature

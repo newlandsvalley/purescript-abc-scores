@@ -170,7 +170,7 @@ bar barNumber abcBar =
           abcContext.noteSeparation
           abcBar
       -- continue any volta from the previous bar.  However, the first bar
-      -- in a new stave may jusg be empty of notes, merely displaying the key
+      -- in a new stave may just be empty of notes, merely displaying the key
       -- signature, in which case we don't display the volta
       volta =
         if (barNumber == 0 && isEmptyMusicSpec musicSpec) then

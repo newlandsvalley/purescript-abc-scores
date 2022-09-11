@@ -101,7 +101,8 @@ configThreadingSpec =
       -- 476 for a noteSeparation of 35.0
       -- 476 `shouldEqual` abcContext.accumulatedStaveWidth
       -- 409 for a noteSeparation of 30.0
-      409 `shouldEqual` abcContext.accumulatedStaveWidth
+      -- 436 for a noteSeparation of 32.0
+      436 `shouldEqual` abcContext.accumulatedStaveWidth
 
 beamingSpec :: Spec Unit
 beamingSpec =
