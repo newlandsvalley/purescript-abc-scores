@@ -21,7 +21,7 @@ import Data.List.NonEmpty (head, length, toUnfoldable) as Nel
 import Data.Maybe (Maybe, maybe, fromMaybe)
 import Data.Int (round, toNumber)
 import Data.Rational ((%), fromInt)
-import Prelude (class Monoid, class Semigroup, map, mempty, (*), (+), ($), (||), (==))
+import Prelude (class Monoid, class Semigroup, map, mempty, not, (*), (+), ($), (||), (&&), (==))
 
 -- | The default horizontal separation between notes in a bar (measured
 -- | in pixels at a standard scale of 1.0)
@@ -136,17 +136,13 @@ estimateBarWidth hasClef hasTimeSig maybeKeySig pixelsPerItem abcBar =
       if hasTimeSig then 1.0 else 0.0
     keySigSpace =
       maybe 0.0 keySignatureWidth maybeKeySig
-    -- offer a little more space if the bar only has a note or two
-    smallBarSpace = 
-      if ((noteCount == 2) || (noteCount == 2)) then 0.5 else 0.0
   in
     round $
       ( clefSpace
           + timeSigSpace
           + keySigSpace
-          + (tickableCountWidth noteCount)
+          + (tickableCountWidth hasClef noteCount)
           + (0.5 * toNumber graceCount)
-          + smallBarSpace
       ) * pixelsPerItem
 
 -- heuristic to decide how much width to dedicate to a key signature
@@ -165,10 +161,15 @@ keySignatureWidth keySignature =
     _ -> 
       2.0
 
--- | heuristic to allocate width to 'tickables'
-tickableCountWidth :: Int -> Number
-tickableCountWidth n =
-  case n of
-    1 -> 1.5 -- just 1.0 is too small
-    2 -> 2.5 -- just 2.0 is too small
-    _ -> toNumber n
+-- | heuristic to allocate width to note 'tickables'
+-- | in a non-start bar (with no clef) we need to offer a bit more space
+-- | if there are only one or two noted
+tickableCountWidth :: Boolean -> Int -> Number
+tickableCountWidth hasClef n =
+  if hasClef then 
+    toNumber n
+  else
+    case n of
+      1 -> 1.90 -- just 1.0 is too small
+      2 -> 2.70 -- just 2.0 is too small
+      _ -> toNumber n
