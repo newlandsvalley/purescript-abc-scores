@@ -1,8 +1,6 @@
 {
   "private": true,
   "scripts": {
-    "pulp-build": "pulp build",
-    "pulp-test": "pulp test",
     "build": "spago build",
     "test": "spago -x ./test.dhall test",
     "display-tests": "spago -x ./display-tests.dhall bundle-app --main Examples.DisplayTests.Main --to examples/display-tests/dist/display-tests.js",
@@ -17,8 +15,7 @@
     "debug": "spago -x ./debug.dhall run --main Examples.DebugBar.Main"
   },
   "devDependencies": {
-    "pulp": "^16.0.0",
-    "purescript": "^0.15.0",
+    "purescript": "^0.15.4",
     "spago": "0.20.9"
   }
 }

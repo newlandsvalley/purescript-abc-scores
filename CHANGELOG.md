@@ -1,8 +1,8 @@
 # CHANGELOG
 
-## v0.6.0 (2022-08-17)
+## v0.6.0 (2022-10-10)
 
-  * Purescript 0.15.0
+  * Purescript 0.15.4
   * Support vexflow4
   * Support chord symbols
   * Support the full variety of variant endings

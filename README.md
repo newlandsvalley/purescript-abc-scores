@@ -16,11 +16,6 @@ To build the library
      spago install
      npm run build
 
-or   
-
-     bower install
-     pulp build
-
 To build the small display examples
 -----------------------------------
      npm run display-tests

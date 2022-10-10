@@ -21,7 +21,7 @@ import Data.List.NonEmpty (head, length, toUnfoldable) as Nel
 import Data.Maybe (Maybe, maybe, fromMaybe)
 import Data.Int (round, toNumber)
 import Data.Rational ((%), fromInt)
-import Prelude (class Monoid, class Semigroup, map, mempty, not, (*), (+), ($), (||), (&&), (==))
+import Prelude (class Monoid, class Semigroup, map, mempty, (*), (+), ($))
 
 -- | The default horizontal separation between notes in a bar (measured
 -- | in pixels at a standard scale of 1.0)
