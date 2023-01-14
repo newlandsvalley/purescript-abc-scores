@@ -302,7 +302,9 @@ var wrapper = function() {
       wrapper.addDots (sn, noteSpec.dotCount);
       wrapper.addOrnaments (sn, noteSpec.ornaments);
       wrapper.addArticulations (sn, noteSpec.articulations);
-      wrapper.addChordSymbol (sn, noteSpec.chordSymbol);
+      if (noteSpec.chordSymbol) {
+        wrapper.addChordSymbol (sn, noteSpec.chordSymbol);
+      }
 
       if (noteSpec.graceKeys.length > 0) {
         var graceNotes = noteSpec.graceKeys.map(wrapper.makeGraceNote);
