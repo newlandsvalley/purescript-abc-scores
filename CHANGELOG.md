@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.6.1 (2023-01-15)
+
+  * Refactor the javascript API using EffectFn(N) (retaining the existing interface)
+
 ## v0.6.0 (2022-10-10)
 
   * Purescript 0.15.4
