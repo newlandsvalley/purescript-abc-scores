@@ -10,137 +10,7 @@ var wrapper = function() {
 
   return {
 
-    initialiseCanvas : function (config) {
-      return function () {
-        return wrapper.init(config);
-      }
-    },
-
-    resizeCanvas : function (renderer) {
-      return function (config) {
-        return function () {
-          return wrapper.reinitCanvas(renderer, config);
-        }
-      }
-    },
-
-    clearCanvas : function (renderer) {
-      return function () {
-        var context = renderer.getContext();
-      context.clear();
-      }
-    },
-
-    newStaveImpl : function (staveConfig) {
-      return function (clef) {
-        return function (keySignature) {
-          return function () {
-            return wrapper.makeStave(staveConfig, clef, keySignature);
-          }
-        }
-      }
-    },
-
-    displayBarBeginRepeat : function (stave) {
-      return function (message) {
-        return function () {
-          stave.setBegBarType(VF.Barline.type.REPEAT_BEGIN);
-          if (message) {
-            stave.setText(message, VF.Modifier.Position.ABOVE, 
-                           { shift_y: 5, justification: VF.TextNote.Justification.LEFT });
-            }
-        }
-      }
-    },
-
-    displayBarEndRepeat : function (stave) {
-      return function () {
-        stave.setEndBarType(VF.Barline.type.REPEAT_END);
-      }
-    },
-
-    displayBarBothRepeat : function (stave) {
-      return function () {
-        stave.setBegBarType(VF.Barline.type.REPEAT_BEGIN);
-        stave.setEndBarType(VF.Barline.type.REPEAT_END);
-      }
-    },
-
-    displayVolta : function (stave) {
-      return function (volta) {
-        return function () {
-          return wrapper.drawVolta(stave, volta);
-        }
-      }
-    },
-
-    renderText : function (renderer) { 
-      return function (title) {
-        return function (font) {
-          return function (x) {
-            return function (y) {
-              return function () {
-                return wrapper.drawText(renderer, title, font, x, y);
-              }
-            }
-          }
-        }
-      }
-    },    
-
-    renderStave : function (renderer) {
-      return function (stave) {
-        return function () {
-          return wrapper.drawStave(renderer, stave);
-        }
-      }
-    },
-
-    getStaveWidth : function (stave) {
-      return function () {
-        return stave.getWidth();
-      }
-    },
-
-    addTimeSignature : function (stave) {
-      return function (timeSignature) {
-        return function () {
-          return wrapper.drawTimeSignature(stave, timeSignature);
-        }
-      }
-    },
-
-    addKeySignature : function (stave) {
-      return function (keySignature) {
-        return function () {
-          return wrapper.drawKeySignature(stave, keySignature, "");
-        }
-      }
-    },
-
-    addTempoMarkingImpl : function (stave) {
-      return function (tempo) {
-        return function () {
-          return wrapper.drawTempoMarking(stave, tempo);
-        }
-      }
-    },
-
-    renderBarContents : function (renderer) {
-      return function (stave) {
-        return function (beamSpecs) {
-          return function (vexCurves) {
-            return function (musicSpec) {
-              return function () {
-                return wrapper.drawBarContents(renderer, stave, beamSpecs, vexCurves, musicSpec);
-              }
-            }
-          }
-        }
-      }
-    },
-
-    init: function (config) {
+    initializeCanvas : function (config) {
       // console.log(config);
 
       VF = Vex.Flow;
@@ -161,14 +31,19 @@ var wrapper = function() {
       return renderer;
     },
 
-    reinitCanvas: function (renderer, config) {
-        // Size our svg:
-        renderer.resize(config.width, config.height);
+    resizeCanvas: function (renderer, config) {
+      // Size our svg:
+      renderer.resize(config.width, config.height);
 
-        var context = renderer.getContext();
-        context.scale(config.scale, config.scale);
-        return renderer;
-      },
+      var context = renderer.getContext();
+      context.scale(config.scale, config.scale);
+      return renderer;
+    },
+
+    clearCanvas: function (renderer) {
+      var context = renderer.getContext();
+      context.clear();
+    },
 
     makeStave: function (staveConfig, clef, keySignature) {
 
@@ -186,23 +61,27 @@ var wrapper = function() {
 
       // Add a clef and key signature if it's the first bar in the stave
       if (staveConfig.barNo == 0) {
-        wrapper.drawKeySignature (stave, keySignature, clef);
+        wrapper.addKeySignature (stave, keySignature, clef);
       }
 
       return stave;
+    }, 
+    
+    getStaveWidth : function (stave) {
+      return stave.getWidth();
     },
 
-    drawStave: function (renderer, stave) {
+    renderStave: function (renderer, stave) {
       var context = renderer.getContext();
       stave.setContext(context).draw();
     },
 
-    drawTimeSignature: function (stave, timeSignature) {
+    addTimeSignature: function (stave, timeSignature) {
       var meter = timeSignature.numerator + "/" + timeSignature.denominator;
       stave.setTimeSignature(meter);
     },
 
-    drawVolta: function (stave, volta) {
+    displayVolta: function (stave, volta) {
       // console.log("volta:")
       // console.log(volta);
       var voltaType;
@@ -225,7 +104,7 @@ var wrapper = function() {
       stave.setVoltaType(voltaType, volta.iteration, 25);
     },
 
-    drawText: function (renderer, title, font, x, y) {
+    renderText: function (renderer, title, font, x, y) {
       // console.log("title:");
       // console.log(title); 
       var context = renderer.getContext();
@@ -233,19 +112,19 @@ var wrapper = function() {
       context.fillText (title, x, y);
     },
 
-    drawKeySignature: function (stave, keySignature, clef) {
+    addKeySignature: function (stave, keySignature, clef) {
       if (clef) {
         stave.addClef(clef);
       }
       stave.setKeySignature(keySignature);
     },
 
-    drawTempoMarking: function (stave, tempo) {
+    addTempoSignature: function (stave, tempo) {
       stave.setTempo(tempo, 0);
     },
 
-    /* draw the contents of the bar, using auto-beaming for the notes */
-    drawBarContents: function (renderer, stave, beamSpecs, vexCurves, musicSpec) {
+    /* draw the contents of the bar, using explicit beaming for the notes */
+    renderBarContents: function (renderer, stave, beamSpecs, vexCurves, musicSpec) {
       // console.log("drawBarContents")
       // console.log(musicSpec);
       var context = renderer.getContext();
@@ -272,6 +151,22 @@ var wrapper = function() {
       curves.forEach(function(c) {c.setContext(context).draw()});
     },
 
+    displayBarBeginRepeat : function (stave, message) {
+      stave.setBegBarType(VF.Barline.type.REPEAT_BEGIN);
+      if (message) {
+        stave.setText(message, VF.Modifier.Position.ABOVE, 
+          { shift_y: 5, justification: VF.TextNote.Justification.LEFT });
+        }
+    },
+
+    displayBarEndRepeat : function (stave) {
+      stave.setEndBarType(VF.Barline.type.REPEAT_END);
+    },
+
+    displayBarBothRepeat : function (stave) {
+      stave.setBegBarType(VF.Barline.type.REPEAT_BEGIN);
+      stave.setEndBarType(VF.Barline.type.REPEAT_END);      
+    },
 
     /*  This formatting appears to be sufficient for our needs.  It attempts to emulate
         the formatting we used successfully with VexFlow 1.2.89.  This went horribly wrong
@@ -429,18 +324,18 @@ var wrapper = function() {
 
 }();
 
-export var initialiseCanvas = wrapper.initialiseCanvas;
-export var resizeCanvas = wrapper.resizeCanvas;
-export var clearCanvas = wrapper.clearCanvas;
-export var newStaveImpl = wrapper.newStaveImpl;
-export var renderStave = wrapper.renderStave;
-export var renderText = wrapper.renderText;
-export var getStaveWidth = wrapper.getStaveWidth;
-export var displayBarBeginRepeat = wrapper.displayBarBeginRepeat;
-export var displayBarEndRepeat = wrapper.displayBarEndRepeat;
-export var displayBarBothRepeat = wrapper.displayBarBothRepeat;
-export var renderBarContents = wrapper.renderBarContents;
-export var displayVolta = wrapper.displayVolta;
-export var addTimeSignature = wrapper.addTimeSignature;
-export var addKeySignature = wrapper.addKeySignature;
-export var addTempoMarkingImpl = wrapper.addTempoMarkingImpl;
+export var initialiseCanvasImpl = wrapper.initializeCanvas;
+export var resizeCanvasImpl = wrapper.resizeCanvas;
+export var clearCanvasImpl = wrapper.clearCanvas;
+export var makeStaveImpl = wrapper.makeStave;
+export var renderStaveImpl = wrapper.renderStave;
+export var getStaveWidthImpl = wrapper.getStaveWidth;
+export var renderTextImpl = wrapper.renderText;
+export var displayBarBeginRepeatImpl = wrapper.displayBarBeginRepeat;
+export var displayBarEndRepeatImpl = wrapper.displayBarEndRepeat;
+export var displayBarBothRepeatImpl = wrapper.displayBarBothRepeat;
+export var renderBarContentsImpl = wrapper.renderBarContents;
+export var displayVoltaImpl = wrapper.displayVolta;
+export var addTimeSignatureImpl = wrapper.addTimeSignature;
+export var addKeySignatureImpl = wrapper.addKeySignature;
+export var addTempoSignatureImpl = wrapper.addTempoSignature;

@@ -1,4 +1,23 @@
-module VexFlow.ApiBindings where
+module VexFlow.ApiBindings 
+  ( Renderer
+  , Stave
+  , clearCanvas
+  , initialiseCanvas
+  , resizeCanvas 
+  , addTempoMarking
+  , displayContextChange
+  , newStave
+  , getStaveWidth
+  , renderStave
+  , renderBarContents
+  , processBarBeginRepeat
+  , processBarEndRepeat
+  , displayBarBothRepeat
+  , processVolta
+  , addTimeSignature
+  , renderText
+  , renderTuneTitle    
+  ) where
 
 -- | Low to Medium level FFI into the VexFlow API
 
@@ -9,6 +28,7 @@ import Data.Maybe (Maybe(..), maybe)
 import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Translate (keySignature) as Translate
 import Effect (Effect)
+import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn3, EffectFn5, runEffectFn1, runEffectFn2, runEffectFn3, runEffectFn5)
 import VexFlow.Abc.Slur (VexCurves)
 import VexFlow.Types (BeamSpec, Config, MusicSpecContents, StaveConfig, Tempo)
 import VexFlow.Abc.Volta (VexVolta)
@@ -21,7 +41,7 @@ foreign import data Stave :: Type
 -- | create a new stave 
 newStave :: StaveConfig -> String -> KeySignature -> Effect Stave
 newStave staveCnfg clefString ks =
-  newStaveImpl staveCnfg clefString (Translate.keySignature ks)
+  makeStave staveCnfg clefString (Translate.keySignature ks)
 
 -- | render the tune title
 renderTuneTitle :: Renderer -> String -> Int -> Int -> Effect Unit
@@ -31,7 +51,7 @@ renderTuneTitle renderer title x y =
 -- | Add the tempo signature to the score is there is one
 addTempoMarking :: Stave -> Maybe Tempo -> Effect Unit
 addTempoMarking stave mTempo =
-  maybe (pure unit) (addTempoMarkingImpl stave) mTempo
+  maybe (pure unit) (addTempoSignature stave) mTempo
 
 -- | display bar begin repeat markers
 processBarBeginRepeat :: Stave -> BarLine -> Effect Unit
@@ -78,34 +98,95 @@ displayContextChange staveBar contextChange =
  
 
 -- | initialise VexFlow against the canvas where it renders
-foreign import initialiseCanvas :: Config -> Effect Renderer
+initialiseCanvas :: Config -> Effect Renderer
+initialiseCanvas = runEffectFn1 initialiseCanvasImpl
+
+foreign import initialiseCanvasImpl :: EffectFn1 Config Renderer 
+
 -- | resize the canvas
 -- | we return the renderer to give the illusion that it's not operating by side-effect
-foreign import resizeCanvas :: Renderer -> Config -> Effect Renderer
+resizeCanvas :: Renderer -> Config -> Effect Renderer
+resizeCanvas = runEffectFn2 resizeCanvasImpl
+
+foreign import resizeCanvasImpl :: EffectFn2 Renderer Config Renderer
+
 -- | clear the score from the canvas
-foreign import clearCanvas :: Renderer -> Effect Unit
+clearCanvas :: Renderer -> Effect Unit
+clearCanvas = runEffectFn1 clearCanvasImpl
+
+foreign import clearCanvasImpl :: EffectFn1 Renderer Unit
+
 -- | create a new stave bar
-foreign import newStaveImpl :: StaveConfig -> String -> String -> Effect Stave
+makeStave :: StaveConfig -> String -> String -> Effect Stave
+makeStave = runEffectFn3 makeStaveImpl
+
+foreign import makeStaveImpl :: EffectFn3 StaveConfig String String Stave 
+
 -- | get the width of a stave
-foreign import getStaveWidth :: Stave -> Effect Int
+getStaveWidth :: Stave -> Effect Int
+getStaveWidth = runEffectFn1 getStaveWidthImpl
+
+foreign import getStaveWidthImpl :: EffectFn1 Stave Int
+
 -- | display text on the canvas, but bypassing the VexFlow API
-foreign import renderText :: Renderer -> String -> String -> Int -> Int -> Effect Unit
+renderText :: Renderer -> String -> String -> Int -> Int -> Effect Unit
+renderText = runEffectFn5 renderTextImpl
+
+foreign import renderTextImpl :: EffectFn5 Renderer String String Int Int Unit
+
 -- | display all the contents of the bar, using explicit beaming for the notes
-foreign import renderBarContents :: Renderer -> Stave -> Array BeamSpec -> VexCurves -> MusicSpecContents -> Effect Unit
+renderBarContents :: Renderer -> Stave -> Array BeamSpec -> VexCurves -> MusicSpecContents -> Effect Unit
+renderBarContents = runEffectFn5 renderBarContentsImpl
+
+foreign import renderBarContentsImpl :: EffectFn5 Renderer Stave (Array BeamSpec) VexCurves MusicSpecContents Unit
+
 -- | display the (filled) bar
-foreign import renderStave :: Renderer -> Stave -> Effect Unit
+renderStave :: Renderer -> Stave -> Effect Unit
+renderStave = runEffectFn2 renderStaveImpl
+
+foreign import renderStaveImpl :: EffectFn2 Renderer Stave Unit
+
 -- | dispay a bar begin repeat
-foreign import displayBarBeginRepeat :: Stave -> String -> Effect Unit
+displayBarBeginRepeat :: Stave -> String -> Effect Unit
+displayBarBeginRepeat = runEffectFn2 displayBarBeginRepeatImpl
+
+foreign import displayBarBeginRepeatImpl :: EffectFn2 Stave String Unit
+
 -- | dispay a bar begin repeat
-foreign import displayBarEndRepeat :: Stave -> Effect Unit
+displayBarEndRepeat :: Stave -> Effect Unit
+displayBarEndRepeat = runEffectFn1 displayBarEndRepeatImpl
+
+foreign import displayBarEndRepeatImpl :: EffectFn1 Stave Unit
+
 -- | dispay a bar begin-and-end repeat
-foreign import displayBarBothRepeat :: Stave -> Effect Unit
+-- | (I don't think this is used in abc-scores)
+displayBarBothRepeat :: Stave -> Effect Unit
+displayBarBothRepeat = runEffectFn1 displayBarBothRepeatImpl
+
+foreign import displayBarBothRepeatImpl :: EffectFn1 Stave Unit
+
 -- | display a Volta
-foreign import displayVolta :: Stave -> VexVolta -> Effect Unit
+displayVolta :: Stave -> VexVolta -> Effect Unit
+displayVolta = runEffectFn2 displayVoltaImpl 
+
+foreign import displayVoltaImpl :: EffectFn2 Stave VexVolta Unit
+
 -- | add the time signature
-foreign import addTimeSignature :: Stave -> TimeSignature -> Effect Unit
+addTimeSignature :: Stave -> TimeSignature -> Effect Unit
+addTimeSignature = runEffectFn2 addTimeSignatureImpl
+
+foreign import addTimeSignatureImpl :: EffectFn2 Stave TimeSignature Unit
+
 -- | add the key signature
-foreign import addKeySignature :: Stave -> String -> Effect Unit
+addKeySignature :: Stave -> String -> Effect Unit
+addKeySignature = runEffectFn2 addKeySignatureImpl
+
+foreign import addKeySignatureImpl ::EffectFn2 Stave String Unit
+
 -- | add the tempo signature
-foreign import addTempoMarkingImpl :: Stave -> Tempo -> Effect Unit
+addTempoSignature :: Stave -> Tempo -> Effect Unit
+addTempoSignature = runEffectFn2 addTempoSignatureImpl
+
+foreign import addTempoSignatureImpl :: EffectFn2 Stave Tempo Unit
+
 
