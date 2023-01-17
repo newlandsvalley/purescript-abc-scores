@@ -10,41 +10,32 @@ module VexFlow.Abc.Utils
   , nextStaveNo
   , isEmptyMusicSpec
   , getBarFill
+  , getComposerAndOrigin
   , canvasHeight
   ) where
 
-import Data.Abc
-  ( AbcNote
-  , AbcTune
-  , Broken(..)
-  , GraceableNote
-  , ModifiedKeySignature
-  , NoteDuration
-  , TempoSignature
-  , TimeSignature
-  )
-
+import Data.Abc (AbcNote, AbcTune, Broken(..), GraceableNote, ModifiedKeySignature, NoteDuration, TempoSignature, TimeSignature)
 import Data.Abc.KeySignature (defaultKey, getKeySig)
-import Data.Abc.Utils (dotFactor)
 import Data.Abc.Meter (getDefaultedMeter)
-import Data.Abc.Optics (_headers, _properties, _Voice)
+import Data.Abc.Optics (_headers, _properties, _Composer, _Origin, _Voice)
 import Data.Abc.Tempo (getTempoSig)
 import Data.Abc.UnitNote (getUnitNoteLength)
+import Data.Abc.Utils (dotFactor)
 import Data.Array (null, replicate) as Array
 import Data.Either (Either(..), hush)
 import Data.Foldable (foldl)
 import Data.Int (round, toNumber) as Int
 import Data.Lens.At (at)
-import Data.Lens.Fold (lastOf)
+import Data.Lens.Fold (firstOf, lastOf)
 import Data.Lens.Lens (Lens')
 import Data.Lens.Traversal (traversed)
 import Data.List (length, null)
 import Data.Map (Map)
-import Data.Maybe (Maybe(..), fromMaybe, maybe)
+import Data.Maybe (Maybe(..), fromMaybe, isNothing, maybe)
 import Data.Rational (fromInt, toNumber, numerator, denominator, (%))
 import Data.String.CodeUnits (fromCharArray)
 import Data.Tuple (Tuple(..))
-import Prelude (join, map, show, ($), (*), (+), (-), (/), (<>), (>), (&&), (<<<), (==), identity)
+import Prelude (join, map, show, ($), (*), (+), (-), (/), (<>), (>), (&&), (<<<), (==), (<$>), (<*>), identity)
 import VexFlow.Abc.Beat (beatDuration)
 import VexFlow.Abc.ContextChange (ContextChange(..), Clef(..))
 import VexFlow.Abc.TickableContext (TickableContext(..))
@@ -269,8 +260,8 @@ canvasHeight tune titled =
 _clef :: forall a. Lens' (Map String a) (Maybe a)
 _clef = at "clef"
 
--- Get the clef from the last voice header if it exists
--- We only recognise treble, alto, tenor and bass clefs at the moment.  Default is treble.
+-- | Get the clef from the last voice header if it exists
+-- | We only recognise treble, alto, tenor and bass clefs at the moment.  Default is treble.
 getVoiceClef :: AbcTune -> Maybe Clef
 getVoiceClef tune =
   let
@@ -289,6 +280,33 @@ getVoiceClef tune =
         _ -> Treble
   in
     map f clefString
+ 
+-- | get the composer and origin data from the header metadata in the ABC 
+-- | and format it (if any of it exists) as one of:
+-- |
+-- | ```purescript 
+-- | composer
+-- | origin
+-- | composer (origin)
+-- | ```
+getComposerAndOrigin :: AbcTune -> Maybe String
+getComposerAndOrigin tune = 
+  if (isNothing composer)
+    then origin
+  else if (isNothing origin)
+    then composer
+  else 
+    frameAndCombine <$> composer <*> origin
+
+  where 
+  composer =
+    firstOf (_headers <<< traversed <<< _Composer) tune
+  origin =
+    firstOf (_headers <<< traversed <<< _Origin) tune
+
+  frameAndCombine :: String -> String -> String 
+  frameAndCombine a b = 
+    a <> " (" <> b <> ")"
 
 -- | How full is the bar full according to the time signature
 -- | e.g. a signature of 9/8 required 9 eighth notes

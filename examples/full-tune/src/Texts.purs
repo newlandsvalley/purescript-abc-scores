@@ -60,6 +60,21 @@ cig =
   <> "G>B dc B>A | G<c ed c>B | A>B c/2d/2c/2A/2 B>G |1 FD/2F/2 G3 D :|2 FD/2F/2 G4 |\r\n"
   <> "|  |\r\n"
 
+eklund3 :: String 
+eklund3 = 
+  "X: 1\r\n"
+  <> "T: Eklund 3\r\n"
+  -- <> "C: Viksta-Lasse\r\n"
+  <> "O: Uppland\r\n"
+  <> "R: polska\r\n"
+  <> "M: 3/4\r\n"
+  <> "L: 1/16\r\n"
+  <> "K: Gmaj\r\n"
+  <> "|: g2fg b2g2 d2>B2 | cBcd egec A2c2 | B2AB cdcA BcBG | A2d2 d6 ef |\r\n"
+  <> "g2fg b2g2 d2>B2 | cBcd egec A2c2 | B2AB cdcA BcBG | ABAF G8 :|\r\n"
+  <> "|: B2>B2 c2c2 B2B2 | A2d2 d6 A2 | B2>B2 c2c2 B2B2 | ABAF D6 D2 |\r\n"
+  <> "B2>B2 c2c2 B2B2 | A2d2 d6 A2 | G2AB cdcA BcBG | ABAF G8 :|\r\n"
+
 smalandPolska :: String
 smalandPolska =
   "X:1\r\n"

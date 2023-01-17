@@ -8,7 +8,7 @@ import VexFlow.Score (renderFinalTune, initialiseCanvas)
 import VexFlow.Types (Config, RenderingError, defaultConfig)
 import Data.Abc.Parser (parse)
 import Data.Abc (AbcTune)
-import Examples.FullTune.Texts (augustsson, cig, ewa, fastan, smalandPolska,
+import Examples.FullTune.Texts (augustsson, cig, eklund3, ewa, fastan, smalandPolska,
                                 chordSymbolExample, gustavPersson, voltaContinuationSample,
                                 keyChangeSample, meterChangeSample,
                                 continuationSample, emptyBarSample)
@@ -22,9 +22,7 @@ config =
 
 main :: Effect (Maybe RenderingError)
 main =
-  -- parse voltaContinuationSample
-  -- parse augustsson
-  case (parse chordSymbolExample) of
+  case (parse eklund3) of
     Right abcTune -> do
       renderer <- initialiseCanvas config
       {- this renders with staves extended to the RHS and with confog width repected

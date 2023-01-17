@@ -1,5 +1,6 @@
 module VexFlow.Abc.Alignment
   ( centeredTitleXPos
+  , rightJustifiedOriginXPos
   , justifiedScoreConfig
   , rightJustify
   , removeStaveExtensions
@@ -197,9 +198,9 @@ justifiedScoreCanvasHeight scale titled staves =
 centeredTitleXPos :: Config -> Int -> Int
 centeredTitleXPos config titleLength =
   let
-    -- we use 24pt font size == 18px 
-    -- px = pt * ( 72pt / 96 ) = 24 * 72 / 96 = 18
-    titlePixelWidth = floor $ toNumber titleLength * 18.0
+    -- we use 25pt font size == 18.75px 
+    -- px = pt * ( 72pt / 96 ) = 24 * 72 / 96 = 18.75
+    titlePixelWidth = floor $ toNumber titleLength * 18.75
     staveWidth = floor $ (toNumber config.width) / config.scale
   {-
   _ = spy "title pixel width" (show titlePixelWidth)
@@ -208,3 +209,19 @@ centeredTitleXPos config titleLength =
   -}
   in
     (staveWidth - titlePixelWidth) / 2
+
+
+rightJustifiedOriginXPos :: Config -> Int -> Int
+rightJustifiedOriginXPos config originLength =
+  let
+    -- we estimate 12px for our (proportional) 18pt italic font
+    -- this is not exact, but looks OK    
+    originPixelWidth = floor $ toNumber originLength * 12.0
+    -- a hack for thew right margin after the end of the stave
+    rightMargin = 30
+    staveWidth = floor $ (toNumber config.width) / config.scale
+  in
+    (staveWidth - originPixelWidth - rightMargin)
+    
+
+

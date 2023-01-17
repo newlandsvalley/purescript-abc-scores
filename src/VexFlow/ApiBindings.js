@@ -108,7 +108,7 @@ var wrapper = function() {
       // console.log("title:");
       // console.log(title); 
       var context = renderer.getContext();
-      context.setRawFont(font);
+      context.setFont(font);
       context.fillText (title, x, y);
     },
 

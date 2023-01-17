@@ -28,9 +28,18 @@ scoreMarginBottom = 15
 staveSeparation :: Int
 staveSeparation = 110
 
--- | the depth of a title (when present)
+-- | the overall depth of the title banner (when present)
+-- | this encompasses space for both the title and also the composer/origin (where present)
 titleDepth :: Int
-titleDepth = 48
+titleDepth = 56
+
+-- the y offset for the title text itself within the title banner
+titleYPos :: Int 
+titleYPos = 25
+
+-- the y offset for the origin / composer (origin) text itself within the title banner
+originYPos :: Int 
+originYPos = 48
 
 -- | a score of a simple monophonic tune
 type MonophonicScore = (NonEmptyArray StaveSpec)

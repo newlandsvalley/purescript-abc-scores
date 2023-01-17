@@ -4,7 +4,6 @@ module VexFlow.ApiBindings
   , clearCanvas
   , initialiseCanvas
   , resizeCanvas 
-  , addTempoMarking
   , displayContextChange
   , newStave
   , getStaveWidth
@@ -15,7 +14,9 @@ module VexFlow.ApiBindings
   , displayBarBothRepeat
   , processVolta
   , addTimeSignature
+  , addTempoMarking
   , renderText
+  , renderTuneOrigin   
   , renderTuneTitle    
   ) where
 
@@ -25,13 +26,13 @@ import Prelude
 
 import Data.Abc (BarLine, KeySignature, TimeSignature)
 import Data.Maybe (Maybe(..), maybe)
-import VexFlow.Abc.ContextChange (ContextChange(..))
-import VexFlow.Abc.Translate (keySignature) as Translate
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn3, EffectFn5, runEffectFn1, runEffectFn2, runEffectFn3, runEffectFn5)
+import VexFlow.Abc.ContextChange (ContextChange(..))
 import VexFlow.Abc.Slur (VexCurves)
-import VexFlow.Types (BeamSpec, Config, MusicSpecContents, StaveConfig, Tempo)
+import VexFlow.Abc.Translate (keySignature) as Translate
 import VexFlow.Abc.Volta (VexVolta)
+import VexFlow.Types (BeamSpec, Config, MusicSpecContents, StaveConfig, Tempo)
 
 -- | the Vex renderer
 foreign import data Renderer :: Type
@@ -47,6 +48,22 @@ newStave staveCnfg clefString ks =
 renderTuneTitle :: Renderer -> String -> Int -> Int -> Effect Unit
 renderTuneTitle renderer title x y =
   renderText renderer title " 25pt Arial" x y
+
+-- | render the tune origin and/or composer (if present).
+-- | Here we follow folkwiki's example which depends on when we see in the 
+-- | C (composer) and O (origin) headers:
+-- | ```purescript
+-- | composer
+-- | origin 
+-- | composer (origin)
+-- | ```
+renderTuneOrigin :: Renderer -> Maybe String -> Int -> Int -> Effect Unit
+renderTuneOrigin renderer mOrigin x y =
+  case (mOrigin) of 
+    Just origin -> 
+      renderText renderer origin " italic 18pt Arial" x y
+    _ -> 
+      pure unit
  
 -- | Add the tempo signature to the score is there is one
 addTempoMarking :: Stave -> Maybe Tempo -> Effect Unit
