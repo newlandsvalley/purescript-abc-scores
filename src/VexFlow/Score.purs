@@ -8,6 +8,8 @@ module VexFlow.Score
   , renderThumbnail
   , staveConfig
   , renderTuneAtStave
+  , renderTitle
+  , renderComposerAndOrigin
   , setCanvasDepthToTune
   , setCanvasDimensionsToScore
   , module Exports
@@ -20,17 +22,17 @@ import Data.Array (null)
 import Data.Either (Either(..))
 import Data.Int (floor, toNumber)
 import Data.List (filter, length)
-import Data.Maybe (Maybe(..), maybe)
+import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.String (length) as String
 import Data.Traversable (traverse_)
 import Effect (Effect)
-import Prelude ((<>), (*), (==), (/=), (&&), ($), (+), (>), Unit, bind, discard, identity, not, pure, when)
+import Prelude ((<>), (*), (==), (/=), (&&), ($), (+), (>), Unit, bind, discard, not, pure, when)
 import VexFlow.Abc.Alignment (centeredTitleXPos, justifiedScoreConfig, rightJustifiedOriginXPos)
 import VexFlow.Abc.Alignment (rightJustify) as Exports
 import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Abc.Utils (getComposerAndOrigin, initialAbcContext)
 import VexFlow.ApiBindings
-import VexFlow.ApiBindings (Renderer, Stave, clearCanvas, initialiseCanvas, renderText, renderTuneTitle, resizeCanvas) as API
+import VexFlow.ApiBindings (Renderer, Stave, clearCanvas, initialiseCanvas, renderTuneOrigin, renderText, renderTuneTitle, resizeCanvas) as API
 import VexFlow.Types (BarSpec, Config, LineThickness(..), MusicSpec(..), RenderingError, StaveConfig, StaveSpec, VexScore, scoreMarginBottom, staveSeparation, originYPos, titleDepth, titleYPos)
 
 -- | configure a new stave at appropriate coordinates and with appropriate furnishings
@@ -145,23 +147,14 @@ renderUntitledScore renderer eStaveSpecs =
 -- | This function works out the titling and other metadata and renders the final score.  
 -- | Although exported, it is not intended to be used by client applications 
 -- | Prefer renderTune or renderFinalTune (or renderThumbnail for thumbnails)
+
 renderTitledScore :: Config -> Renderer -> AbcTune -> VexScore -> Effect (Maybe RenderingError)
 renderTitledScore config renderer tune eStaveSpecs =
   case eStaveSpecs of
     Right staveSpecs -> do
-      let
-        title = maybe "Untitled" identity $ getTitle tune
-
-        composerAndOrigin = getComposerAndOrigin tune
-        originLength = maybe 0 String.length composerAndOrigin
-
-        originXPos = rightJustifiedOriginXPos config originLength
-
-        titleXPos :: Int
-        titleXPos = centeredTitleXPos config (String.length title)
-      _ <- renderTuneTitle renderer title titleXPos titleYPos
-      _ <- renderTuneOrigin renderer composerAndOrigin originXPos originYPos
-      _ <- traverse_ (displayStaveSpec renderer true) staveSpecs
+      _ <- renderTitle config renderer tune
+      _ <- renderComposerAndOrigin config renderer tune
+      _ <- traverse_ (displayStaveSpec renderer true) staveSpecs    
       pure Nothing
     Left err -> 
       pure $ Just ("error in producing score: " <> err)
@@ -223,5 +216,24 @@ setCanvasDimensionsToScore score config renderer =
     justifiedConfig = justifiedScoreConfig score config
   in
     resizeCanvas renderer justifiedConfig
+
+
+-- | render the title
+renderTitle :: Config -> Renderer -> AbcTune -> Effect Unit
+renderTitle config renderer tune = do
+  let
+    title = fromMaybe "untitled" $ getTitle tune
+    titleXPos = centeredTitleXPos config (String.length title)
+  renderTuneTitle renderer title titleXPos titleYPos
+
+-- | render the Composer and origin (if either or both are present)
+renderComposerAndOrigin :: Config -> Renderer -> AbcTune -> Effect Unit
+renderComposerAndOrigin config renderer tune = do
+  let 
+    origin = getComposerAndOrigin tune
+    originLength = maybe 0 String.length origin
+    originXPos = rightJustifiedOriginXPos config originLength  
+  renderTuneOrigin renderer origin originXPos originYPos
+
 
 

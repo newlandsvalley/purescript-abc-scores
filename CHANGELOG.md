@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.6.2 (2023-01-18)
+
+  * Add the tune composer and origin to the score (if present)
+
 ## v0.6.1 (2023-01-15)
 
   * Refactor the javascript API using EffectFn(N) (retaining the existing interface)
