@@ -8,7 +8,7 @@ import VexFlow.Score (renderFinalTune, initialiseCanvas)
 import VexFlow.Types (Config, RenderingError, defaultConfig)
 import Data.Abc.Parser (parse)
 import Data.Abc (AbcTune)
-import Examples.FullTune.Texts (augustsson, cig, eklund3, ewa, fastan, smalandPolska,
+import Examples.FullTune.Texts (arepolskan, augustsson, cig, eklund3, ewa, fastan, smalandPolska,
                                 chordSymbolExample, gustavPersson, voltaContinuationSample,
                                 keyChangeSample, meterChangeSample,
                                 continuationSample, emptyBarSample)
@@ -18,6 +18,7 @@ config =
   defaultConfig 
     { width = 1200
     , showChordSymbols = true 
+    , scale = 1.0
     }
 
 main :: Effect (Maybe RenderingError)

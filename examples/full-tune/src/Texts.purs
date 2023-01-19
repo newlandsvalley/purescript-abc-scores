@@ -64,7 +64,7 @@ eklund3 :: String
 eklund3 = 
   "X: 1\r\n"
   <> "T: Eklund 3\r\n"
-  -- <> "C: Viksta-Lasse\r\n"
+  <> "C: Viksta-Lasse\r\n"
   <> "O: Uppland\r\n"
   <> "R: polska\r\n"
   <> "M: 3/4\r\n"
@@ -105,6 +105,21 @@ gustavPersson =
   <> "A2=B2^c2 d4e2 f4d2 | e2^f2^g2 a4^c2 a4^c2 | A4d2 d12 |\r\n"
   <> "|: (A4=B^c) d3c3 A6 | A3G3 E3F3 D6 | (4d2e2d2^c2 d3f3 e3d3 | c6 A12 |\r\n"
   <> "| (A4=B^c) d3c3 A6 | A3G3 E3F3 D3B3 | A3G3 E3F3 D3F3 | (E4FE) D12 :|\r\n"
+
+arepolskan :: String
+arepolskan =
+  "X: 1\r\n"
+  <> "T: Årepolskan\r\n"
+  <> "O: Lapp-Nils-polska efter Per Danielsson, Mörsil, Jämtland\r\n"
+  <> "R: polska\r\n"
+  <> "M: 9/8\r\n"
+  <> "L: 1/8\r\n"
+  <> "Q: 3/8=100\r\n"
+  <> "K:Gmaj\r\n"
+  <> "|: D | E2F GA2 B2G | A2B GAG F2D | FAF GBG EGE| DCB, A,2A F2D |\r\n"
+  <> "E2F GA2 B2G | A2B GAG F2D | FAF GBG EGE | FG2 G3-G2 :|\r\n"
+  <> "|: g | f2a g3 d2B | c2d ege dcB | A2G FG2 A2B | cdc BAG A2F |\r\n"
+  <> "D2g fg2 d2B | c2d ege dcB | A2G FG2 ABc |1 cB2 G3-G2 :|2 cB2 G6 |\r\n"
 
 -- example with chord symbols
 chordSymbolExample :: String

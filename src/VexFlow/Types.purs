@@ -30,16 +30,20 @@ staveSeparation = 110
 
 -- | the overall depth of the title banner (when present)
 -- | this encompasses space for both the title and also the composer/origin (where present)
+-- | the depth is used as the base Y offset for composer/origin.
 titleDepth :: Int
-titleDepth = 56
+titleDepth = 60
 
 -- the y offset for the title text itself within the title banner
 titleYPos :: Int 
-titleYPos = 25
+titleYPos = 30
 
+
+{-}
 -- the y offset for the origin / composer (origin) text itself within the title banner
 originYPos :: Int 
-originYPos = 48
+originYPos = 54
+-}
 
 -- | a score of a simple monophonic tune
 type MonophonicScore = (NonEmptyArray StaveSpec)

@@ -33,7 +33,7 @@ import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Abc.Utils (getComposerAndOrigin, initialAbcContext)
 import VexFlow.ApiBindings
 import VexFlow.ApiBindings (Renderer, Stave, clearCanvas, initialiseCanvas, renderTuneOrigin, renderText, renderTuneTitle, resizeCanvas) as API
-import VexFlow.Types (BarSpec, Config, LineThickness(..), MusicSpec(..), RenderingError, StaveConfig, StaveSpec, VexScore, scoreMarginBottom, staveSeparation, originYPos, titleDepth, titleYPos)
+import VexFlow.Types (BarSpec, Config, LineThickness(..), MusicSpec(..), RenderingError, StaveConfig, StaveSpec, VexScore, scoreMarginBottom, staveSeparation, titleDepth, titleYPos)
 
 -- | configure a new stave at appropriate coordinates and with appropriate furnishings
 staveConfig :: Int -> Boolean -> BarSpec -> StaveConfig
@@ -233,7 +233,7 @@ renderComposerAndOrigin config renderer tune = do
     origin = getComposerAndOrigin tune
     originLength = maybe 0 String.length origin
     originXPos = rightJustifiedOriginXPos config originLength  
-  renderTuneOrigin renderer origin originXPos originYPos
+  renderTuneOrigin renderer origin originXPos titleDepth
 
 
 
