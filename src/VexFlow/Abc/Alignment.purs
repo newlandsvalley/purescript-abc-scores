@@ -211,17 +211,14 @@ centeredTitleXPos config titleLength =
     (staveWidth - titlePixelWidth) / 2
 
 -- this is a hack to attempt to right-justify the text
-rightJustifiedOriginXPos :: Config -> Int -> Int
-rightJustifiedOriginXPos config originLength =
+rightJustifiedOriginXPos :: Config -> Int -> Int -> Int
+rightJustifiedOriginXPos config originLength rightMargin =
   let
-    -- we estimate 10.6px for our (proportional) 18pt italic font
+    -- we estimate 11.0px for our (proportional) 18pt italic font
     -- this is not exact, but looks OK    
-    originPixelWidth = floor $ toNumber originLength * 10.6
-    -- a hack for the right margin after the end of the stave
-    rightMargin = 34
-    staveWidth = floor $ (toNumber config.width) / config.scale
-  in
-    (staveWidth - originPixelWidth - rightMargin)
-    
+    originPixelWidth = floor $ toNumber originLength * 11.0
+    staveWidth = floor $ (toNumber (config.width - rightMargin - staveIndentation)) / config.scale
+  in 
+    staveWidth - originPixelWidth
 
 

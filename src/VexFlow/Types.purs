@@ -24,6 +24,11 @@ staveIndentation = 10
 scoreMarginBottom :: Int
 scoreMarginBottom = 15
 
+-- | the margin to the right of the score after the stave but before the canvas ends
+-- | (only used at the moment in alignment of the origin/composer)
+scoreMarginRight :: Int
+scoreMarginRight = 20
+
 -- | the distance between successive staves
 staveSeparation :: Int
 staveSeparation = 110
@@ -38,12 +43,9 @@ titleDepth = 60
 titleYPos :: Int 
 titleYPos = 30
 
-
-{-}
--- the y offset for the origin / composer (origin) text itself within the title banner
-originYPos :: Int 
-originYPos = 54
--}
+-- the largest string length of composer/origin we'll accept for display
+maxComposerOrigin :: Int 
+maxComposerOrigin = 80
 
 -- | a score of a simple monophonic tune
 type MonophonicScore = (NonEmptyArray StaveSpec)

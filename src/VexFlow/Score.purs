@@ -26,14 +26,14 @@ import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.String (length) as String
 import Data.Traversable (traverse_)
 import Effect (Effect)
-import Prelude ((<>), (*), (==), (/=), (&&), ($), (+), (>), Unit, bind, discard, not, pure, when)
+import Prelude ((<>), (*), (==), (/=), (<=), (&&), ($), (+), (>), Unit, bind, discard, not, pure, when)
 import VexFlow.Abc.Alignment (centeredTitleXPos, justifiedScoreConfig, rightJustifiedOriginXPos)
 import VexFlow.Abc.Alignment (rightJustify) as Exports
 import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Abc.Utils (getComposerAndOrigin, initialAbcContext)
 import VexFlow.ApiBindings
 import VexFlow.ApiBindings (Renderer, Stave, clearCanvas, initialiseCanvas, renderTuneOrigin, renderText, renderTuneTitle, resizeCanvas) as API
-import VexFlow.Types (BarSpec, Config, LineThickness(..), MusicSpec(..), RenderingError, StaveConfig, StaveSpec, VexScore, scoreMarginBottom, staveSeparation, titleDepth, titleYPos)
+import VexFlow.Types (BarSpec, Config, LineThickness(..), MusicSpec(..), RenderingError, StaveConfig, StaveSpec, VexScore, maxComposerOrigin, scoreMarginBottom, scoreMarginRight, staveSeparation, titleDepth, titleYPos)
 
 -- | configure a new stave at appropriate coordinates and with appropriate furnishings
 staveConfig :: Int -> Boolean -> BarSpec -> StaveConfig
@@ -145,7 +145,7 @@ renderUntitledScore renderer eStaveSpecs =
 
 -- | Render the titled Vex Score to the HTML score div
 -- | This function works out the titling and other metadata and renders the final score.  
--- | Although exported, it is not intended to be used by client applications 
+-- | Although exported, it is not intended to be used directly by client applications 
 -- | Prefer renderTune or renderFinalTune (or renderThumbnail for thumbnails)
 
 renderTitledScore :: Config -> Renderer -> AbcTune -> VexScore -> Effect (Maybe RenderingError)
@@ -153,7 +153,7 @@ renderTitledScore config renderer tune eStaveSpecs =
   case eStaveSpecs of
     Right staveSpecs -> do
       _ <- renderTitle config renderer tune
-      _ <- renderComposerAndOrigin config renderer tune
+      _ <- renderComposerAndOrigin config renderer tune scoreMarginRight
       _ <- traverse_ (displayStaveSpec renderer true) staveSpecs    
       pure Nothing
     Left err -> 
@@ -227,13 +227,15 @@ renderTitle config renderer tune = do
   renderTuneTitle renderer title titleXPos titleYPos
 
 -- | render the Composer and origin (if either or both are present)
-renderComposerAndOrigin :: Config -> Renderer -> AbcTune -> Effect Unit
-renderComposerAndOrigin config renderer tune = do
+renderComposerAndOrigin :: Config -> Renderer -> AbcTune -> Int ->  Effect Unit
+renderComposerAndOrigin config renderer tune rightMargin = do
   let 
     origin = getComposerAndOrigin tune
     originLength = maybe 0 String.length origin
-    originXPos = rightJustifiedOriginXPos config originLength  
-  renderTuneOrigin renderer origin originXPos titleDepth
+  when (originLength <= maxComposerOrigin) do
+    let
+      originXPos = rightJustifiedOriginXPos config originLength rightMargin
+    renderTuneOrigin renderer origin originXPos titleDepth
 
 
 

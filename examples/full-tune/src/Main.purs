@@ -26,7 +26,7 @@ main =
   case (parse eklund3) of
     Right abcTune -> do
       renderer <- initialiseCanvas config
-      {- this renders with staves extended to the RHS and with confog width repected
+      {- this renders with staves extended to the RHS and with config width respected
       renderTune config renderer abcTune
       -}
       renderFinalTune config renderer abcTune
