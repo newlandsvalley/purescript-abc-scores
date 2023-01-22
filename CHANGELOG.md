@@ -1,4 +1,8 @@
-# CHANGELOG
+# CHANGELOG#
+
+## v0.6.3 (2023-01-22)
+
+  * Replace config.title with config.titling which allows selection of composer and origin for display
 
 ## v0.6.2 (2023-01-18)
 
