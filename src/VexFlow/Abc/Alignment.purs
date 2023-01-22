@@ -38,6 +38,7 @@ import VexFlow.Types
   , LineThickness(..)
   , MonophonicScore
   , StaveSpec
+  , Titling(..)
   , VexScore
   , scoreMarginBottom
   , staveIndentation
@@ -62,7 +63,7 @@ justifiedScoreConfig score config =
 
     justifiedScoreHeight :: Int
     justifiedScoreHeight =
-      either (\_ -> 0) (\staves -> justifiedScoreCanvasHeight config.scale config.titled staves) score
+      either (\_ -> 0) (\staves -> justifiedScoreCanvasHeight config.scale config.titling staves) score
   in
     config
       { width = justifiedScoreWidth
@@ -178,8 +179,8 @@ justifiedScoreCanvasWidth scale staves =
     floor $ (toNumber staveWidth) * scale
 
 -- | the canvas height that contains the justified score
-justifiedScoreCanvasHeight :: Number -> Boolean -> MonophonicScore -> Int
-justifiedScoreCanvasHeight scale titled staves =
+justifiedScoreCanvasHeight :: Number -> Titling -> MonophonicScore -> Int
+justifiedScoreCanvasHeight scale titling staves =
   let
     staveCount = length staves
     -- we'll assume if we have just one stave, then it's a thumbnail
@@ -189,8 +190,9 @@ justifiedScoreCanvasHeight scale titled staves =
         0
       else
         scoreMarginBottom
-    titleSeparation =
-      if titled then titleDepth else 0
+    titleSeparation = case titling of 
+      NoTitle -> 0 
+      _ -> titleDepth
     staveHeight = (staveCount * staveSeparation) + marginBottom + titleSeparation
   in
     floor $ (toNumber staveHeight) * scale

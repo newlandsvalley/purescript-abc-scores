@@ -33,7 +33,7 @@ import VexFlow.Abc.TranslateStateful (runTuneBody)
 import VexFlow.Abc.Utils (getComposerAndOrigin, initialAbcContext)
 import VexFlow.ApiBindings
 import VexFlow.ApiBindings (Renderer, Stave, clearCanvas, initialiseCanvas, renderTuneOrigin, renderText, renderTuneTitle, resizeCanvas) as API
-import VexFlow.Types (BarSpec, Config, LineThickness(..), MusicSpec(..), RenderingError, StaveConfig, StaveSpec, VexScore, maxComposerOrigin, scoreMarginBottom, scoreMarginRight, staveSeparation, titleDepth, titleYPos)
+import VexFlow.Types (BarSpec, Config, LineThickness(..), MusicSpec(..), RenderingError, StaveConfig, StaveSpec, VexScore, Titling(..), maxComposerOrigin, scoreMarginBottom, scoreMarginRight, staveSeparation, titleDepth, titleYPos)
 
 -- | configure a new stave at appropriate coordinates and with appropriate furnishings
 staveConfig :: Int -> Boolean -> BarSpec -> StaveConfig
@@ -55,10 +55,11 @@ staveConfig staveNo isTitled barSpec =
 -- | but unjustified and with an expansive canvas
 renderTune :: Config -> Renderer -> AbcTune -> Effect (Maybe RenderingError)
 renderTune config renderer abcTune =
-  if (config.titled) then
-    renderTitledScore config renderer abcTune $ createScore config abcTune
-  else
-    renderUntitledScore renderer $ createScore config abcTune
+  case config.titling of 
+    NoTitle -> 
+      renderUntitledScore renderer $ createScore config abcTune
+    _ -> 
+      renderTitledScore config renderer abcTune $ createScore config abcTune
 
 -- | render the final ABC tune, possibly titled (if indicated by the config)
 -- | and with the staves aligned at the right hand side.
@@ -68,9 +69,12 @@ renderRightAlignedTune config renderer abcTune =
   let
     unjustifiedScore = createScore config abcTune
     score = Exports.rightJustify config.width config.scale unjustifiedScore
-  in
-    if (config.titled) then renderTitledScore config renderer abcTune score
-    else renderUntitledScore renderer score
+  in 
+    case config.titling of 
+      NoTitle -> 
+        renderUntitledScore renderer score
+      _ -> 
+        renderTitledScore config renderer abcTune score
 
 -- | render the final ABC tune, possibly titled( if indicated by the config),
 -- | justified and with canvas clipped to tune size
@@ -86,10 +90,11 @@ renderFinalTune config renderer abcTune =
       pure $ Just "Canvas width exceded"
     else do
       _ <- resizeCanvas renderer config'
-      if (config'.titled) then 
-        renderTitledScore config' renderer abcTune score
-      else 
-        renderUntitledScore renderer score
+      case config'.titling of 
+        NoTitle -> 
+          renderUntitledScore renderer score
+        _ -> 
+          renderTitledScore config' renderer abcTune score
 
 -- | render a thumbnail of the first few bars of the tune with the canvas 
 -- | clipped to the thumbnail boundary.
@@ -153,7 +158,8 @@ renderTitledScore config renderer tune eStaveSpecs =
   case eStaveSpecs of
     Right staveSpecs -> do
       _ <- renderTitle config renderer tune
-      _ <- renderComposerAndOrigin config renderer tune scoreMarginRight
+      when (config.titling == TitlePlusOrigin) do
+        renderComposerAndOrigin config renderer tune scoreMarginRight
       _ <- traverse_ (displayStaveSpec renderer true) staveSpecs    
       pure Nothing
     Left err -> 

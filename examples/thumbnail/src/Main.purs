@@ -7,7 +7,7 @@ import Effect (Effect)
 import Examples.Thumbnail.Texts (augustsson, cig, ewa, fastan, smalandPolska, gustavPersson, voltaContinuationSample, keyChangeSample, meterChangeSample, continuationSample, emptyBarSample)
 import Prelude (bind, pure, ($))
 import VexFlow.Score (renderThumbnail, initialiseCanvas)
-import VexFlow.Types (Config, RenderingError, defaultConfig)
+import VexFlow.Types (Config, RenderingError, Titling(..), defaultConfig)
 
 canvasWidth :: Int
 canvasWidth = 500
@@ -20,7 +20,7 @@ config = defaultConfig
   { width = canvasWidth
   , height = canvasHeight 
   , isSVG = false
-  , titled = false 
+  , titling = NoTitle
   }
 
 main :: Effect (Maybe RenderingError)

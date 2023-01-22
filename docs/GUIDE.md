@@ -14,7 +14,7 @@ defaultConfig =
   , height: 800
   , scale: 0.8
   , isSVG: true
-  , titled: true
+  , titling: TitlePlusOrigin
   , noteSeparation: 30.0
   , showChordSymbols: false
   }
@@ -139,7 +139,7 @@ config = defaultConfig
   { width = 500
   , height = 200
   , isSVG = false
-  , titled = false 
+  , titling = NoTitle
   }
 
 main :: Effect (Maybe RenderingError)

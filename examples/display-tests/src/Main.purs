@@ -14,7 +14,7 @@ import VexFlow.Abc.Beat (beatDuration)
 import VexFlow.Abc.ContextChange (Clef(..))
 import VexFlow.Abc.TickableContext (defaultNoteSeparation)
 import VexFlow.Score (Renderer, initialiseCanvas, renderTuneAtStave, renderText)
-import VexFlow.Types (Config, AbcContext, RenderingError, defaultConfig, staveIndentation)
+import VexFlow.Types (Config, AbcContext, RenderingError, Titling(..), defaultConfig, staveIndentation)
 
 canvasWidth :: Int
 canvasWidth = 1200
@@ -27,7 +27,7 @@ config =
   defaultConfig 
     { width = canvasWidth
     , height = canvasHeight 
-    , titled = false 
+    , titling = NoTitle
     }
 
 

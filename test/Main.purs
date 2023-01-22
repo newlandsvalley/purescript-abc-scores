@@ -16,7 +16,7 @@ import Prelude (($), (<>), Unit, discard, map, show)
 import VexFlow.Abc.Alignment (justifiedScoreConfig)
 import VexFlow.Abc.Beat (exactBeatNumber)
 import VexFlow.Score (createScore)
-import VexFlow.Types (BarSpec, Config, VexScore, MusicSpec(..), defaultConfig)
+import VexFlow.Types (BarSpec, Config, VexScore, MusicSpec(..), Titling(..), defaultConfig)
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (fail, shouldEqual)
 import Test.Spec.Reporter (specReporter)
@@ -38,7 +38,7 @@ initialConfig =
     { width = 100
     , height = 100
     , isSVG = false
-    , titled = false
+    , titling = NoTitle
     }
 
 assertScoreDepth :: String -> Int -> Aff Unit

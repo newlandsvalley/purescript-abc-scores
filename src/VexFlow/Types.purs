@@ -39,13 +39,27 @@ staveSeparation = 110
 titleDepth :: Int
 titleDepth = 60
 
--- the y offset for the title text itself within the title banner
+-- | the y offset for the title text itself within the title banner
 titleYPos :: Int 
 titleYPos = 30
 
--- the largest string length of composer/origin we'll accept for display
+-- | the largest string length of composer/origin we'll accept for display
 maxComposerOrigin :: Int 
 maxComposerOrigin = 80
+
+-- | the title banner above the score
+-- | 
+-- | ```purescript
+-- | NoTitle - No title banner at all
+-- | Title - simple title banner
+-- | TitlePlusOrigin - title with composer and origin (if present) underneath at RHS
+-- | ```
+data Titling 
+  = NoTitle
+  | Title
+  | TitlePlusOrigin
+
+derive instance eqTitling :: Eq Titling
 
 -- | a score of a simple monophonic tune
 type MonophonicScore = (NonEmptyArray StaveSpec)
@@ -60,11 +74,12 @@ type Config =
   , height :: Int
   , scale :: Number
   , isSVG :: Boolean -- true (SVG) or false (Canvas)
-  , titled :: Boolean -- true if we are displaying a tune title   
+  , titling :: Titling
   , noteSeparation :: Number -- a number indicating how close together the notes are in a bar
   , showChordSymbols :: Boolean -- temporary configuration option till we're happy with it
   }
 
+-- | the default configuration
 defaultConfig :: Config
 defaultConfig =
   { parentElementId: "canvas"
@@ -72,7 +87,7 @@ defaultConfig =
   , height: 800
   , scale: 0.8
   , isSVG: true
-  , titled: true
+  , titling: TitlePlusOrigin
   , noteSeparation: defaultNoteSeparation
   , showChordSymbols: false
   }
