@@ -9,7 +9,9 @@ module VexFlow.Abc.Beat (beatDuration, exactBeatNumber) where
 
 import Prelude ((/), ($), (==))
 import Data.Rational
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromJust)
+import JS.BigInt (toInt, toString) as BigInt
+import Partial.Unsafe (unsafePartial)
 import VexFlow.Types (BeatMarker)
 import Data.Abc (NoteDuration, TimeSignature)
 
@@ -43,10 +45,11 @@ exactBeatNumber phraseDur beatDur noteIndex =
     if (noteIndex == 0) then
       Nothing
     else
-      case (denominator beats) of
-        1 ->
+      case (BigInt.toString $ denominator beats) of
+        "1" ->
           Just $
-            { beatNumber: numerator beats
+            -- all our fractional durations are within a very small integer range for both numerator and denominator
+            { beatNumber: unsafePartial $ fromJust $ BigInt.toInt $ numerator beats
             , noteIndex: noteIndex
             }
         _ ->
