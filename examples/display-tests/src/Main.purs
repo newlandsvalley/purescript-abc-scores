@@ -20,7 +20,7 @@ canvasWidth :: Int
 canvasWidth = 1200
 
 canvasHeight :: Int
-canvasHeight = 2400
+canvasHeight = 2800
 
 config :: Config
 config =
@@ -89,6 +89,7 @@ main = do
   _ <- displayAtStave renderer repetitions 23
   _ <- displayAtStave renderer gracesWithAccidentals 24
   _ <- displayAtStave renderer multipleRepeats 25
+  _ <- displayAtStave renderer chordAccidental 26
   pure unit
 
 

@@ -244,3 +244,12 @@ multipleRepeats =
     <> "K: C\r\n"
     <> "|:: C4F4 G4G4 | G8 C8 | F8 F8 ::|8\r\n"
 
+
+chordAccidental :: String
+chordAccidental =
+    "X:1\r\n"
+    <> "T: spacing\r\n"
+    <> "M: 3/4\r\n"
+    <> "L: 1/8\r\n"
+    <> "K: Dm\r\n"
+    <> "| [BD^g] [^gBD] [D^gB] |\r\n"    
