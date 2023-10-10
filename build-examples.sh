@@ -10,6 +10,8 @@ echo "*** Building display-tests ***"
 npm run -s display-tests
 echo "*** Building full-tune ***"
 npm run -s full-tune
+echo "*** Building scaling ***"
+npm run -s scaling
 echo "*** Building slurs ***"
 npm run -s slurs
 echo "*** Building thumbnail ***"
