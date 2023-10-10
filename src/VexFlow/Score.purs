@@ -4,8 +4,10 @@ module VexFlow.Score
   , renderTitledScore
   , renderTune
   , renderFinalTune
+  , renderFinalTuneAtWidth
   , renderRightAlignedTune
   , renderThumbnail
+  , scaleConfigToDesiredWidth
   , staveConfig
   , renderTuneAtStave
   , renderTitle
@@ -26,7 +28,7 @@ import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.String (length) as String
 import Data.Traversable (traverse_)
 import Effect (Effect)
-import Prelude ((<>), (*), (==), (/=), (<=), (&&), ($), (+), (>), Unit, bind, discard, not, pure, when)
+import Prelude ((<>), (*), (==), (/), (/=), (<=), (&&), ($), (+), (>), Unit, bind, discard, not, pure, when)
 import VexFlow.Abc.Alignment (centeredTitleXPos, justifiedScoreConfig, rightJustifiedOriginXPos)
 import VexFlow.Abc.Alignment (rightJustify) as Exports
 import VexFlow.Abc.TranslateStateful (runTuneBody)
@@ -96,6 +98,17 @@ renderFinalTune config renderer abcTune =
         _ -> 
           renderTitledScore config' renderer abcTune score
 
+
+-- | render the final ABC tune, possibly titled( if indicated by the config),
+-- | justified and with canvas clipped to tune size and with a scale such that it
+-- | fits inside the desired width
+renderFinalTuneAtWidth :: Config -> Int -> Renderer -> AbcTune -> Effect (Maybe RenderingError)
+renderFinalTuneAtWidth config desiredWidth renderer abcTune =
+  let 
+    scaledConfig = scaleConfigToDesiredWidth abcTune config desiredWidth
+  in
+    renderFinalTune scaledConfig renderer abcTune
+
 -- | render a thumbnail of the first few bars of the tune with the canvas 
 -- | clipped to the thumbnail boundary.
 renderThumbnail :: Config -> Renderer -> AbcTune -> Effect (Maybe RenderingError)
@@ -125,6 +138,24 @@ createScore config abcTune =
       Left error
     Right abcContext ->
       runTuneBody abcContext abcTune.body
+
+-- | produce a new Config where the width, height and scale are set 
+-- | so that the score fits into the desired width
+scaleConfigToDesiredWidth :: AbcTune -> Config -> Int -> Config
+scaleConfigToDesiredWidth abcTune config desiredWidth =
+  let 
+    justifiedConfig = justifiedScoreConfig (createScore config abcTune) config
+    scaleFactor = (toNumber desiredWidth) / (toNumber justifiedConfig.width)
+    newScale = justifiedConfig.scale * scaleFactor 
+    newWidth = floor $ (toNumber justifiedConfig.width) * scaleFactor 
+    newHeight = floor $ (toNumber justifiedConfig.width) * scaleFactor 
+  in 
+    justifiedConfig 
+      { width = newWidth
+      , height = newHeight 
+      , scale = newScale 
+      }
+  
 
 -- | create a Vex Score from the ABC tune but output at the required
 -- | stave number.  Useful for examples.
