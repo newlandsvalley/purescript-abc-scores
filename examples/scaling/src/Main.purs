@@ -25,7 +25,7 @@ main =
     Right abcTune -> do
       renderer <- initialiseCanvas config
       let
-        desiredWidth = 580
+        desiredWidth = 400
       renderFinalTuneAtWidth config desiredWidth renderer abcTune
     _ ->
       pure $ Just "ABC failed to parse"

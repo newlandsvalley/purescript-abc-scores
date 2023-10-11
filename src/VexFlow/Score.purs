@@ -148,15 +148,13 @@ scaleConfigToDesiredWidth :: AbcTune -> Config -> Int -> Config
 scaleConfigToDesiredWidth abcTune config desiredWidth =
   let 
     justifiedConfig = justifiedScoreConfig (createScore config abcTune) config
-    -- fit the score to within 98% of the desired width to avoid margin errors
-    scaleFactor = (0.98 * toNumber desiredWidth) / (toNumber justifiedConfig.width)
+    -- fit the score to within 99.5% of the desired width to avoid margin errors
+    scaleFactor = (0.995 * toNumber desiredWidth) / (toNumber justifiedConfig.width)
     newScale = justifiedConfig.scale * scaleFactor 
-    newWidth = desiredWidth
-       -- floor $ (toNumber justifiedConfig.width) * scaleFactor 
-    newHeight = floor $ (toNumber justifiedConfig.width) * scaleFactor 
+    newHeight = floor $ (toNumber justifiedConfig.height) * scaleFactor 
   in 
     justifiedConfig 
-      { width = newWidth
+      { width = desiredWidth
       , height = newHeight 
       , scale = newScale 
       }  
