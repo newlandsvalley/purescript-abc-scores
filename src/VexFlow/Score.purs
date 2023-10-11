@@ -27,7 +27,7 @@ import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.String (length) as String
 import Data.Traversable (traverse_)
 import Effect (Effect)
-import Prelude ((<>), (*), (==), (/), (/=), (<=), (&&), ($), (+), (>), Unit, bind, discard, not, pure, when)
+import Prelude ((<>), (*), (==), (/), (/=), (<=), (&&), ($), (+), (>), Unit, bind, discard, not, pure, show, when)
 import VexFlow.Abc.Alignment (centeredTitleXPos, justifiedScoreConfig, rightJustifiedOriginXPos)
 import VexFlow.Abc.Alignment (rightJustify) as Exports
 import VexFlow.Abc.TranslateStateful (runTuneBody)
@@ -89,7 +89,11 @@ renderFinalTune config renderer abcTune =
   in
     -- don't render if the tune width exceded the requested canvas width
     if (config'.width > config.width) then 
-      pure $ Just "Canvas width exceded"
+      pure $ Just ("Canvas width exceded actual: " 
+                     <> show config'.width 
+                     <> " requested: "
+                     <> show config.width
+                  )
     else do
       _ <- resizeCanvas renderer config'
       case config'.titling of 
@@ -144,9 +148,11 @@ scaleConfigToDesiredWidth :: AbcTune -> Config -> Int -> Config
 scaleConfigToDesiredWidth abcTune config desiredWidth =
   let 
     justifiedConfig = justifiedScoreConfig (createScore config abcTune) config
-    scaleFactor = (toNumber desiredWidth) / (toNumber justifiedConfig.width)
+    -- fit the score to within 98% of the desired width to avoid margin errors
+    scaleFactor = (0.98 * toNumber desiredWidth) / (toNumber justifiedConfig.width)
     newScale = justifiedConfig.scale * scaleFactor 
-    newWidth = floor $ (toNumber justifiedConfig.width) * scaleFactor 
+    newWidth = desiredWidth
+       -- floor $ (toNumber justifiedConfig.width) * scaleFactor 
     newHeight = floor $ (toNumber justifiedConfig.width) * scaleFactor 
   in 
     justifiedConfig 

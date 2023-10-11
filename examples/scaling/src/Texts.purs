@@ -121,48 +121,15 @@ arepolskan =
   <> "|: g | f2a g3 d2B | c2d ege dcB | A2G FG2 A2B | cdc BAG A2F |\r\n"
   <> "D2g fg2 d2B | c2d ege dcB | A2G FG2 ABc |1 cB2 G3-G2 :|2 cB2 G6 |\r\n"
 
--- example with chord symbols
-chordSymbolExample :: String
-chordSymbolExample =
-  "X:1\r\n"
-    <> "T:Polska från Fjällnäs\r\n"
-    <> "R:Polska\r\n"
-    <> "L:1/8\r\n"
-    <> "M:3/4\r\n"
-    <> "K:G\r\n"
-    <> " \"G\"G2G>B \"D7\"A>F | \"G\"G2B>dg2 | \"Am\"a2a>g \"D7\"fe/f/ |1 \"G\"g2b>g \"D7\"d>B :|2 \"G\"g2g4 |]\r\n"
-    <> "|: \"G\"d2B>d g>f | \"C\"e2e>dc2 | \"D7\"a2a>g fe/f/ |1 \"G\"g2b>g \"D7\"d>B :|2 \"G\"g2g4 |]\r\n"
-
-
-keyChangeSample :: String
-keyChangeSample =
-  "K: D\r\n"
-  <> "M: 4/4\r\n"
-  <> "| A B c |[K: A] F |\r\n"
-  <> "| f g a |\r\n"
-
-meterChangeSample :: String
-meterChangeSample =
-  "K: D\r\n"
-  <> "M: 4/4\r\n"
-  <> "| A B c |\r\n"
+bakmes :: String
+bakmes =
+  "X: 1\r\n"
+  <> "T: Bakmes av Åker Erland Jonsson\r\n"
+  <> "R: polska\r\n"
   <> "M: 3/4\r\n"
-  <> "| f g a |\r\n"
-
-continuationSample :: String
-continuationSample =
-  "| ABc |\\\r\n| def |\r\n"
-
-emptyBarSample :: String
-emptyBarSample =
-  "| ABc | | def |\r\n"
-
-voltaContinuationSample :: String
-voltaContinuationSample =
-    "X:1\r\n"
-    <> "T: volta continued across staves\r\n"
-    <> "M: 3/4\r\n"
-    <> "L: 1/8\r\n"
-    <> "K: D\r\n"
-    <> "| AB cd ef |1 bb cc dd :|2 dd cc bb | AA BB cc |\r\n"
-    <> "| dd ee ff || g6 |\r\n"
+  <> "L: 1/8\r\n"
+  <> "K:Gmin\r\n"
+  <> "|: D | G>G-GA Bc | d>d-dc Ac | B>B-BA G^F | G2 D3 D | \r\n"
+  <> "G>G-GA Bc | d>d-dc Ac | B>B-BA G^F | G2 G3 :|\r\n" 
+  <> "|: d>d-d=e fg | d>d-dc Ac | B>B-BA Bc | (3d2c2B2 AB/2A/2 |\r\n"
+  <> "G>G-GA Bc | d2 B4 | (3ABc A^FDF | G2 G4 :|\r\n"
