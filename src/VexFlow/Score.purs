@@ -7,7 +7,6 @@ module VexFlow.Score
   , renderFinalTuneAtWidth
   , renderRightAlignedTune
   , renderThumbnail
-  , scaleConfigToDesiredWidth
   , staveConfig
   , renderTuneAtStave
   , renderTitle
@@ -78,8 +77,9 @@ renderRightAlignedTune config renderer abcTune =
       _ -> 
         renderTitledScore config renderer abcTune score
 
--- | render the final ABC tune, possibly titled( if indicated by the config),
--- | justified and with canvas clipped to tune size
+-- | render the final ABC tune at the scale provided by the config such that the
+-- | canvas is clipped to the score dimensions.  This is allowed as long as the 
+-- | score fits inside the supplied canvas width.
 renderFinalTune :: Config -> Renderer -> AbcTune -> Effect (Maybe RenderingError)
 renderFinalTune config renderer abcTune =
   let
@@ -98,10 +98,9 @@ renderFinalTune config renderer abcTune =
         _ -> 
           renderTitledScore config' renderer abcTune score
 
-
--- | render the final ABC tune, possibly titled( if indicated by the config),
--- | justified and with canvas clipped to tune size and with a scale such that it
--- | fits inside the desired width
+-- | render the final ABC tune but override the config scale such that the score
+-- | fits just inside the supplied canvas width.
+-- | Again, the canvas is clipped to the score dimensions.  
 renderFinalTuneAtWidth :: Config -> Int -> Renderer -> AbcTune -> Effect (Maybe RenderingError)
 renderFinalTuneAtWidth config desiredWidth renderer abcTune =
   let 
@@ -154,8 +153,7 @@ scaleConfigToDesiredWidth abcTune config desiredWidth =
       { width = newWidth
       , height = newHeight 
       , scale = newScale 
-      }
-  
+      }  
 
 -- | create a Vex Score from the ABC tune but output at the required
 -- | stave number.  Useful for examples.
