@@ -5,7 +5,7 @@ This is a purescript wrapper for [VexFlow](http://www.vexflow.com/) which is des
 
 It is intended to be a replacement for [purescript-scores](https://github.com/newlandsvalley/purescript-scores) which itself was a wrapper for [VexTab](http://www.vexflow.com/vextab). i.e. the intention is to cut out the middle man (which is anyhow not regularly maintained).
 
-Currently, it uses vexflow 4.2.3.
+This version is compatible with both Vexflow 4.0.2 and 4.2.3. The former exhibits a mild bug in https://github.com/newlandsvalley/purescript-abc-scores/issues/85 fixed in the later, which unfortunately exhibits a catastrophic bug in https://github.com/newlandsvalley/purescript-abc-editor/issues/3 whenever the canvas is cleared.  Therefore, 4.0.2 is recommended.
 
 For more information, see the [guide](https://github.com/newlandsvalley/purescript-abc-scores/blob/master/docs/GUIDE.md).
 
