@@ -12,7 +12,6 @@ import Data.Abc
 
 import Data.Abc.Canonical (keySignatureAccidental)
 import Data.Abc.KeySignature (normaliseModalKey)
-import Data.Abc.Utils (normaliseChord)
 import Data.Array (concat, fromFoldable, last, length, mapWithIndex, (:))
 import Data.Either (Either(..))
 import Data.List (List, foldl)
@@ -22,14 +21,12 @@ import Data.Maybe (Maybe(..), maybe)
 import Data.Map (lookup)
 import Data.String.Common (toLower)
 import Data.Traversable (sequence)
-import Data.Tuple (Tuple(..))
 import Prelude ((<>), ($), (*), (+), (-), map, mempty, show)
 import VexFlow.Abc.ContextChange (ContextChange(..), Clef(..))
 import VexFlow.Abc.Slur (SlurBracket(..))
 import VexFlow.Abc.TickableContext (NoteCount, TickableContext, getTickableContext)
 import VexFlow.Abc.Utils
-  ( normaliseBroken
-  , noteDotCount
+  ( noteDotCount
   , noteTicks
   , vexDuration
   , compoundVexDuration
@@ -117,9 +114,6 @@ music context tickablePosition noteIndex phraseDuration m =
         -- we don't support tied chords at the moment
         buildMusicSpecFromN tickableContext noteIndex mBeatMarker false c.leftSlurs c.rightSlurs $ chord context c
 
-      BrokenRhythmPair gn1 broken gn2 ->
-        buildMusicSpecFromNs tickableContext noteIndex mBeatMarker gn1 gn2 $ brokenRhythm context gn1 broken gn2
-
       Tuplet t {- mGrace signature rOrNs -} ->
         -- grace notes prefacing tuplets currently ignored
         let
@@ -163,6 +157,8 @@ music context tickablePosition noteIndex phraseDuration m =
         Right $ buildMusicSpecFromDecorations decorations noteIndex
 
       _ ->
+        -- assuming we call normalise before creatimg the score
+        -- this includes BrokenRhythmPair which is optimised away
         Right $ mempty :: Either String MusicSpec
 
 -- | Translate an ABC graceable note to a VexFlow note
@@ -242,10 +238,8 @@ rest context abcRest =
 -- | n.b. in VexFlow, all notes in a chord must have the same duration
 -- | this is a mismatch with ABC.  We just take the first note as representative.
 chord :: AbcContext -> AbcChord -> Either String NoteSpec
-chord context abcChord0 =
+chord context abcChord =
   let
-    abcChord = normaliseChord abcChord0
-
     -- this isn't quite right = we'll just used the length of the first
     -- note in the (normalised) chord
     representativeNote = Nel.head abcChord.notes
@@ -288,24 +282,6 @@ chord context abcChord0 =
             , chordSymbol: ""
             }
       Left x -> Left x
-
--- | translate an ABC broken note pair to a VexFlow note pair
--- | failing if either duration cannot be translated
--- | not finished - n1 can alter the context for n2
-brokenRhythm :: AbcContext -> GraceableNote -> Broken -> GraceableNote -> Either String (Array NoteSpec)
-brokenRhythm context gn1 broken gn2 =
-  let
-    (Tuple n1 n2) = normaliseBroken broken gn1 gn2
-    enote1 = graceableNote context n1
-    enote2 = graceableNote context n2
-  in
-    case (Tuple enote1 enote2) of
-      (Tuple (Right note1) (Right note2)) ->
-        Right [ note1, note2 ]
-      (Tuple (Left e1) _) ->
-        Left e1
-      (Tuple _ (Left e2)) ->
-        Left e2
 
 -- | translate an ABC tuplet to a VexFlow tuplet spec
 -- | failing if any note duration cannot be translated
@@ -450,6 +426,7 @@ articulations artics =
   in
     foldl f [] artics
 
+{-
 buildMusicSpecFromNs
   :: TickableContext
   -> Int
@@ -479,6 +456,7 @@ buildMusicSpecFromNs tCtx noteIndex mBeatMarker gn1 gn2 ens =
           }
       )
       ens
+-}
 
 buildMusicSpecFromN
   :: TickableContext

@@ -23,7 +23,7 @@ config =
 
 main :: Effect (Maybe RenderingError)
 main =
-  case (parse eklund3) of
+  case (parse augustsson) of
     Right abcTune -> do
       renderer <- initialiseCanvas config
       {- this renders with staves extended to the RHS and with config width respected

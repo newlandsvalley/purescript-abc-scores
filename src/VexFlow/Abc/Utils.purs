@@ -2,7 +2,6 @@ module VexFlow.Abc.Utils
   ( applyContextChanges
   , vexDuration
   , compoundVexDuration
-  , normaliseBroken
   , noteDotCount
   , noteTicks
   , initialAbcContext
@@ -14,13 +13,12 @@ module VexFlow.Abc.Utils
   , canvasHeight
   ) where
 
-import Data.Abc (AbcNote, AbcTune, Broken(..), GraceableNote, ModifiedKeySignature, NoteDuration, TempoSignature, TimeSignature)
+import Data.Abc (AbcNote, AbcTune, ModifiedKeySignature, NoteDuration, TempoSignature, TimeSignature)
 import Data.Abc.KeySignature (defaultKey, getKeySig)
 import Data.Abc.Meter (getDefaultedMeter)
 import Data.Abc.Optics (_headers, _properties, _Composer, _Origin, _Voice)
 import Data.Abc.Tempo (getTempoSig)
 import Data.Abc.UnitNote (getUnitNoteLength)
-import Data.Abc.Utils (dotFactor)
 import Data.Array (null, replicate) as Array
 import Data.Either (Either(..), hush)
 import Data.Foldable (foldl)
@@ -34,7 +32,6 @@ import Data.Map (Map)
 import Data.Maybe (Maybe(..), fromMaybe, isNothing, maybe)
 import Data.Rational (fromInt, toNumber, numerator, denominator, (%))
 import Data.String.CodeUnits (fromCharArray)
-import Data.Tuple (Tuple(..))
 import Prelude (join, map, show, ($), (*), (+), (-), (/), (<>), (>), (&&), (<<<), (==), (<$>), (<*>), identity)
 import VexFlow.Abc.Beat (beatDuration)
 import VexFlow.Abc.ContextChange (ContextChange(..), Clef(..))
@@ -122,38 +119,6 @@ noteTicks :: NoteDuration -> NoteDuration -> Int
 noteTicks unitNoteLength d =
   Int.round $ toNumber $
     unitNoteLength * d * (fromInt 128)
-
--- | apply the specified broken rhythm to each note in the note pair (presented individually)
--- | and return the broken note pair presented conventionally
-normaliseBroken :: Broken -> GraceableNote -> GraceableNote -> (Tuple GraceableNote GraceableNote)
-normaliseBroken broken gn1 gn2 =
-  let
-    down i =
-      (fromInt 1) - (dotFactor i)
-
-    up i =
-      (fromInt 1) + (dotFactor i)
-  in
-    case broken of
-      LeftArrow i ->
-        let
-          lefta =
-            gn1.abcNote { duration = gn1.abcNote.duration * (down i) }
-
-          righta =
-            gn2.abcNote { duration = gn2.abcNote.duration * (up i) }
-        in
-          (Tuple (gn1 { abcNote = lefta }) (gn2 { abcNote = righta }))
-
-      RightArrow i ->
-        let
-          lefta =
-            gn1.abcNote { duration = gn1.abcNote.duration * (up i) }
-
-          righta =
-            gn2.abcNote { duration = gn2.abcNote.duration * (down i) }
-        in
-          (Tuple (gn1 { abcNote = lefta }) (gn2 { abcNote = righta }))
 
 initialAbcContext :: AbcTune -> Config -> Either String AbcContext
 initialAbcContext tune config =

@@ -1,16 +1,12 @@
 module VexFlow.Score
-  ( createScore
-  , renderUntitledScore
-  , renderTitledScore
-  , renderTune
+  ( renderTune
   , renderFinalTune
   , renderFinalTuneAtWidth
   , renderRightAlignedTune
   , renderThumbnail
-  , staveConfig
   , renderTuneAtStave
-  , renderTitle
-  , renderComposerAndOrigin
+  , createScore
+  , staveConfig
   , setCanvasDepthToTune
   , setCanvasDimensionsToScore
   , module Exports
@@ -18,6 +14,7 @@ module VexFlow.Score
   ) where
 
 import Data.Abc (AbcTune, BodyPart(..))
+import Data.Abc.Normaliser (normalise)
 import Data.Abc.Utils (getTitle, isEmptyStave, thumbnail)
 import Data.Array (null)
 import Data.Either (Either(..))
@@ -132,15 +129,37 @@ renderTuneAtStave :: Int -> Config -> Renderer -> AbcTune -> Effect (Maybe Rende
 renderTuneAtStave staveNo config renderer abcTune =
   renderUntitledScore renderer $ createScoreAtStave staveNo config abcTune
 
--- | @deprecated in favour of renderTune, renderFinalTune or renderThumbnail
--- | create a Vex Score from the ABC tune
+-- | create a Vex Score from the ABC tune which is ready for rendering
+-- | this is provided for debug and testing purposes
 createScore :: Config -> AbcTune -> VexScore
 createScore config abcTune =
-  case (initialAbcContext abcTune config) of
-    Left error ->
-      Left error
-    Right abcContext ->
-      runTuneBody abcContext abcTune.body
+  let 
+    -- normalise the tune.  This has the effect of
+    --  a) replacing broken rhythm pairs with individual notes or rests
+    --     with the appropriate duratuin
+    --  b) regularising chords so that durations attach to the note not the chord
+    normalisedTune = normalise abcTune
+  in
+    case (initialAbcContext normalisedTune config) of
+      Left error ->
+        Left error
+      Right abcContext ->
+        runTuneBody abcContext normalisedTune.body
+
+
+-- | create a Vex Score from the ABC tune but output at the required stave number.  
+-- | The score must therefore consist of onle one line of music.
+-- | Useful for examples.
+createScoreAtStave :: Int -> Config -> AbcTune -> VexScore
+createScoreAtStave staveNo config abcTune =
+  let 
+    normalisedTune = normalise abcTune
+  in
+    case (initialAbcContext normalisedTune config) of
+      Left error ->
+        Left error
+      Right abcContext ->
+        runTuneBody (abcContext { staveNo = Just staveNo }) normalisedTune.body
 
 -- | produce a new Config where the width, height and scale are set 
 -- | so that the score fits into the desired width
@@ -159,15 +178,6 @@ scaleConfigToDesiredWidth abcTune config desiredWidth =
       , scale = newScale 
       }  
 
--- | create a Vex Score from the ABC tune but output at the required
--- | stave number.  Useful for examples.
-createScoreAtStave :: Int -> Config -> AbcTune -> VexScore
-createScoreAtStave staveNo config abcTune =
-  case (initialAbcContext abcTune config) of
-    Left error ->
-      Left error
-    Right abcContext ->
-      runTuneBody (abcContext { staveNo = Just staveNo }) abcTune.body
 
 -- | Render the untitled Vex Score to the HTML score div
 -- | Although exported, it is not intended to be used by client applications -

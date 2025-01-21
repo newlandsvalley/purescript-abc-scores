@@ -77,11 +77,6 @@ getTickableContext m =
       in
         TickableContext 1 0 duration
 
-    BrokenRhythmPair gn1 _ gn2 ->
-      TickableContext 2
-        (graceLength gn1.maybeGrace + graceLength gn2.maybeGrace)
-        (gn1.abcNote.duration + gn2.abcNote.duration)
-
     Tuplet t ->
       -- grace notes prefacing tuplets are currently ignored
       let
@@ -92,6 +87,9 @@ getTickableContext m =
         TickableContext t.signature.r graceNoteLength duration
 
     _ ->
+      -- all other Music items create no score.  This uncludes briken rhythm pairs
+      -- which have been replaced assuming normalise has been called just before
+      -- the score is created
       mempty
 
 -- we ignore the duration of the grace notes that preface a real note

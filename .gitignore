@@ -13,8 +13,7 @@
 /examples/slurs/dist/slurs.js
 /examples/thumbnail/dist/thumbnail.js
 /examples/clefs/dist/clefs.js
-/examples/bugs/
-/examples/debug/
+/examples/bugs/bugs.js
 /reference/
 /.psc*
 /.psa*

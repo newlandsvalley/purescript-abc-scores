@@ -108,4 +108,23 @@ let upstream =
       https://github.com/purescript/package-sets/releases/download/psc-0.15.10-20230808/packages.dhall
         sha256:1f2f8be27ed474d333848bfae9db43790202e3b4da8d73584b1029260677d7e1
 
-in  upstream
+in  upstream with abc-parser =
+    { dependencies =
+      [ "bifunctors"
+      , "effect"
+      , "either"
+      , "foldable-traversable"
+      , "maybe"
+      , "midi"
+      , "ordered-collections"
+      , "profunctor-lenses"
+      , "rationals"
+      , "strings"
+      , "stringutils"
+      , "string-parsers"
+      , "transformers"
+      , "tuples"
+      ]
+    , repo = "https://github.com/newlandsvalley/purescript-abc-parser.git"
+    , version = "2d64d0d6163361a3d8263662534078016a08a32c"
+    }
