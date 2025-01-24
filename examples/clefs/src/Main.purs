@@ -1,6 +1,6 @@
-module Examples.Clefs.Main where
+module Main where
 
-import Examples.Clefs.Texts
+import Texts
 
 import Data.Abc (KeySignature, TimeSignature)
 import Data.Abc.Parser (parse)

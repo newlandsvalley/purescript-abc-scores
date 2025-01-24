@@ -1,0 +1,7 @@
+package:
+  name: chord-symbols
+  dependencies:
+    - aff
+    - console
+    - effect
+    - abc-scores

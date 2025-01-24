@@ -1,4 +1,4 @@
-module Examples.StaveAlignment.Texts where
+module Texts where
 
 import Prelude ((<>))
 

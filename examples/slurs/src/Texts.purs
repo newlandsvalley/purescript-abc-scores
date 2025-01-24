@@ -1,4 +1,4 @@
-module Examples.Slurs.Texts where
+module Texts where
 
 import Prelude ((<>))
 

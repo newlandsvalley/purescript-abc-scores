@@ -1,4 +1,4 @@
-module Examples.ChordSymbols.Texts where
+module Texts where
 
 import Prelude ((<>))
 

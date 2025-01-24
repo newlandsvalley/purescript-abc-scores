@@ -1,4 +1,4 @@
-module Examples.Thumbnail.Texts where
+module Texts where
 
 import Prelude ((<>))
 

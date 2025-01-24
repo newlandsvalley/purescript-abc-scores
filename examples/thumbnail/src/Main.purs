@@ -1,10 +1,10 @@
-module Examples.Thumbnail.Main where
+module Main where
 
 import Data.Abc.Parser (parse)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Examples.Thumbnail.Texts (augustsson, cig, ewa, fastan, smalandPolska, gustavPersson, voltaContinuationSample, keyChangeSample, meterChangeSample, continuationSample, emptyBarSample)
+import Texts (augustsson, cig, ewa, fastan, smalandPolska, gustavPersson, voltaContinuationSample, keyChangeSample, meterChangeSample, continuationSample, emptyBarSample)
 import Prelude (bind, pure, ($))
 import VexFlow.Score (renderThumbnail, initialiseCanvas)
 import VexFlow.Types (Config, RenderingError, Titling(..), defaultConfig)

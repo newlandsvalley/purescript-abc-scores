@@ -1,4 +1,4 @@
-module Examples.Scaling.Texts where
+module Texts where
 
 import Prelude ((<>))
 

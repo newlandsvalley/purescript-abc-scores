@@ -1,6 +1,6 @@
-module Examples.Slurs.Main where
+module Main where
 
-import Examples.Slurs.Texts
+import Texts
 
 import Data.Abc (KeySignature, TimeSignature)
 import Data.Abc.Parser (parse)

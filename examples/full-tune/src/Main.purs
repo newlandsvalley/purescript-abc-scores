@@ -1,4 +1,4 @@
-module Examples.FullTune.Main where
+module Main where
 
 import Prelude (($), bind, pure)
 import Data.Maybe (Maybe(..))
@@ -8,10 +8,10 @@ import VexFlow.Score (renderFinalTune, initialiseCanvas)
 import VexFlow.Types (Config, RenderingError, defaultConfig)
 import Data.Abc.Parser (parse)
 import Data.Abc (AbcTune)
-import Examples.FullTune.Texts (arepolskan, augustsson, cig, eklund3, ewa, fastan, smalandPolska,
-                                chordSymbolExample, gustavPersson, voltaContinuationSample,
-                                keyChangeSample, meterChangeSample,
-                                continuationSample, emptyBarSample)
+import Texts (arepolskan, augustsson, cig, eklund3, ewa, fastan, smalandPolska,
+             chordSymbolExample, gustavPersson, voltaContinuationSample,
+             keyChangeSample, meterChangeSample,
+             continuationSample, emptyBarSample)
 
 config :: Config
 config =

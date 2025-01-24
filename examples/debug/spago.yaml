@@ -1,0 +1,7 @@
+package:
+  name: debug
+  dependencies:
+    - aff
+    - console
+    - effect
+    - abc-scores

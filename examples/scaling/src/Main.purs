@@ -1,4 +1,4 @@
-module Examples.Scaling.Main where
+module Main where
 
 import Prelude (($), bind, pure)
 import Data.Maybe (Maybe(..))
@@ -7,9 +7,7 @@ import Effect (Effect)
 import VexFlow.Score (renderFinalTuneAtWidth, initialiseCanvas)
 import VexFlow.Types (Config, RenderingError, defaultConfig)
 import Data.Abc.Parser (parse)
-import Data.Abc (AbcTune)
-import Examples.Scaling.Texts (arepolskan, augustsson, cig, eklund3, ewa, fastan, smalandPolska,
-                                gustavPersson, bakmes)
+import Texts (arepolskan, augustsson, cig, eklund3, ewa, fastan, smalandPolska, gustavPersson, bakmes)
 
 config :: Config
 config =

@@ -1,0 +1,31 @@
+package:
+  name: abc-scores
+  dependencies:
+  - abc-parser
+  - arrays
+  - effect
+  - either
+  - foldable-traversable
+  - integers
+  - js-bigints
+  - lists
+  - maybe
+  - newtype
+  - ordered-collections
+  - partial
+  - prelude
+  - profunctor-lenses
+  - rationals
+  - safe-coerce
+  - strings
+  - stringutils
+  - transformers
+  - tuples
+  - unfoldable
+  test:
+    main: Test.Main
+    dependencies:
+      - aff
+      - effect
+      - spec
+      - spec-node

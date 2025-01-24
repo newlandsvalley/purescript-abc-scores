@@ -1,6 +1,6 @@
-module Examples.Beaming.Main where
+module Main where
 
-import Examples.Beaming.Texts
+import Texts
 
 import Data.Abc (KeySignature, TimeSignature)
 import Data.Abc.Parser (parse)

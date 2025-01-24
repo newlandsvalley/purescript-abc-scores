@@ -11,8 +11,8 @@ import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.Rational ((%))
 import Effect (Effect)
-import Effect.Aff (Aff, launchAff_)
-import Prelude (($), (<>), Unit, discard, map, show)
+import Effect.Aff (Aff)
+import Prelude ((<>), Unit, discard, map, show)
 import VexFlow.Abc.Alignment (justifiedScoreConfig)
 import VexFlow.Abc.Beat (exactBeatNumber)
 import VexFlow.Score (createScore)
@@ -20,10 +20,10 @@ import VexFlow.Types (BarSpec, Config, VexScore, MusicSpec(..), Titling(..), def
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (fail, shouldEqual)
 import Test.Spec.Reporter (specReporter)
-import Test.Spec.Runner (runSpec)
+import Test.Spec.Runner.Node (runSpecAndExitProcess)
 
 main :: Effect Unit
-main = launchAff_ $ runSpec [ specReporter] do 
+main = runSpecAndExitProcess [ specReporter] do 
   describe "abc-scores" do
     configThreadingSpec
     slursSpec

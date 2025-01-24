@@ -1,0 +1,7 @@
+package:
+  name: beaming
+  dependencies:
+    - aff
+    - console
+    - effect
+    - abc-scores

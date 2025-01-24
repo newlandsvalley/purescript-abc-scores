@@ -1,0 +1,7 @@
+package:
+  name: display-tests
+  dependencies:
+    - aff
+    - console
+    - effect
+    - abc-scores

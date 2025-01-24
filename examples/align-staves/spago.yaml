@@ -1,0 +1,7 @@
+package:
+  name: align-staves
+  dependencies:
+    - aff
+    - console
+    - effect
+    - abc-scores

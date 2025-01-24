@@ -1,0 +1,7 @@
+package:
+  name: scaling
+  dependencies:
+    - aff
+    - console
+    - effect
+    - abc-scores

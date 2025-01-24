@@ -1,4 +1,4 @@
-module Examples.Beaming.Texts where
+module Texts where
 
 import Prelude ((<>))
 

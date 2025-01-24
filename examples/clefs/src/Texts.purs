@@ -1,4 +1,4 @@
-module Examples.Clefs.Texts where
+module Texts where
 
 import Prelude ((<>))
 

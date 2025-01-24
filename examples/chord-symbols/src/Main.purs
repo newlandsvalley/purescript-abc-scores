@@ -1,6 +1,6 @@
-module Examples.ChordSymbols.Main where
+module Main where
 
-import Examples.ChordSymbols.Texts
+import Texts
 
 import Data.Abc (KeySignature, TimeSignature)
 import Data.Abc.Parser (parse)

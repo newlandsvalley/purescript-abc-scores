@@ -1,4 +1,4 @@
-module Examples.DisplayTests.Texts where
+module Texts where
 
 import Prelude ((<>))
 

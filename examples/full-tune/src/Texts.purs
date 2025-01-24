@@ -1,4 +1,4 @@
-module Examples.FullTune.Texts where
+module Texts where
 
 import Prelude ((<>))
 
