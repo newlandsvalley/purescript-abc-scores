@@ -2,7 +2,7 @@
   "workspace": {
     "packages": {
       "abc-scores": {
-        "path": "lib",
+        "path": "./",
         "core": {
           "dependencies": [
             "abc-parser",
