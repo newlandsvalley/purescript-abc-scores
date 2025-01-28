@@ -6,6 +6,7 @@ module VexFlow.Score
   , renderThumbnail
   , renderTuneAtStave
   , renderTitle
+  , renderComposerAndOrigin
   , createScore
   , staveConfig
   , setCanvasDepthToTune
@@ -278,6 +279,7 @@ renderTitle config renderer tune = do
   renderTuneTitle renderer title titleXPos titleYPos
 
 -- | render the Composer and origin (if either or both are present)
+-- | we need to export this for use in ensemble scores)
 renderComposerAndOrigin :: Config -> Renderer -> AbcTune -> Int ->  Effect Unit
 renderComposerAndOrigin config renderer tune rightMargin = do
   let 
