@@ -13,7 +13,6 @@ For more information, see the [guide](https://github.com/newlandsvalley/purescri
 To build the library
 --------------------
 
-     spago install
      npm run build
 
 To build the small display examples

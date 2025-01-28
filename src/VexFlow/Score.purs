@@ -5,6 +5,7 @@ module VexFlow.Score
   , renderRightAlignedTune
   , renderThumbnail
   , renderTuneAtStave
+  , renderTitle
   , createScore
   , staveConfig
   , setCanvasDepthToTune
@@ -268,6 +269,7 @@ setCanvasDimensionsToScore score config renderer =
 
 
 -- | render the title
+-- | (this is needed to be exported because of use in polyphonic-scores )
 renderTitle :: Config -> Renderer -> AbcTune -> Effect Unit
 renderTitle config renderer tune = do
   let

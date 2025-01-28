@@ -2,7 +2,6 @@
   "private": true,
   "scripts": {
     "build": "spago build -p abc-scores",
-    "buildall": "spago build",
     "test": "spago test -p abc-scores",
     "display-tests": "spago bundle --package display-tests --outfile dist/display-tests.js --bundle-type app --platform browser",
     "full-tune": "spago bundle --package full-tune --outfile dist/full-tune.js --bundle-type app --platform browser",
