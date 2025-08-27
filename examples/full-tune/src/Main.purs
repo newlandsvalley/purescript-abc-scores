@@ -21,7 +21,7 @@ config =
     , scale = 1.0
     }
 
-main :: Effect (Maybe RenderingError)
+main :: Effect (Either RenderingError Config)
 main =
   case (parse augustsson) of
     Right abcTune -> do
@@ -31,4 +31,4 @@ main =
       -}
       renderFinalTune config renderer abcTune
     _ ->
-      pure $ Just "ABC failed to parse"
+      pure $ Left "ABC failed to parse"

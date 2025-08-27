@@ -79,7 +79,8 @@ renderRightAlignedTune config renderer abcTune =
 -- | render the final ABC tune at the scale provided by the config such that the
 -- | canvas is clipped to the score dimensions.  This is allowed as long as the 
 -- | score fits inside the supplied canvas width.
-renderFinalTune :: Config -> Renderer -> AbcTune -> Effect (Maybe RenderingError)
+-- | Return the new Config if it succeeds, otherwise the rendering error
+renderFinalTune :: Config -> Renderer -> AbcTune -> Effect (Either RenderingError Config)
 renderFinalTune config renderer abcTune =
   let
     unjustifiedScore = createScore config abcTune
@@ -88,23 +89,29 @@ renderFinalTune config renderer abcTune =
   in
     -- don't render if the tune width exceded the requested canvas width
     if (config'.width > config.width) then 
-      pure $ Just ("Canvas width exceded actual: " 
+      pure $ Left ("Canvas width exceded actual: " 
                      <> show config'.width 
                      <> " requested: "
                      <> show config.width
                   )
     else do
       _ <- resizeCanvas renderer config'
-      case config'.titling of 
+      mErr <- case config'.titling of 
         NoTitle -> 
           renderUntitledScore renderer score
         _ -> 
           renderTitledScore config' renderer abcTune score
+      case mErr of 
+        Just err -> 
+          pure $ Left err 
+        _ -> 
+          pure $ Right config'
 
 -- | render the final ABC tune but override the config scale such that the score
 -- | fits just inside the supplied canvas width.
 -- | Again, the canvas is clipped to the score dimensions.  
-renderFinalTuneAtWidth :: Config -> Int -> Renderer -> AbcTune -> Effect (Maybe RenderingError)
+-- | Return the new Config if it succeeds, otherwise the rendering error
+renderFinalTuneAtWidth :: Config -> Int -> Renderer -> AbcTune -> Effect (Either RenderingError Config)
 renderFinalTuneAtWidth config desiredWidth renderer abcTune =
   let 
     scaledConfig = scaleConfigToDesiredWidth abcTune config desiredWidth

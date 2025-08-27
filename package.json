@@ -17,9 +17,9 @@
   },
   "devDependencies": {
     "purescript": "^0.15.15",
-    "spago": "0.93.42"
+    "spago": "0.93.44"
   },
   "dependencies": {
-    "esbuild": "^0.25.0"
+    "esbuild": "^0.25.9"
   }
 }

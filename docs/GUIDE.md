@@ -62,10 +62,10 @@ import Effect (Effect)
 import Data.Maybe (Maybe(..))
 import Data.Either (Either(..))
 import VexFlow.Score (renderFinalTune, initialiseCanvas)
-import VexFlow.Types (defaultConfig, RenderingError)
+import VexFlow.Types (defaultConfig, Config, RenderingError)
 import Data.Abc.Parser (parse)
 
-main :: Effect (Maybe RenderingError)
+main :: Effect (Either RenderingError Config)
 main =
   case (parse tuneText) of
     Right abcTune -> do

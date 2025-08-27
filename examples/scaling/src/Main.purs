@@ -17,7 +17,7 @@ config =
     , scale = 1.0
     }
 
-main :: Effect (Maybe RenderingError)
+main :: Effect (Either RenderingError Config)
 main =
   case (parse bakmes) of
     Right abcTune -> do
@@ -26,4 +26,4 @@ main =
         desiredWidth = 400
       renderFinalTuneAtWidth config desiredWidth renderer abcTune
     _ ->
-      pure $ Just "ABC failed to parse"
+      pure $ Left "ABC failed to parse"

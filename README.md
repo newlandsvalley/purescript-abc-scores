@@ -15,6 +15,8 @@ To build the library
 
      npm run build
 
+     (don't simply run `spago build` because all the examples have a main which will conflict if you build everything together)
+
 To build the small display examples
 -----------------------------------
      npm run display-tests

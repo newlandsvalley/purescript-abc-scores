@@ -5,18 +5,17 @@ module Main where
 
 import Prelude (($), bind, pure)
 import Effect (Effect)
-import Data.Maybe (Maybe(..))
 import Data.Either (Either(..))
 import VexFlow.Score (renderFinalTune, initialiseCanvas)
-import VexFlow.Types (RenderingError, defaultConfig)
+import VexFlow.Types (Config, RenderingError, defaultConfig)
 import Data.Abc.Parser (parse)
 import Texts (augustsson, blomgren, cig, ewa, fastan, smalandPolska,keyChangeSample, meterChangeSample, titled)
 
-main :: Effect (Maybe RenderingError)
+main :: Effect (Either RenderingError Config)
 main =
   case (parse blomgren) of
     Right abcTune -> do
       renderer <- initialiseCanvas defaultConfig
       renderFinalTune defaultConfig renderer abcTune
     _ ->
-      pure $ Just "ABC failed to parse"
+      pure $ Left "ABC failed to parse"
