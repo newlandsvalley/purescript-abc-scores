@@ -1,4 +1,13 @@
-# CHANGELOG#
+# CHANGELOG
+
+## v0.6.4 (2025-08-27)
+
+  * Purescript 0.15.15
+  * Build with spago@next
+  * Change signature of `renderFinalTune` and `renderFinalTuneAtWidth` to return Either and not Maybe, allowing the changed [Config](URL) to be returned to the user.
+  * Export `renderComposerAndOrigin` and `renderTitle`.
+  * Improve scaling and reducing the canvas size to fit the score
+  
 
 ## v0.6.3 (2023-01-22)
 
