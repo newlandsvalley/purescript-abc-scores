@@ -1,15 +1,17 @@
-module Examples.Bugs.Main where
+module Main where
 
-import Examples.Bugs.Texts
+import Texts
 
+import Effect.Console (log)
 import Data.Abc (KeySignature, TimeSignature)
 import Data.Abc.Parser (parse)
+import Data.Abc.Utils (getTitle)
 import Data.Either (Either(..))
 import Data.Int (round, toNumber)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Rational ((%))
 import Effect (Effect)
-import Prelude (Unit, bind, pure, unit, ($), (/))
+import Prelude (Unit, bind, pure, unit, ($), (/), (<>))
 import VexFlow.Abc.Beat (beatDuration)
 import VexFlow.Abc.ContextChange (Clef(..))
 import VexFlow.Abc.TickableContext (defaultNoteSeparation)
@@ -53,7 +55,15 @@ displayAtStave :: Renderer -> String -> Int -> Effect (Maybe RenderingError)
 displayAtStave renderer text staveNo =
   case (parse text) of
     Right abcTune -> do
-      renderTuneAtStave staveNo config renderer abcTune
+      mError <- renderTuneAtStave staveNo config renderer abcTune
+      case mError of 
+        Just error -> do 
+          let 
+            title = fromMaybe "unknown title" $ getTitle abcTune
+          _ <- renderText renderer (title <> ": " <> error) " 25pt Arial" 20 900
+          pure mError
+        _ -> 
+          pure Nothing
     _ ->
       pure $ Just "ABC failed to parse"
 
@@ -67,4 +77,5 @@ main = do
   _ <- displayAtStave renderer voltaBrackets 3
   _ <- displayAtStave renderer threeTwoBeaming 4
   _ <- displayAtStave renderer spacing1 5
+  _ <- displayAtStave renderer notelength5 6
   pure unit

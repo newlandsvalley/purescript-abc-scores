@@ -1,4 +1,4 @@
-module Examples.Bugs.Texts where
+module Texts where
 
 import Prelude ((<>))
 
@@ -87,3 +87,11 @@ spacing1 =
     <> "K: Gm\r\n"
     <> "G | C6 |\r\n"     
 
+notelength5 :: String
+notelength5 =
+    "X:1\r\n"
+    <> "T: Test Invalid Note Length\r\n"
+    <> "M: 2/4\r\n"
+    <> "L: 1/8\r\n"
+    <> "K: Gm\r\n"
+    <> "G | G3 G5 |\r\n"     
