@@ -23,6 +23,7 @@ import Data.Array (null, replicate) as Array
 import Data.Either (Either(..), hush)
 import Data.Foldable (foldl)
 import Data.Int (round, toNumber) as Int
+import JS.BigInt (toString) as BigInt
 import Data.Lens.At (at)
 import Data.Lens.Fold (firstOf, lastOf)
 import Data.Lens.Lens (Lens')
@@ -32,7 +33,7 @@ import Data.Map (Map)
 import Data.Maybe (Maybe(..), fromMaybe, isNothing, maybe)
 import Data.Rational (fromInt, toNumber, numerator, denominator, (%))
 import Data.String.CodeUnits (fromCharArray)
-import Prelude (join, map, show, ($), (*), (+), (-), (/), (<>), (>), (&&), (<<<), (==), (<$>), (<*>), identity)
+import Prelude (join, map, ($), (*), (+), (-), (/), (<>), (>), (&&), (<<<), (==), (<$>), (<*>), identity)
 import VexFlow.Abc.Beat (beatDuration)
 import VexFlow.Abc.ContextChange (ContextChange(..), Clef(..))
 import VexFlow.Abc.TickableContext (TickableContext(..))
@@ -80,11 +81,14 @@ vexDuration unitNoteLength d =
       Right { vexDurString: "64", dots: 0 }
     _ ->
       Left
-        ( "too long or too dotted duration: "
-            <> (show $ numerator d)
-            <> "/"
-            <> (show $ denominator d)
-        )
+        ( "too long or too dotted duration: "  <> showNoteDuration d )
+  where    
+  -- | show the note duration
+  showNoteDuration :: NoteDuration -> String 
+  showNoteDuration r = 
+    case (BigInt.toString $ numerator r),  (BigInt.toString $ denominator r) of
+      n, "1" -> n
+      num, den-> num <> "/" <> den
 
 -- | Generate a compound VexFlow duration - i.e. a String which is prefaced
 -- | by the basic note duration and this is followd by (optionally) a
@@ -294,3 +298,5 @@ getBarFill timeSignature unitNoteLength (TickableContext _ _ barNotesDuration) =
 
   barDuration = unitNoteLength * barNotesDuration
   signatureDuration = timeSignature.numerator % timeSignature.denominator
+
+    
