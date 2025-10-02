@@ -33,7 +33,7 @@ import VexFlow.Abc.Utils
   )
 import VexFlow.Abc.Beat (exactBeatNumber)
 import VexFlow.Abc.Repetition (buildRepetition)
-import VexFlow.Types (AbcContext, BeatMarker, NoteSpec, TupletSpec, MusicSpec(..), VexDuration)
+import VexFlow.Types (AbcContext, BeatMarker, NoteSpec, TupletSpec, MusicSpec(..), RenderingError, VexDuration)
 
 -- | generate a VexFlow indication of pitch
 pitch :: PitchClass -> Accidental -> Int -> String
@@ -89,7 +89,7 @@ keySignature ks =
 -- | producing an empty array if it doesn't do so
 -- | NoteCount is the count of 'tickable' items (notes or otherwise)
 -- | that precede this music item in the bar
-music :: AbcContext -> NoteCount -> Int -> NoteDuration -> Music -> Either String MusicSpec
+music :: AbcContext -> NoteCount -> Int -> NoteDuration -> Music -> Either RenderingError MusicSpec
 music context tickablePosition noteIndex phraseDuration m =
   let
     -- find the number and size of 'tickable' items in this music item
@@ -148,7 +148,7 @@ music context tickablePosition noteIndex phraseDuration m =
         if (context.showChordSymbols) then
           Right $ buildMusicSpecFromChordSymbol symbol noteIndex
         else
-          Right $ mempty :: Either String MusicSpec
+          Right $ mempty :: Either RenderingError MusicSpec
 
       Inline header ->
         Right $ buildMusicSpecFromContextChange $ headerChange header
@@ -159,11 +159,11 @@ music context tickablePosition noteIndex phraseDuration m =
       _ ->
         -- assuming we call normalise before creatimg the score
         -- this includes BrokenRhythmPair which is optimised away
-        Right $ mempty :: Either String MusicSpec
+        Right $ mempty :: Either RenderingError MusicSpec
 
 -- | Translate an ABC graceable note to a VexFlow note
 -- | failing if the duration cannot be translated
-graceableNote :: AbcContext -> GraceableNote -> Either String NoteSpec
+graceableNote :: AbcContext -> GraceableNote -> Either RenderingError NoteSpec
 graceableNote context gn =
   let
     graceNotes :: Array AbcNote
@@ -204,7 +204,7 @@ graceableNote context gn =
 -- | translate an ABC rest to a VexFlow note
 -- | which we'll position on the B stave line 
 -- | failing if the duration cannot be translated
-rest :: AbcContext -> AbcRest -> Either String NoteSpec
+rest :: AbcContext -> AbcRest -> Either RenderingError NoteSpec
 rest context abcRest =
   let
     eVexDur = vexDuration context.unitNoteLength abcRest.duration
@@ -237,7 +237,7 @@ rest context abcRest =
 -- | translate an ABC chord to a VexFlow note failing if the durations cannot be translated
 -- | n.b. in VexFlow, all notes in a chord must have the same duration
 -- | this is a mismatch with ABC.  We just take the first note as representative.
-chord :: AbcContext -> AbcChord -> Either String NoteSpec
+chord :: AbcContext -> AbcChord -> Either RenderingError NoteSpec
 chord context abcChord =
   let
     -- this isn't quite right = we'll just used the length of the first
@@ -247,7 +247,7 @@ chord context abcChord =
     chordLen :: NoteDuration
     chordLen = representativeNote.duration
 
-    eVexDur :: Either String VexDuration
+    eVexDur :: Either RenderingError VexDuration
     -- eVexDur = chordalNoteDur context abcChord.duration (Nel.head abcChord.notes)
     eVexDur = vexDuration context.unitNoteLength chordLen
 
@@ -285,7 +285,7 @@ chord context abcChord =
 
 -- | translate an ABC tuplet to a VexFlow tuplet spec
 -- | failing if any note duration cannot be translated
-tuplet :: AbcContext -> Int -> TupletSignature -> Array RestOrNote -> Either String TupletSpec
+tuplet :: AbcContext -> Int -> TupletSignature -> Array RestOrNote -> Either RenderingError TupletSpec
 tuplet context startOffset signature rns =
   let
     enoteSpecs = sequence $ map (restOrNote context) rns
@@ -311,7 +311,7 @@ tuplet context startOffset signature rns =
       Left x ->
         Left x
 
-restOrNote :: AbcContext -> RestOrNote -> Either String NoteSpec
+restOrNote :: AbcContext -> RestOrNote -> Either RenderingError NoteSpec
 restOrNote context rOrn =
   case rOrn of
     Left abcRest ->
@@ -426,38 +426,6 @@ articulations artics =
   in
     foldl f [] artics
 
-{-
-buildMusicSpecFromNs
-  :: TickableContext
-  -> Int
-  -> Maybe BeatMarker
-  -> GraceableNote
-  -> GraceableNote
-  -> Either String (Array NoteSpec)
-  -> Either String MusicSpec
-buildMusicSpecFromNs tCtx noteIndex mBeatMarker gn1 gn2 ens =
-  let
-    slurBrackets =
-      buildSlurBrackets noteIndex gn1.leftSlurs gn1.rightSlurs
-        <> buildSlurBrackets (noteIndex + 1) gn2.leftSlurs gn2.rightSlurs
-  in
-    map
-      ( \ns -> MusicSpec
-          { noteSpecs: ns
-          , tuplets: []
-          , ties: []
-          , tickableContext: tCtx
-          , contextChanges: []
-          , slurBrackets: slurBrackets
-          , beatMarkers: fromMaybe mBeatMarker
-          , repetitions: []
-          , typesettingSpaces: []
-          , chordSymbols: []
-          }
-      )
-      ens
--}
-
 buildMusicSpecFromN
   :: TickableContext
   -> Int
@@ -465,8 +433,8 @@ buildMusicSpecFromN
   -> Boolean
   -> Int
   -> Int
-  -> Either String NoteSpec
-  -> Either String MusicSpec
+  -> Either RenderingError NoteSpec
+  -> Either RenderingError MusicSpec
 buildMusicSpecFromN tCtx noteIndex mBeatMarker isTied slurStartCount slurEndCount ens =
   map
     ( \ns -> MusicSpec

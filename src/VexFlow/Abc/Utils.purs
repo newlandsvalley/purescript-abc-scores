@@ -37,10 +37,10 @@ import Prelude (join, map, ($), (*), (+), (-), (/), (<>), (>), (&&), (<<<), (==)
 import VexFlow.Abc.Beat (beatDuration)
 import VexFlow.Abc.ContextChange (ContextChange(..), Clef(..))
 import VexFlow.Abc.TickableContext (TickableContext(..))
-import VexFlow.Types (AbcContext, BarFill(..), Config, MusicSpec(..), Tempo, VexDuration, staveIndentation, staveSeparation, titleDepth)
+import VexFlow.Types (AbcContext, BarFill(..), Config, MusicSpec(..), RenderingError, Tempo, VexDuration, staveIndentation, staveSeparation, titleDepth)
 
 -- | build a VexDuration
-vexDuration :: NoteDuration -> NoteDuration -> Either String VexDuration
+vexDuration :: NoteDuration -> NoteDuration -> Either RenderingError VexDuration
 vexDuration unitNoteLength d =
   case noteTicks unitNoteLength d of
     128 ->
@@ -101,7 +101,7 @@ compoundVexDuration vexDur =
     vexDur.vexDurString <> dStr
 
 -- | build a VexFlow tempo from the BPM and the tempo note duration
-buildTempo :: Int -> NoteDuration -> Either String Tempo
+buildTempo :: Int -> NoteDuration -> Either RenderingError Tempo
 buildTempo bpm d =
   case (vexDuration (fromInt 1) d) of
     Right vexDur ->
@@ -124,7 +124,7 @@ noteTicks unitNoteLength d =
   Int.round $ toNumber $
     unitNoteLength * d * (fromInt 128)
 
-initialAbcContext :: AbcTune -> Config -> Either String AbcContext
+initialAbcContext :: AbcTune -> Config -> Either RenderingError AbcContext
 initialAbcContext tune config =
   let
     timeSignature =
@@ -188,7 +188,7 @@ updateAbcContext abcContext change =
         , isNewTimeSignature = false
         }
 
-applyContextChanges :: AbcContext -> Either String MusicSpec -> AbcContext
+applyContextChanges :: AbcContext -> Either RenderingError MusicSpec -> AbcContext
 applyContextChanges abcContext eSpec =
   case eSpec of
     Right (MusicSpec spec) ->

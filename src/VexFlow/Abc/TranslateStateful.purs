@@ -47,11 +47,11 @@ import VexFlow.Abc.TickableContext (NoteCount, TickableContext(..), estimateBarW
 import VexFlow.Abc.Translate (headerChange, music) as Trans
 import VexFlow.Abc.Utils (applyContextChanges, nextStaveNo, updateAbcContext, isEmptyMusicSpec, getBarFill)
 import VexFlow.Abc.Volta (startVolta, isMidVolta)
-import VexFlow.Types (AbcContext, BarSpec, BeatMarker, LineThickness(..), MonophonicScore, MusicSpec(..), StaveSpec, VexScore, staveIndentation)
+import VexFlow.Types (AbcContext, BarSpec, BeatMarker, LineThickness(..), MonophonicScore, MusicSpec(..), RenderingError, StaveSpec, VexScore, staveIndentation)
 
-type Translation a = ExceptT String (State AbcContext) a
+type Translation a = ExceptT RenderingError (State AbcContext) a
 
-runBodyPart :: AbcContext -> BodyPart -> Either String (Maybe StaveSpec)
+runBodyPart :: AbcContext -> BodyPart -> Either RenderingError (Maybe StaveSpec)
 runBodyPart abcContext bp =
   unwrap $ evalStateT (runExceptT $ bodyPart bp) abcContext
 

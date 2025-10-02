@@ -11,6 +11,9 @@ import VexFlow.Abc.Slur (SlurBracket, VexCurve)
 import VexFlow.Abc.TickableContext (TickableContext, defaultNoteSeparation)
 import VexFlow.Abc.Volta (VexVolta)
 
+-- | A rendering error of any kind.  These are usually because we have:
+-- | - a specialized modified key signature in the ABC headers (not supported by VexFlow)
+-- | - a note or rest that has too long a duration or too dotted a duration
 type RenderingError = String
 
 type BeatNumber = Int
@@ -65,7 +68,7 @@ derive instance eqTitling :: Eq Titling
 type MonophonicScore = (NonEmptyArray StaveSpec)
 
 -- | a score which can fail to be produced
-type VexScore = Either String MonophonicScore
+type VexScore = Either RenderingError MonophonicScore
 
 -- | the configuration of the VexFlow Backend (SVG is preferred, or Canvas)
 type Config =
